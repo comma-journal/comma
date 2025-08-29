@@ -1,0 +1,14 @@
+
+spring:
+  application:
+    name: Comma-Backend
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  exposed:
+    generate-ddl: true
+    show-sql: true
