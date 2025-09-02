@@ -1,15 +1,22 @@
 package kr.elroy.comma.user.api
 
 import io.swagger.v3.oas.annotations.Operation
-import kr.elroy.comma.user.dto.CreateUserRequest
+import kr.elroy.comma.user.dto.LoginRequest
 import kr.elroy.comma.user.dto.UserResponse
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @RequestMapping("/v1/users")
 interface UserApi {
-    @Operation(summary = "회원가입 API", description = "사용자 생성 메소드")
+    @Operation(summary = "로그인/회원가입 겸용 API", description = "사용자 생성 메소드")
     @PostMapping
-    fun createUser(@RequestBody request: CreateUserRequest): UserResponse
+    fun auth(@RequestBody request: LoginRequest): UserResponse
+
+    @Operation(summary = "이름 변경 API", description = "이름 변경")
+    @PatchMapping("/{email}")
+    fun changeName(@PathVariable email: String, @RequestParam name: String): UserResponse
 }

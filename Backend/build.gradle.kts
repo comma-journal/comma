@@ -26,6 +26,8 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.exposed:exposed-spring-boot-starter:${exposedVersion}")
+    implementation("org.jetbrains.exposed:exposed-jdbc:${exposedVersion}")
+    implementation("org.jetbrains.exposed:exposed-core:${exposedVersion}")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
 	runtimeOnly("org.postgresql:postgresql")
