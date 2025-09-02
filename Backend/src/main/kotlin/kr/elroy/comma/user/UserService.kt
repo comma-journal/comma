@@ -50,7 +50,7 @@ class UserService {
     }
 
     @Transactional
-    fun updateName(name: String, email: String): UserResponse {
+    fun updateName(email: String, name: String): UserResponse {
         return User.findByEmail(email)?.let { user ->
             user.name = name
             user.toDTO()
