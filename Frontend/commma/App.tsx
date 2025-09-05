@@ -8,17 +8,17 @@ import OnboardingScreen from './pages/OnboardingScreen';
 import LoginScreen from './pages/LoginScreen';
 
 const App = () => {
-  const [currentScreen, setCurrentScreen] = useState('splash'); // 'splash', 'onboarding', 'login', 'main'
+  const [currentScreen, setCurrentScreen] = useState('splash'); // 'splash', 'login', 'onboarding', 'main'
 
   const handleSplashFinish = () => {
-    setCurrentScreen('onboarding');
-  };
-
-  const handleOnboardingComplete = () => {
     setCurrentScreen('login');
   };
 
   const handleLogin = () => {
+    setCurrentScreen('onboarding');
+  };
+
+  const handleOnboardingComplete = () => {
     setCurrentScreen('main');
   };
 
@@ -27,11 +27,11 @@ const App = () => {
     case 'splash':
       return <SplashScreen onFinish={handleSplashFinish} />;
       
-    case 'onboarding':
-      return <OnboardingScreen onComplete={handleOnboardingComplete} />;
-      
     case 'login':
       return <LoginScreen onLogin={handleLogin} />;
+      
+    case 'onboarding':
+      return <OnboardingScreen onComplete={handleOnboardingComplete} />;
       
     case 'main':
       return (

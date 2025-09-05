@@ -4,21 +4,24 @@ import {
   Text, 
   TextInput, 
   TouchableOpacity, 
-  StyleSheet, 
-  Image, 
+  Image,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView
 } from 'react-native';
+import loginStyles from './../styles/LoginScreenStyle';
 
 const LoginScreen = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  // 이메일과 비밀번호가 모두 입력되었는지 확인
+  const isFormComplete = email.trim() !== '' && password.trim() !== '';
+
+  const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('알림', '이메일과 비밀번호를 모두 입력해주세요.');
+      Alert.alert('알림', '모든 정보를 입력해주세요.');
       return;
     }
 
@@ -29,206 +32,109 @@ const LoginScreen = ({ onLogin }) => {
       return;
     }
 
-    // 로그인 성공
-    onLogin();
+    try {
+      console.log('로그인 시도:', { email, password });
+      
+      // API 호출
+      const response = await fetch('http://comma.gamja.cloud/v1/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+        }),
+      });
+
+      console.log('응답 상태:', response.status);
+
+      if (response.ok) {
+        const userData = await response.json();
+        console.log('로그인 성공:', userData);
+        
+        Alert.alert('성공', '로그인되었습니다!', [
+          { text: '확인', onPress: () => onLogin() }
+        ]);
+      } else {
+        const errorText = await response.text();
+        console.log('에러 응답:', errorText);
+        Alert.alert('로그인 실패', '이메일 또는 비밀번호를 확인해주세요.');
+      }
+    } catch (error) {
+      console.error('로그인 에러:', error);
+      
+    }
   };
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={loginStyles['login-container']}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* 배경 장식 */}
-        <View style={styles.backgroundDecoration} />
-        
-        {/* 로고 영역 */}
-        <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
+      <ScrollView contentContainerStyle={loginStyles['login-scroll-container']}>
+        {/* 로고 및 인사말 영역 */}
+        <View style={loginStyles['login-header-section']}>
+          {/* 로고 이미지 */}
+          <View style={loginStyles['login-logo-container']}>
             <Image
-              source={require('../assets/logo.png')}
-              style={styles.logo}
+              source={require('../assets/logo1.png')}
+              style={loginStyles['login-logo-image']}
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.appTitle}>쉼표</Text>
-          <Text style={styles.appSubtitle}>잠깐 멈춰서, 생각을 기록해보세요</Text>
+          
+          <Text style={loginStyles['login-greeting-text']}>How are you feeling today?</Text>
         </View>
 
         {/* 입력 폼 */}
-        <View style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>이메일</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="이메일을 입력하세요"
-              placeholderTextColor="#BDC3C7"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+        <View style={loginStyles['login-form-container']}>
+          <TextInput
+            style={loginStyles['login-input']}
+            placeholder="Email"
+            placeholderTextColor="#A8A8A8"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>비밀번호</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호를 입력하세요"
-              placeholderTextColor="#BDC3C7"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+          <TextInput
+            style={loginStyles['login-input']}
+            placeholder="Password"
+            placeholderTextColor="#A8A8A8"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-          {/* 로그인 버튼 */}
+          {/* 시작하기 버튼 */}
           <TouchableOpacity 
-            style={styles.loginButton} 
+            style={isFormComplete ? 
+              loginStyles['login-signup-button-active'] : 
+              loginStyles['login-signup-button']
+            } 
             onPress={handleLogin}
             activeOpacity={0.8}
           >
-            <Text style={styles.loginButtonText}>시작하기</Text>
+            <Text style={isFormComplete ? 
+              loginStyles['login-signup-button-text-active'] : 
+              loginStyles['login-signup-button-text']
+            }>
+              시작하기
+            </Text>
           </TouchableOpacity>
+
+          {/* 로그인 문구 */}
+          {/* <Text style={loginStyles['login-help-text']}>로그인에 문제가 생겼나요?</Text> */}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAFA',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-    paddingVertical: 50,
-  },
-  backgroundDecoration: {
-    position: 'absolute',
-    top: 50,
-    right: -100,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(112, 161, 255, 0.03)',
-  },
-  logoSection: {
-    alignItems: 'center',
-    marginBottom: 60,
-  },
-  logoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 40,
-    padding: 25,
-    marginBottom: 20,
-    shadowColor: '#70A1FF',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 8,
-  },
-  logo: {
-    width: 60,
-    height: 60,
-  },
-  appTitle: {
-    fontSize: 32,
-    fontWeight: '300',
-    color: '#2C3E50',
-    marginBottom: 8,
-    letterSpacing: 1,
-  },
-  appSubtitle: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    fontWeight: '300',
-  },
-  formContainer: {
-    width: '100%',
-  },
-  inputContainer: {
-    marginBottom: 25,
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#2C3E50',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C3E50',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  loginButton: {
-    backgroundColor: '#70A1FF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 30,
-    shadowColor: '#70A1FF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  loginButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-  optionsContainer: {
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#70A1FF',
-    fontSize: 14,
-    marginBottom: 20,
-    fontWeight: '400',
-  },
-  signupContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  signupText: {
-    color: '#7F8C8D',
-    fontSize: 14,
-    fontWeight: '300',
-  },
-  signupLink: {
-    color: '#70A1FF',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-});
 
 export default LoginScreen;
