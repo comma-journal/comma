@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		4412352711714F90A5EEFDF6 /* OwnglyphEuiyeonChae-R.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9A31EABF1CB4656A960A307 /* OwnglyphEuiyeonChae-R.ttf */; };
 		576BA10BDC1731C513F328EA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -24,6 +25,7 @@
 		AD0E5B9E30F45550D9ED39B5 /* libPods-commma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-commma.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B254FF9AF0FF593AB3C329B3 /* Pods-commma.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-commma.debug.xcconfig"; path = "Target Support Files/Pods-commma/Pods-commma.debug.xcconfig"; sourceTree = "<group>"; };
 		B38649816764D6973FB388F7 /* Pods-commma.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-commma.release.xcconfig"; path = "Target Support Files/Pods-commma/Pods-commma.release.xcconfig"; sourceTree = "<group>"; };
+		C9A31EABF1CB4656A960A307 /* OwnglyphEuiyeonChae-R.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "OwnglyphEuiyeonChae-R.ttf"; path = "../assets/fonts/OwnglyphEuiyeonChae-R.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -75,6 +77,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				B16F345CC37245DAB91D7DCC /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -87,6 +90,15 @@
 				13B07F961A680F5B00A75B9A /* commma.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B16F345CC37245DAB91D7DCC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C9A31EABF1CB4656A960A307 /* OwnglyphEuiyeonChae-R.ttf */,
+			);
+			name = Resources;
+			path = "";
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -161,6 +173,7 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				576BA10BDC1731C513F328EA /* PrivacyInfo.xcprivacy in Resources */,
+				4412352711714F90A5EEFDF6 /* OwnglyphEuiyeonChae-R.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
