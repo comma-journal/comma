@@ -1,5 +1,6 @@
 // styles/EmotionModalStyles.js
 import { StyleSheet, Dimensions } from 'react-native';
+import customFont from '../fonts';
 
 const { height } = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ export const emotionModalStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         color: '#333333',
+        fontFamily: customFont,
     },
     selectedTextContainer: {
         backgroundColor: '#F8F8F8',
@@ -39,11 +41,13 @@ export const emotionModalStyles = StyleSheet.create({
         fontSize: 12,
         color: '#666666',
         marginBottom: 4,
+        fontFamily: customFont,
     },
     selectedTextDisplay: {
         fontSize: 14,
         color: '#333333',
         fontStyle: 'italic',
+        fontFamily: customFont,
     },
     selectedEmotionInfo: {
         alignItems: 'center',
@@ -66,6 +70,7 @@ export const emotionModalStyles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
+        fontFamily: customFont,
     },
     modalButtons: {
         flexDirection: 'row',
@@ -83,6 +88,7 @@ export const emotionModalStyles = StyleSheet.create({
         color: '#666666',
         fontSize: 16,
         fontWeight: '500',
+        fontFamily: customFont,
     },
     deleteButton: {
         flex: 1,
@@ -99,6 +105,7 @@ export const emotionModalStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 4,
+        fontFamily: customFont,
     },
     applyButton: {
         flex: 1,
@@ -115,5 +122,6 @@ export const emotionModalStyles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
+        fontFamily: customFont,
     },
 });

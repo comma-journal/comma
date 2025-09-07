@@ -1,5 +1,6 @@
 // styles/WriteStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 export const writeStyles = StyleSheet.create({
     container: {
@@ -25,6 +26,7 @@ export const writeStyles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#333333',
+        fontFamily: customFont,
     },
     writeButton: {
         flexDirection: 'row',
@@ -39,6 +41,7 @@ export const writeStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 6,
+        fontFamily: customFont,
     },
     diaryList: {
         flex: 1,
@@ -56,11 +59,13 @@ export const writeStyles = StyleSheet.create({
         color: '#666666',
         marginTop: 20,
         marginBottom: 8,
+        fontFamily: customFont,
     },
     emptySubtitle: {
         fontSize: 14,
         color: '#999999',
         marginBottom: 30,
+        fontFamily: customFont,
     },
     emptyWriteButton: {
         backgroundColor: '#E57373',
@@ -72,6 +77,7 @@ export const writeStyles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
+        fontFamily: customFont,
     },
     diaryItem: {
         backgroundColor: '#FAFAFA',
@@ -94,6 +100,7 @@ export const writeStyles = StyleSheet.create({
         fontSize: 14,
         color: '#E57373',
         fontWeight: '500',
+        fontFamily: customFont,
     },
     diaryActions: {
         flexDirection: 'row',
@@ -113,6 +120,7 @@ export const writeStyles = StyleSheet.create({
         fontSize: 11,
         fontWeight: '600',
         marginLeft: 4,
+        fontFamily: customFont,
     },
     actionButton: {
         padding: 8,
@@ -123,10 +131,12 @@ export const writeStyles = StyleSheet.create({
         fontWeight: '600',
         color: '#333333',
         marginBottom: 8,
+        fontFamily: customFont,
     },
     diaryPreview: {
         fontSize: 14,
         color: '#666666',
         lineHeight: 20,
+        fontFamily: customFont,
     },
 });

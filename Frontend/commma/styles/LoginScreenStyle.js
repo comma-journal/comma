@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 const loginStyles = StyleSheet.create({
   'login-container': {
@@ -29,7 +30,7 @@ const loginStyles = StyleSheet.create({
     color: '#333333',
     textAlign: 'center',
     fontWeight: '400',
-    fontFamily: '온글잎 의연체',
+    fontFamily: customFont,
   },
   'login-form-container': {
     width: '100%',

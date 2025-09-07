@@ -1,5 +1,6 @@
 // styles/EmotionGridStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from '../fonts';
 
 export const emotionGridStyles = StyleSheet.create({
     emotionGrid: {
@@ -35,6 +36,7 @@ export const emotionGridStyles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
+        fontFamily: customFont,
     },
     selectedBadge: {
         position: 'absolute',
@@ -56,5 +58,6 @@ export const emotionGridStyles = StyleSheet.create({
         color: '#4CAF50',
         fontSize: 12,
         fontWeight: '700',
+        fontFamily: customFont,
     },
 });

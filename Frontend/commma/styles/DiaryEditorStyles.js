@@ -1,5 +1,6 @@
 // styles/DiaryEditorStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 export const diaryEditorStyles = StyleSheet.create({
     container: {
@@ -35,6 +36,7 @@ export const diaryEditorStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginRight: 6,
+        fontFamily: customFont,
     },
     dateContainer: {
         paddingHorizontal: 20,
@@ -44,6 +46,7 @@ export const diaryEditorStyles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#E57373',
+        fontFamily: customFont,
     },
     titleContainer: {
         paddingHorizontal: 20,
@@ -56,6 +59,7 @@ export const diaryEditorStyles = StyleSheet.create({
         paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
+        fontFamily: customFont,
     },
     contentContainer: {
         flex: 1,
@@ -76,5 +80,6 @@ export const diaryEditorStyles = StyleSheet.create({
         textAlignVertical: 'top',
         minHeight: 300,
         paddingVertical: 0,
+        fontFamily: customFont,
     },
 });
