@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // 페이지들 import
-import Home from '../pages/Home';
+import Home from '../pages/HomeScreen';
 import Write from '../pages/Write';
 import MyPage from '../pages/MyPage';
 import DiaryEditor from '../pages/DiaryEditor';
@@ -59,60 +59,46 @@ const BottomTabNavigator = () => {
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'WriteTab') {
-            iconName = focused ? 'create' : 'create-outline';
+            iconName = focused ? 'add-circle' : 'add-circle-outline';
           } else if (route.name === 'MyPage') {
-            iconName = focused ? 'person' : 'person-outline';
+            iconName = focused ? 'person-circle' : 'person-circle-outline';
           }
 
-          return <Ionicons name={iconName} size={26} color={color} />;
+          return <Ionicons name={iconName} size={28} color={color} />;
         },
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
+        tabBarActiveTintColor: '#FB644C',
+        tabBarInactiveTintColor: '#CCCCCC',
         tabBarStyle: {
-          backgroundColor: 'white',
-          borderTopWidth: 0.5,
-          borderTopColor: '#E5E5E7',
-          height: 90,
-          paddingBottom: 25,
-          paddingTop: 15,
-          shadowColor: '#000',
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 0,
+          height: 85,
+          paddingBottom: 20,
+          paddingTop: 10,
+          shadowColor: '#000000',
           shadowOffset: {
             width: 0,
-            height: -2,
+            height: -8,
           },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 10,
+          shadowOpacity: 0.15,
+          shadowRadius: 16,
+          elevation: 20,
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30,
+          position: 'absolute',
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginTop: 2,
+          fontSize: 11,
+          fontWeight: '500',
+          marginTop: 4,
         },
-        headerStyle: {
-          backgroundColor: '#007AFF',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 5,
-        },
-        headerTintColor: 'white',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-          fontSize: 18,
-        },
-        headerTitleAlign: 'center',
+        // 헤더 완전 제거
+        headerShown: false,
       })}
     >
       <Tab.Screen 
         name="Home" 
         component={Home}
         options={{
-          title: '홈',
           tabBarLabel: '홈',
         }}
       />
@@ -121,7 +107,6 @@ const BottomTabNavigator = () => {
         name="WriteTab" 
         component={WriteStack}
         options={{
-          title: '일기쓰기',
           tabBarLabel: '일기쓰기',
           headerShown: false,
         }}
@@ -131,7 +116,6 @@ const BottomTabNavigator = () => {
         name="MyPage" 
         component={MyPage}
         options={{
-          title: '마이페이지',
           tabBarLabel: '마이페이지',
         }}
       />
