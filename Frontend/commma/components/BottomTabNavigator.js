@@ -84,7 +84,6 @@ const BottomTabNavigator = () => {
           elevation: 20,
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30,
-          position: 'absolute',
         },
         tabBarLabelStyle: {
           fontSize: 11,
