@@ -1,5 +1,6 @@
 // styles/TextSelectorStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 export const textSelectorStyles = StyleSheet.create({
     container: {

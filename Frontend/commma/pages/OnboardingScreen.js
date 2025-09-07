@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image
 } from 'react-native';
+import customFont from '../styles/fonts';
 
 const { width, height } = Dimensions.get('window');
 
@@ -572,6 +573,7 @@ const styles = StyleSheet.create({
     color: '#70A1FF',
     fontSize: 16,
     fontWeight: '500',
+    fontFamily: customFont,
   },
   content: {
     flex: 1,
@@ -631,6 +633,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2C3E50',
+    fontFamily: customFont,
   },
   diaryContent: {
     position: 'relative',
@@ -644,6 +647,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 28,
     color: '#2C3E50',
+    fontFamily: customFont,
   },
   highlightedText: {
     fontWeight: '600',
@@ -669,6 +673,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     fontWeight: '500',
+    fontFamily: customFont,
   },
   questionArrow: {
     position: 'absolute',
@@ -696,6 +701,7 @@ const styles = StyleSheet.create({
     color: '#7F8C8D',
     marginBottom: 30,
     textAlign: 'center',
+    fontFamily: customFont,
   },
   completedDiary: {
     backgroundColor: '#FFE066',
@@ -717,6 +723,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+    fontFamily: customFont,
   },
   flyingArrow: {
     position: 'absolute',
@@ -727,6 +734,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#70A1FF',
     fontWeight: 'bold',
+    fontFamily: customFont,
   },
   miniBookshelf: {
     alignItems: 'center',
@@ -739,6 +747,7 @@ const styles = StyleSheet.create({
     color: '#7F8C8D',
     marginBottom: 8,
     textAlign: 'center',
+    fontFamily: customFont,
   },
   miniShelf: {
     flexDirection: 'row',
@@ -778,6 +787,7 @@ const styles = StyleSheet.create({
     color: '#2C3E50',
     textAlign: 'center',
     marginBottom: 24,
+    fontFamily: customFont,
   },
   modernBookshelf: {
     backgroundColor: '#F8F4E6',
@@ -876,6 +886,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#7F8C8D',
     fontWeight: '500',
+    fontFamily: customFont,
   },
   textContent: {
     alignItems: 'center',
@@ -888,6 +899,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 15,
     lineHeight: 36,
+    fontFamily: customFont,
   },
   subtitle: {
     fontSize: 16,
@@ -895,6 +907,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     paddingHorizontal: 20,
+    fontFamily: customFont,
   },
   footer: {
     paddingHorizontal: 30,
@@ -929,6 +942,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: customFont,
   },
 });
 

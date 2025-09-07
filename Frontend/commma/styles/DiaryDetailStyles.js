@@ -1,5 +1,6 @@
 // styles/DiaryDetailStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 export const diaryDetailStyles = StyleSheet.create({
     container: {
@@ -32,6 +33,7 @@ export const diaryDetailStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 6,
+        fontFamily: customFont,
     },
     scrollView: {
         flex: 1,
@@ -44,11 +46,13 @@ export const diaryDetailStyles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#E57373',
+        fontFamily: customFont,
     },
     updatedText: {
         fontSize: 12,
         color: '#999999',
         marginTop: 4,
+        fontFamily: customFont,
     },
     titleContainer: {
         paddingBottom: 20,
@@ -59,6 +63,7 @@ export const diaryDetailStyles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '600',
         color: '#333333',
+        fontFamily: customFont,
     },
     contentContainer: {
         paddingVertical: 20,
@@ -67,6 +72,7 @@ export const diaryDetailStyles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 24,
         color: '#333333',
+        fontFamily: customFont,
     },
     emotionStats: {
         marginTop: 20,
@@ -79,6 +85,7 @@ export const diaryDetailStyles = StyleSheet.create({
         fontWeight: '600',
         color: '#333333',
         marginBottom: 16,
+        fontFamily: customFont,
     },
     emotionItem: {
         flexDirection: 'row',
@@ -103,11 +110,13 @@ export const diaryDetailStyles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
+        fontFamily: customFont,
     },
     emotionText: {
         flex: 1,
         fontSize: 14,
         color: '#333333',
         lineHeight: 20,
+        fontFamily: customFont,
     },
 });

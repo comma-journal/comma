@@ -1,5 +1,6 @@
 // styles/EmotionSelectorStyles.js
 import { StyleSheet } from 'react-native';
+import customFont from './fonts';
 
 export const emotionSelectorStyles = StyleSheet.create({
     container: {
@@ -32,6 +33,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         marginLeft: 6,
+        fontFamily: customFont,
     },
     titleContainer: {
         paddingHorizontal: 20,
@@ -44,10 +46,12 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontWeight: '600',
         color: '#333333',
         marginBottom: 4,
+        fontFamily: customFont,
     },
     subtitle: {
         fontSize: 14,
         color: '#E57373',
+        fontFamily: customFont,
     },
     emotionStats: {
         paddingHorizontal: 20,
@@ -67,6 +71,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#333333',
+        fontFamily: customFont,
     },
     statsCount: {
         backgroundColor: '#E57373',
@@ -80,6 +85,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 12,
         fontWeight: '700',
+        fontFamily: customFont,
     },
     statsList: {
         maxHeight: 140,
@@ -112,6 +118,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
+        fontFamily: customFont,
     },
     statsContent: {
         flex: 1,
@@ -122,10 +129,12 @@ export const emotionSelectorStyles = StyleSheet.create({
         color: '#333333',
         lineHeight: 20,
         marginBottom: 4,
+        fontFamily: customFont,
     },
     statsPosition: {
         fontSize: 11,
         color: '#999999',
+        fontFamily: customFont,
     },
     bottomSelectionBar: {
         position: 'absolute',
@@ -160,6 +169,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         color: '#666666',
         fontStyle: 'italic',
         marginLeft: 8,
+        fontFamily: customFont,
     },
     bottomButton: {
         flexDirection: 'row',
@@ -174,5 +184,6 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         marginLeft: 6,
+        fontFamily: customFont,
     },
 });

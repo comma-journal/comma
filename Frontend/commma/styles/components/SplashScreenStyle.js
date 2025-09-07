@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import customFont from '../fonts';
 
 const splashStyles = StyleSheet.create({
   'splash-container': {
@@ -26,7 +27,7 @@ const splashStyles = StyleSheet.create({
     color: '#2C2C2C',
     textAlign: 'center',
     letterSpacing: 4,
-    fontFamily: '온글잎 의연체',
+    fontFamily: customFont,
   },
 });
 
