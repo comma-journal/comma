@@ -107,7 +107,6 @@ const DiaryDetail = ({ navigation, route }) => {
                     onPress={() => navigation.navigate('DiaryEditor', { diary })}
                 >
                     <Icon name="edit" size={20} color="#FFFFFF" />
-                    <Text style={diaryDetailStyles.editButtonText}>수정</Text>
                 </TouchableOpacity>
             </View>
 

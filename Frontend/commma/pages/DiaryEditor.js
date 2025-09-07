@@ -101,7 +101,6 @@ const DiaryEditor = ({ navigation, route }) => {
                         style={diaryEditorStyles.nextButton} 
                         onPress={handleNext}
                     >
-                        <Text style={diaryEditorStyles.nextButtonText}>다음</Text>
                         <Icon name="arrow-forward" size={20} color="#FFFFFF" />
                     </TouchableOpacity>
                 </View>

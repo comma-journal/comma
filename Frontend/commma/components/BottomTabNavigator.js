@@ -3,8 +3,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-// 페이지들 import
 import Home from '../pages/HomeScreen';
 import Write from '../pages/Write';
 import MyPage from '../pages/MyPage';
@@ -15,31 +15,60 @@ import DiaryDetail from '../pages/DiaryDetail';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Write 관련 스택 네비게이터 생성 (수정)
+const getTabBarVisibility = (route) => {
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'WriteList';
+
+  // EmotionSelector 화면에서는 탭바 숨김
+  if (routeName === 'EmotionSelector' || routeName === 'DiaryEditor' || routeName === 'DiaryDetail') {
+    return { display: 'none' };
+  }
+
+  // 기본 탭바 스타일 반환
+  return {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 0,
+    height: 85,
+    paddingBottom: 20,
+    paddingTop: 10,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: -8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    position: 'absolute',
+  };
+};
+
+// Write 관련 스택 네비게이터 생성
 const WriteStack = () => {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
+    <Stack.Navigator
+      screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: 'white' }
       }}
     >
-      <Stack.Screen 
-        name="WriteList" 
+      <Stack.Screen
+        name="WriteList"
         component={Write}
         options={{ title: '일기 목록' }}
       />
-      <Stack.Screen 
-        name="DiaryEditor" 
+      <Stack.Screen
+        name="DiaryEditor"
         component={DiaryEditor}
         options={{ title: '일기 작성' }}
       />
-      <Stack.Screen 
+      <Stack.Screen
         name="EmotionSelector"
         component={EmotionSelector}
         options={{ title: '감정 선택' }}
       />
-      <Stack.Screen 
+      <Stack.Screen
         name="DiaryDetail"
         component={DiaryDetail}
         options={{ title: '일기 보기' }}
@@ -48,7 +77,6 @@ const WriteStack = () => {
   );
 };
 
-// 나머지 코드는 동일...
 const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
@@ -84,6 +112,7 @@ const BottomTabNavigator = () => {
           elevation: 20,
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30,
+          position: 'absolute',
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -94,25 +123,26 @@ const BottomTabNavigator = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen 
-        name="Home" 
+      <Tab.Screen
+        name="Home"
         component={Home}
         options={{
           tabBarLabel: '홈',
         }}
       />
-      
-      <Tab.Screen 
-        name="WriteTab" 
+
+      <Tab.Screen
+        name="WriteTab"
         component={WriteStack}
-        options={{
+        options={({ route }) => ({
           tabBarLabel: '일기쓰기',
           headerShown: false,
-        }}
+          tabBarStyle: getTabBarVisibility(route),
+        })}
       />
-      
-      <Tab.Screen 
-        name="MyPage" 
+
+      <Tab.Screen
+        name="MyPage"
         component={MyPage}
         options={{
           tabBarLabel: '마이페이지',
