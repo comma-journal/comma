@@ -19,7 +19,7 @@ const getTabBarVisibility = (route) => {
   const routeName = getFocusedRouteNameFromRoute(route) ?? 'WriteList';
 
   // EmotionSelector 화면에서는 탭바 숨김
-  if (routeName === 'EmotionSelector') {
+  if (routeName === 'EmotionSelector' || routeName === 'DiaryEditor' || routeName === 'DiaryDetail') {
     return { display: 'none' };
   }
 

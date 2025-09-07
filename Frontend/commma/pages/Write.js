@@ -103,7 +103,6 @@ const Write = ({ navigation }) => {
                     onPress={() => navigation.navigate('DiaryEditor')}
                 >
                     <Icon name="add" size={24} color="#FFFFFF" />
-                    <Text style={writeStyles.writeButtonText}>새 일기</Text>
                 </TouchableOpacity>
             </View>
 

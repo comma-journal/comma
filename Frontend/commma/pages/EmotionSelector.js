@@ -179,7 +179,6 @@ const EmotionSelector = ({ navigation, route }) => {
                     onPress={handleSave}
                 >
                     <Icon name="save" size={20} color="#FFFFFF" />
-                    <Text style={emotionSelectorStyles.saveButtonText}>저장</Text>
                 </TouchableOpacity>
             </View>
 
