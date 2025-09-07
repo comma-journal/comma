@@ -5,9 +5,9 @@ import {
     Text,
     ScrollView,
     TouchableOpacity,
-    SafeAreaView,
     Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { writeStyles } from '../styles/WriteStyles';

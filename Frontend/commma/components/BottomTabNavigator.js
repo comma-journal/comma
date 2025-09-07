@@ -25,7 +25,7 @@ const WriteStack = () => {
       }}
     >
       <Stack.Screen 
-        name="Write" 
+        name="WriteList" 
         component={Write}
         options={{ title: '일기 목록' }}
       />
@@ -58,7 +58,7 @@ const BottomTabNavigator = () => {
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Write') {
+          } else if (route.name === 'WriteTab') {
             iconName = focused ? 'create' : 'create-outline';
           } else if (route.name === 'MyPage') {
             iconName = focused ? 'person' : 'person-outline';
@@ -118,7 +118,7 @@ const BottomTabNavigator = () => {
       />
       
       <Tab.Screen 
-        name="Write" 
+        name="WriteTab" 
         component={WriteStack}
         options={{
           title: '일기쓰기',

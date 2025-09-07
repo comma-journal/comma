@@ -5,11 +5,11 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
-    SafeAreaView,
     Alert,
     Animated,
     Easing,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextSelector from '../components/TextSelector';
@@ -125,7 +125,7 @@ const EmotionSelector = ({ navigation, route }) => {
                                 [
                                     {
                                         text: '확인',
-                                        onPress: () => navigation.navigate('Write')
+                                        onPress: () => navigation.navigate('WriteList')
                                     }
                                 ]
                             );
