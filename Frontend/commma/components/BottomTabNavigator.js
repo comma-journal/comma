@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const getTabBarVisibility = (route) => {
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'WriteList';
+  const routeName = getFocusedRouteNameFromRoute(route);
 
   // EmotionSelector 화면에서는 탭바 숨김
   if (routeName === 'EmotionSelector' || routeName === 'DiaryEditor' || routeName === 'DiaryDetail') {
@@ -112,7 +112,6 @@ const BottomTabNavigator = () => {
           elevation: 20,
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30,
-          position: 'absolute',
         },
         tabBarLabelStyle: {
           fontSize: 11,

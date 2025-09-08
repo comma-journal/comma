@@ -2,12 +2,42 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
+// 화면 크기별 설정값 계산
+const getResponsiveValues = () => {
+  const screenWidth = width;
+  
+  // 화면 크기에 따른 패딩 조정
+  const horizontalPadding = screenWidth < 350 ? 15 : screenWidth < 400 ? 20 : 25;
+  
+  // 캘린더 영역의 실제 너비
+  const calendarWidth = screenWidth - (horizontalPadding * 2);
+  
+  // 일자별 너비 (7일로 나누기) - 정확한 계산
+  const dayWidth = Math.floor(calendarWidth / 7);
+  
+  // 화면 크기에 따른 높이 조정
+  const dayHeight = screenWidth < 350 ? 60 : screenWidth < 400 ? 65 : 70;
+  
+  // 그리드 간격 조정
+  const gridMarginTop = screenWidth < 350 ? 10 : screenWidth < 400 ? 12 : 15;
+  
+  return {
+    horizontalPadding,
+    dayWidth,
+    dayHeight,
+    gridMarginTop,
+    calendarWidth,
+  };
+};
+
+const { horizontalPadding, dayWidth, dayHeight, gridMarginTop, calendarWidth } = getResponsiveValues();
+
 const homeStyles = StyleSheet.create({
   'home-container': {
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingBottom: 100,
-    paddingHorizontal: 25,
+    paddingHorizontal: horizontalPadding,
   },
   'home-scroll': {
     flex: 1,
@@ -46,7 +76,7 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   'header-title': {
-    fontSize: 35,
+    fontSize: width < 350 ? 30 : 35,
     fontFamily: '온글잎 의연체',
     fontWeight: '600',
     color: '#333333',
@@ -86,24 +116,26 @@ const homeStyles = StyleSheet.create({
     marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    
   },
   'weekdays-container': {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: width < 350 ? 10 : 15,
     paddingHorizontal: 0,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // 시작점에서 정렬
+    width: calendarWidth, // 정확한 너비 지정
   },
   'weekday': {
-    width: (width - 50) / 7,
+    width: dayWidth, // 정확히 같은 너비
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 6,
   },
   'weekday-text': {
-    fontSize: 14,
+    fontSize: width < 350 ? 12 : 14,
     color: '#666666',
     fontWeight: '500',
+    textAlign: 'center', // 텍스트 중앙 정렬
   },
   'sunday-text': {
     color: '#FF6B6B',
@@ -114,20 +146,23 @@ const homeStyles = StyleSheet.create({
   'calendar-grid': {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start', // 시작점에서 정렬
+    alignItems: 'flex-start',
+    width: calendarWidth, // 정확한 너비 지정
   },
   'empty-day': {
-    width: (width - 50) / 7,
-    height: 70,
+    width: dayWidth, // 정확히 같은 너비
+    height: dayHeight,
   },
   'calendar-day': {
-    width: (width - 50) / 7,
-    height: 70,
-    marginTop: 15,
+    width: dayWidth, // 정확히 같은 너비
+    height: dayHeight,
+    marginTop: gridMarginTop,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: width < 350 ? 4 : 6,
+    // 각 날짜 셀의 중앙 정렬을 위한 추가 스타일
+    paddingHorizontal: 2, // 좌우 여백 최소화
   },
   'selected-day': {
     backgroundColor: 'transparent',
@@ -136,13 +171,13 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-    marginBottom: 6,
+    marginBottom: width < 350 ? 4 : 6,
     paddingTop: 3,
   },
   'logo-placeholder': {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: width < 350 ? 18 : 22,
+    height: width < 350 ? 18 : 22,
+    borderRadius: width < 350 ? 9 : 11,
     backgroundColor: 'transparent',
     borderWidth: 1.5,
     borderColor: '#E9ECEF',
@@ -158,20 +193,20 @@ const homeStyles = StyleSheet.create({
   'date-container': {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: width < 350 ? 6 : 8,
     paddingVertical: 4,
     borderRadius: 12,
-    minWidth: 28,
-    minHeight: 28,
+    minWidth: width < 350 ? 24 : 28,
+    minHeight: width < 350 ? 24 : 28,
   },
   'today-date-background': {
     backgroundColor: '#FF6B6B',
     borderRadius: 8,
-    paddingHorizontal: 13,
+    paddingHorizontal: width < 350 ? 10 : 13,
     paddingVertical: 3,
   },
   'day-number': {
-    fontSize: 12,
+    fontSize: width < 350 ? 10 : 12,
     color: '#333333',
     fontWeight: '400',
     textAlign: 'center',
