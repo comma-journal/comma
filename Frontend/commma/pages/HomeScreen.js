@@ -10,9 +10,11 @@ import {
 import { SvgXml } from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import { useNavigation } from '@react-navigation/native';
 import homeStyles from '../styles/HomeScreenStyle';
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1)); 
   
@@ -38,6 +40,15 @@ const HomeScreen = () => {
   // 오늘 날짜
   const today = new Date();
   const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  // 날짜 클릭 핸들러
+  const handleDatePress = (dateKey, dayData) => {
+    setSelectedDate(dateKey);
+    console.log('선택된 날짜:', dateKey, '기분:', dayData?.mood);
+    
+
+    navigation.navigate('WriteTab', { screen: 'WriteList' });
+  };
 
   // 월 포맷팅
   const getMonthYear = (date) => {
@@ -311,10 +322,7 @@ const HomeScreen = () => {
                     homeStyles['calendar-day'],
                     isSelected && homeStyles['selected-day']
                   ]}
-                  onPress={() => {
-                    setSelectedDate(dateKey);
-                    console.log('선택된 날짜:', dateKey, '기분:', mood);
-                  }}
+                  onPress={() => handleDatePress(dateKey, dayData)}
                   activeOpacity={0.7}
                 >
                   {/* 로고 영역 (상단) */}
