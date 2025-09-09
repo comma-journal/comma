@@ -10,8 +10,4 @@ class EmotionController(
     override fun getEmotions(): List<EmotionResponse> {
         return emotionService.findAll()
     }
-
-    override fun getEmotionByName(name: String): EmotionResponse? {
-        return emotionService.findByName(name)
-    }
 }
