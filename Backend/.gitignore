@@ -39,5 +39,5 @@ out/
 ### Kotlin ###
 .kotlin
 
-.env
+*.env
 application-local.yaml

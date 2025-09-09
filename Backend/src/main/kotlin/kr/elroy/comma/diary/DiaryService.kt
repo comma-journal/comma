@@ -30,7 +30,7 @@ class DiaryService {
         val query = (DiaryEntryTable.author eq authorId)
 
         date?.let {
-            query.and { DiaryEntryTable.author eq authorId }
+            query.and { DiaryEntryTable.entryDate eq it }
         }
 
         return DiaryEntry.find(query).map(DiaryEntryResponse::from)
