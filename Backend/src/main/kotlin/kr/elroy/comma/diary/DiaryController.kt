@@ -28,7 +28,7 @@ class DiaryController(
         authorId: Long,
         id: Long,
     ): DiaryEntryResponse {
-        return diaryService.findEntryById(id, authorId)!!
+        return diaryService.findEntryById(authorId, id)!!
     }
 
     override fun updateDiary(
@@ -36,10 +36,10 @@ class DiaryController(
         id: Long,
         request: UpdateDiaryEntryRequest,
     ): DiaryEntryResponse {
-        return diaryService.updateDiaryEntry(id, authorId, request)
+        return diaryService.updateDiaryEntry(authorId, id, request)
     }
 
     override fun deleteDiary(authorId: Long, id: Long) {
-        diaryService.deleteDiaryEntry(id, authorId)
+        diaryService.deleteDiaryEntry(authorId, id)
     }
 }
