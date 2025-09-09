@@ -103,7 +103,7 @@ const TextSelector = ({
                         value={content}
                         onSelectionChange={onSelectionChange}
                         textAlignVertical="top"
-                        selectionColor="#E57373"
+                        selectionColor="#FB644C"
                         showSoftInputOnFocus={false}
                         scrollEnabled={false}
                     />

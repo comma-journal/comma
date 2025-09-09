@@ -997,8 +997,7 @@ const styles = StyleSheet.create({
     height: 70,
   },
   appName: {
-    fontSize: 40,
-    fontWeight: '800',
+    fontSize: 42,
     color: '#FF644C',
     letterSpacing: 2,
     fontFamily: customFont,
@@ -1008,19 +1007,17 @@ const styles = StyleSheet.create({
     fontFamily: customFont,
   },
   finalWelcomeText: {
-    fontSize: 26,
-    fontWeight: '700',
+    fontSize: 28,
     color: '#2C3E50',
     textAlign: 'center',
     lineHeight: 34,
     fontFamily: customFont,
   },
   finalSubText: {
-    fontSize: 17,
+    fontSize: 19,
     color: '#6B7280',
     textAlign: 'center',
     lineHeight: 26,
-    fontWeight: '400',
     fontFamily: customFont,
   },
   textContent: {
@@ -1028,8 +1025,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 30,
     color: '#2C3E50',
     textAlign: 'center',
     marginBottom: 15,

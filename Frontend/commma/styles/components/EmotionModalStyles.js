@@ -26,8 +26,7 @@ export const emotionModalStyles = StyleSheet.create({
         marginBottom: 16,
     },
     modalTitle: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 20,
         color: '#333333',
         fontFamily: customFont,
     },
@@ -38,15 +37,14 @@ export const emotionModalStyles = StyleSheet.create({
         marginBottom: 16,
     },
     selectedTextLabel: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#666666',
         marginBottom: 4,
         fontFamily: customFont,
     },
     selectedTextDisplay: {
-        fontSize: 14,
+        fontSize: 18,
         color: '#333333',
-        fontStyle: 'italic',
         fontFamily: customFont,
     },
     selectedEmotionInfo: {
@@ -65,8 +63,7 @@ export const emotionModalStyles = StyleSheet.create({
     },
     selectedEmotionName: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '700',
+        fontSize: 18,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
@@ -86,8 +83,7 @@ export const emotionModalStyles = StyleSheet.create({
     },
     cancelButtonText: {
         color: '#666666',
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 18,
         fontFamily: customFont,
     },
     deleteButton: {
@@ -102,8 +98,7 @@ export const emotionModalStyles = StyleSheet.create({
     },
     deleteButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         marginLeft: 4,
         fontFamily: customFont,
     },
@@ -111,7 +106,7 @@ export const emotionModalStyles = StyleSheet.create({
         flex: 1,
         paddingVertical: 14,
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         borderRadius: 12,
         marginLeft: 4,
     },
@@ -120,8 +115,7 @@ export const emotionModalStyles = StyleSheet.create({
     },
     applyButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         fontFamily: customFont,
     },
 });

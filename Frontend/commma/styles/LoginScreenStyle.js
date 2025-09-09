@@ -26,7 +26,7 @@ const loginStyles = StyleSheet.create({
     height: 120,
   },
   'login-greeting-text': {
-    fontSize: 30,
+    fontSize: 32,
     color: '#333333',
     textAlign: 'center',
     fontWeight: '400',

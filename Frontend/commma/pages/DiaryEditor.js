@@ -122,7 +122,7 @@ const DiaryEditor = ({ navigation, route }) => {
                         value={title}
                         onChangeText={setTitle}
                         maxLength={50}
-                        selectionColor="#E57373"
+                        selectionColor="#FB644C"
                     />
                 </View>
 
@@ -141,7 +141,7 @@ const DiaryEditor = ({ navigation, route }) => {
                             value={content}
                             onChangeText={setContent}
                             textAlignVertical="top"
-                            selectionColor="#E57373"
+                            selectionColor="#FB644C"
                             scrollEnabled={false}
                         />
                     </ScrollView>

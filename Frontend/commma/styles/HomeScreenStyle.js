@@ -1,26 +1,27 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import customFont from './fonts';
 
 const { width } = Dimensions.get('window');
 
 // 화면 크기별 설정값 계산
 const getResponsiveValues = () => {
   const screenWidth = width;
-  
+
   // 화면 크기에 따른 패딩 조정
   const horizontalPadding = screenWidth < 350 ? 15 : screenWidth < 400 ? 20 : 25;
-  
+
   // 캘린더 영역의 실제 너비
   const calendarWidth = screenWidth - (horizontalPadding * 2);
-  
+
   // 일자별 너비 (7일로 나누기) - 정확한 계산
   const dayWidth = Math.floor(calendarWidth / 7);
-  
+
   // 화면 크기에 따른 높이 조정
   const dayHeight = screenWidth < 350 ? 60 : screenWidth < 400 ? 65 : 70;
-  
+
   // 그리드 간격 조정
   const gridMarginTop = screenWidth < 350 ? 10 : screenWidth < 400 ? 12 : 15;
-  
+
   return {
     horizontalPadding,
     dayWidth,
@@ -65,8 +66,8 @@ const homeStyles = StyleSheet.create({
     minHeight: 44,
   },
   'arrow-text': {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
+    fontFamily: customFont,
     color: '#333333',
   },
   'month-title-wrapper': {
@@ -76,16 +77,16 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   'header-title': {
-    fontSize: width < 350 ? 30 : 35,
-    fontFamily: '온글잎 의연체',
-    fontWeight: '600',
+    fontSize: width < 350 ? 32 : 37,
     color: '#333333',
     marginRight: 8,
+    fontFamily: customFont,
   },
   'dropdown-arrow': {
-    fontSize: 14,
+    fontSize: 16,
     color: '#999999',
     marginTop: 2,
+    fontFamily: customFont,
   },
   'settings-button': {
     padding: 8,
@@ -124,6 +125,9 @@ const homeStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start', // 시작점에서 정렬
     width: calendarWidth, // 정확한 너비 지정
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    paddingBottom: 15,
   },
   'weekday': {
     width: dayWidth, // 정확히 같은 너비
@@ -132,10 +136,10 @@ const homeStyles = StyleSheet.create({
     paddingVertical: 6,
   },
   'weekday-text': {
-    fontSize: width < 350 ? 12 : 14,
+    fontSize: width < 350 ? 18 : 20,
     color: '#666666',
-    fontWeight: '500',
     textAlign: 'center', // 텍스트 중앙 정렬
+    fontFamily: customFont,
   },
   'sunday-text': {
     color: '#FF6B6B',
@@ -197,27 +201,28 @@ const homeStyles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     minWidth: width < 350 ? 24 : 28,
-    minHeight: width < 350 ? 24 : 28,
+    minHeight: width < 350 ? 18 : 20,
+    marginBottom: 10,
   },
   'today-date-background': {
     backgroundColor: '#FF6B6B',
     borderRadius: 8,
-    paddingHorizontal: width < 350 ? 10 : 13,
-    paddingVertical: 3,
+    paddingHorizontal: width < 350 ? 6 : 8,
+    paddingVertical: 1,
   },
   'day-number': {
-    fontSize: width < 350 ? 10 : 12,
+    fontSize: width < 350 ? 18 : 20,
     color: '#333333',
-    fontWeight: '400',
+    fontFamily: customFont,
     textAlign: 'center',
   },
   'today-text': {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: customFont,
   },
   'selected-text': {
     color: '#FF6B6B',
-    fontWeight: '600',
+    fontFamily: customFont,
   },
 });
 

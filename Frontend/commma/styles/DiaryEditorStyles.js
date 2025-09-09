@@ -26,15 +26,14 @@ export const diaryEditorStyles = StyleSheet.create({
     nextButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 20,
     },
     nextButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         marginRight: 6,
         fontFamily: customFont,
     },
@@ -43,9 +42,8 @@ export const diaryEditorStyles = StyleSheet.create({
         paddingVertical: 15,
     },
     dateText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#E57373',
+        fontSize: 26,
+        color: '#FB644C',
         fontFamily: customFont,
     },
     titleContainer: {
@@ -53,8 +51,7 @@ export const diaryEditorStyles = StyleSheet.create({
         paddingTop: 10,
     },
     titleInput: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 22,
         color: '#333333',
         paddingVertical: 12,
         borderBottomWidth: 1,
@@ -74,7 +71,7 @@ export const diaryEditorStyles = StyleSheet.create({
     },
     contentInput: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 18,
         lineHeight: 24,
         color: '#333333',
         textAlignVertical: 'top',

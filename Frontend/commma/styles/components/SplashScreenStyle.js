@@ -22,8 +22,7 @@ const splashStyles = StyleSheet.create({
     height: 120,
   },
   'splash-app-name': {
-    fontSize: 48,
-    fontWeight: '100',
+    fontSize: 50,
     color: '#2C2C2C',
     textAlign: 'center',
     letterSpacing: 4,
