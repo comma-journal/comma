@@ -26,7 +26,7 @@ export const diaryEditorStyles = StyleSheet.create({
     nextButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 20,
@@ -43,7 +43,7 @@ export const diaryEditorStyles = StyleSheet.create({
     },
     dateText: {
         fontSize: 26,
-        color: '#E57373',
+        color: '#FB644C',
         fontFamily: customFont,
     },
     titleContainer: {

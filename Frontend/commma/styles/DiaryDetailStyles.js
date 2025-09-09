@@ -23,7 +23,7 @@ export const diaryDetailStyles = StyleSheet.create({
     editButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 20,
@@ -43,7 +43,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     dateText: {
         fontSize: 26,
-        color: '#E57373',
+        color: '#FB644C',
         fontFamily: customFont,
     },
     updatedText: {

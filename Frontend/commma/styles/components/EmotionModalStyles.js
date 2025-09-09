@@ -43,7 +43,7 @@ export const emotionModalStyles = StyleSheet.create({
         fontFamily: customFont,
     },
     selectedTextDisplay: {
-        fontSize: 16,
+        fontSize: 18,
         color: '#333333',
         fontFamily: customFont,
     },
@@ -106,7 +106,7 @@ export const emotionModalStyles = StyleSheet.create({
         flex: 1,
         paddingVertical: 14,
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         borderRadius: 12,
         marginLeft: 4,
     },

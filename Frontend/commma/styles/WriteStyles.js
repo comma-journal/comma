@@ -30,8 +30,8 @@ export const writeStyles = StyleSheet.create({
     writeButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
-        paddingHorizontal: 16,
+        backgroundColor: '#FB644C',
+        paddingHorizontal: 12,
         paddingVertical: 10,
         borderRadius: 20,
     },
@@ -65,7 +65,7 @@ export const writeStyles = StyleSheet.create({
         fontFamily: customFont,
     },
     emptyWriteButton: {
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 24,
         paddingVertical: 12,
         borderRadius: 25,
@@ -94,7 +94,7 @@ export const writeStyles = StyleSheet.create({
     },
     diaryDate: {
         fontSize: 16,
-        color: '#E57373',
+        color: '#FB644C',
         fontFamily: customFont,
     },
     diaryActions: {
@@ -104,7 +104,7 @@ export const writeStyles = StyleSheet.create({
     emotionBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 10,

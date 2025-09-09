@@ -23,8 +23,8 @@ export const emotionSelectorStyles = StyleSheet.create({
     saveButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
-        paddingHorizontal: 16,
+        backgroundColor: '#FB644C',
+        paddingHorizontal: 12,
         paddingVertical: 10,
         borderRadius: 20,
     },
@@ -48,7 +48,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 16,
-        color: '#E57373',
+        color: '#FB644C',
         fontFamily: customFont,
     },
     emotionStats: {
@@ -71,7 +71,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontFamily: customFont,
     },
     statsCount: {
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         borderRadius: 12,
         paddingHorizontal: 8,
         paddingVertical: 2,
@@ -80,7 +80,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     statsCountText: {
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: 16,
         fontFamily: customFont,
     },
     statsList: {
@@ -109,7 +109,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     statsIndicatorText: {
         color: '#FFFFFF',
-        fontSize: 13,
+        fontSize: 15,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
@@ -120,7 +120,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         marginRight: 8,
     },
     statsText: {
-        fontSize: 16,
+        fontSize: 18,
         color: '#333333',
         lineHeight: 20,
         marginBottom: 4,
@@ -160,7 +160,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     bottomText: {
         flex: 1,
-        fontSize: 15,
+        fontSize: 18,
         color: '#666666',
         marginLeft: 8,
         fontFamily: customFont,
@@ -168,7 +168,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     bottomButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E57373',
+        backgroundColor: '#FB644C',
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 20,
