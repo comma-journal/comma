@@ -30,8 +30,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     saveButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         marginLeft: 6,
         fontFamily: customFont,
     },
@@ -42,14 +41,13 @@ export const emotionSelectorStyles = StyleSheet.create({
         borderBottomColor: '#F0F0F0',
     },
     title: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 22,
         color: '#333333',
         marginBottom: 4,
         fontFamily: customFont,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#E57373',
         fontFamily: customFont,
     },
@@ -68,8 +66,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         marginBottom: 12,
     },
     statsTitle: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         color: '#333333',
         fontFamily: customFont,
     },
@@ -83,8 +80,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     statsCountText: {
         color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '700',
+        fontSize: 14,
         fontFamily: customFont,
     },
     statsList: {
@@ -113,8 +109,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     statsIndicatorText: {
         color: '#FFFFFF',
-        fontSize: 11,
-        fontWeight: '700',
+        fontSize: 13,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
@@ -125,14 +120,14 @@ export const emotionSelectorStyles = StyleSheet.create({
         marginRight: 8,
     },
     statsText: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#333333',
         lineHeight: 20,
         marginBottom: 4,
         fontFamily: customFont,
     },
     statsPosition: {
-        fontSize: 11,
+        fontSize: 13,
         color: '#999999',
         fontFamily: customFont,
     },
@@ -165,9 +160,8 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     bottomText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: 15,
         color: '#666666',
-        fontStyle: 'italic',
         marginLeft: 8,
         fontFamily: customFont,
     },
@@ -181,8 +175,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     bottomButtonText: {
         color: '#FFFFFF',
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 16,
         marginLeft: 6,
         fontFamily: customFont,
     },

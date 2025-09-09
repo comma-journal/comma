@@ -30,8 +30,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     editButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         marginLeft: 6,
         fontFamily: customFont,
     },
@@ -43,13 +42,12 @@ export const diaryDetailStyles = StyleSheet.create({
         paddingVertical: 20,
     },
     dateText: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 26,
         color: '#E57373',
         fontFamily: customFont,
     },
     updatedText: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#999999',
         marginTop: 4,
         fontFamily: customFont,
@@ -60,7 +58,7 @@ export const diaryDetailStyles = StyleSheet.create({
         borderBottomColor: '#F0F0F0',
     },
     title: {
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: '600',
         color: '#333333',
         fontFamily: customFont,
@@ -69,7 +67,7 @@ export const diaryDetailStyles = StyleSheet.create({
         paddingVertical: 20,
     },
     contentText: {
-        fontSize: 16,
+        fontSize: 18,
         lineHeight: 24,
         color: '#333333',
         fontFamily: customFont,
@@ -81,8 +79,7 @@ export const diaryDetailStyles = StyleSheet.create({
         borderTopColor: '#F0F0F0',
     },
     emotionStatsTitle: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 20,
         color: '#333333',
         marginBottom: 16,
         fontFamily: customFont,
@@ -105,8 +102,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     emotionIndicatorText: {
         color: '#FFFFFF',
-        fontSize: 11,
-        fontWeight: '700',
+        fontSize: 13,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
@@ -114,7 +110,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     emotionText: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 16,
         color: '#333333',
         lineHeight: 20,
         fontFamily: customFont,

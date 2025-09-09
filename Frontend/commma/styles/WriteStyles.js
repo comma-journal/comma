@@ -23,8 +23,7 @@ export const writeStyles = StyleSheet.create({
         borderBottomColor: '#F0F0F0',
     },
     headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 26,
         color: '#333333',
         fontFamily: customFont,
     },
@@ -38,8 +37,7 @@ export const writeStyles = StyleSheet.create({
     },
     writeButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         marginLeft: 6,
         fontFamily: customFont,
     },
@@ -54,15 +52,14 @@ export const writeStyles = StyleSheet.create({
         paddingVertical: 100,
     },
     emptyTitle: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 20,
         color: '#666666',
         marginTop: 20,
         marginBottom: 8,
         fontFamily: customFont,
     },
     emptySubtitle: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#999999',
         marginBottom: 30,
         fontFamily: customFont,
@@ -75,8 +72,7 @@ export const writeStyles = StyleSheet.create({
     },
     emptyWriteButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
         fontFamily: customFont,
     },
     diaryItem: {
@@ -97,9 +93,8 @@ export const writeStyles = StyleSheet.create({
         marginBottom: 8,
     },
     diaryDate: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#E57373',
-        fontWeight: '500',
         fontFamily: customFont,
     },
     diaryActions: {
@@ -117,8 +112,7 @@ export const writeStyles = StyleSheet.create({
     },
     emotionBadgeText: {
         color: '#FFFFFF',
-        fontSize: 11,
-        fontWeight: '600',
+        fontSize: 13,
         marginLeft: 4,
         fontFamily: customFont,
     },
@@ -127,14 +121,13 @@ export const writeStyles = StyleSheet.create({
         marginLeft: 4,
     },
     diaryTitle: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 20,
         color: '#333333',
         marginBottom: 8,
         fontFamily: customFont,
     },
     diaryPreview: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#666666',
         lineHeight: 20,
         fontFamily: customFont,

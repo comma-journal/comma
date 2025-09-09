@@ -32,7 +32,6 @@ export const emotionGridStyles = StyleSheet.create({
     emotionCardText: {
         color: '#FFFFFF',
         textAlign: 'center',
-        fontWeight: '800',
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
@@ -56,8 +55,7 @@ export const emotionGridStyles = StyleSheet.create({
     },
     selectedBadgeText: {
         color: '#4CAF50',
-        fontSize: 12,
-        fontWeight: '700',
+        fontSize: 14,
         fontFamily: customFont,
     },
 });

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loginStyles from './../styles/LoginScreenStyle';
+import customFont from '../styles/fonts';
 
 const LoginScreen = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -180,7 +181,7 @@ const LoginScreen = ({ onLogin }) => {
           />
         </View>
         <ActivityIndicator size="large" color="#FF6B6B" />
-        <Text style={{ marginTop: 16, fontSize: 16, color: '#666' }}>자동로그인 중...</Text>
+        <Text style={{ marginTop: 16, fontSize: 22, color: '#666', fontFamily: customFont }}>자동로그인 중...</Text>
       </View>
     );
   }
