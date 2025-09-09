@@ -12,12 +12,15 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import customFont from '../styles/fonts';
+import CustomAlert from '../components/CustomAlert';
+import { useCustomAlert } from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
 const OnboardingScreen = ({ onComplete, userEmail }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [userName, setUserName] = useState('');
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const highlightAnim = useRef(new Animated.Value(0)).current;
@@ -167,7 +170,12 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
     if (currentStep === 0) {
       // 첫 번째 단계에서 이름 설정 API 호출
       if (!userName.trim()) {
-        Alert.alert('알림', '이름을 입력해주세요.');
+        showAlert({
+          title: '알림',
+          message: '이름을 입력해주세요.',
+          type: 'warning',
+          buttons: [{ text: '확인', onPress: hideAlert }]
+        });
         return;
       }
       
@@ -248,7 +256,12 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   
       if (!emailToUse) {
         console.error('❌ [OnboardingScreen] 이메일을 찾을 수 없음');
-        Alert.alert('오류', '이메일 정보를 찾을 수 없습니다.');
+        showAlert({
+          title: '오류',
+          message: '이메일 정보를 찾을 수 없습니다.',
+          type: 'error',
+          buttons: [{ text: '확인', onPress: hideAlert }]
+        });
         return;
       }
   
@@ -275,10 +288,15 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       }
     } catch (error) {
       console.error('❌ [OnboardingScreen] 네트워크 오류:', error);
-      Alert.alert('오류', '이름 설정에 실패했습니다. 계속 진행하시겠습니까?', [
-        { text: '다시 시도', style: 'cancel' },
-        { text: '계속 진행', onPress: () => {} }
-      ]);
+      showAlert({
+        title: '오류',
+        message: '이름 설정에 실패했습니다. 계속 진행하시겠습니까?',
+        type: 'warning',
+        buttons: [
+          { text: '다시 시도', style: 'cancel', onPress: hideAlert },
+          { text: '계속 진행', onPress: hideAlert }
+        ]
+      });
     }
   };
 
@@ -673,6 +691,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   };
 
   return (
+    <>
     <View style={styles.container}>
       <View style={styles.content}>
         {renderAnimation()}
@@ -714,6 +733,16 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         </View>
       )}
     </View>
+    {/* 커스텀 Alert 추가 */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        type={alertConfig.type}
+        onBackdropPress={hideAlert}
+      />
+      </>
   );
 };
 

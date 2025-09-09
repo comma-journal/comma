@@ -5,16 +5,18 @@ import {
     Text,
     ScrollView,
     TouchableOpacity,
-    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { writeStyles } from '../styles/WriteStyles';
+import CustomAlert from '../components/CustomAlert';
+import { useCustomAlert } from '../hooks/useCustomAlert';
 
 const Write = ({ navigation }) => {
     const [diaries, setDiaries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
     // 일기 목록 로드
     const loadDiaries = useCallback(async () => {
@@ -26,6 +28,12 @@ const Write = ({ navigation }) => {
             }
         } catch (error) {
             console.error('일기 로드 오류:', error);
+            showAlert({
+                title: '오류',
+                message: '일기를 불러오는 중 문제가 발생했습니다.',
+                type: 'error',
+                buttons: [{ text: '확인', onPress: hideAlert }]
+            });
         } finally {
             setLoading(false);
         }
@@ -41,26 +49,46 @@ const Write = ({ navigation }) => {
 
     // 일기 삭제
     const deleteDiary = async (diaryId) => {
-        Alert.alert(
-            '일기 삭제',
-            '정말로 이 일기를 삭제하시겠습니까?',
-            [
-                { text: '취소', style: 'cancel' },
+        showAlert({
+            title: '일기 삭제',
+            message: '정말로 이 일기를 삭제하시겠습니까?',
+            type: 'warning',
+            buttons: [
+                { 
+                    text: '취소', 
+                    style: 'cancel',
+                    onPress: hideAlert
+                },
                 {
                     text: '삭제',
                     style: 'destructive',
                     onPress: async () => {
+                        hideAlert();
                         try {
                             const updatedDiaries = diaries.filter(diary => diary.id !== diaryId);
                             await AsyncStorage.setItem('diaries', JSON.stringify(updatedDiaries));
                             setDiaries(updatedDiaries);
+                            
+                            // 삭제 성공 알림
+                            showAlert({
+                                title: '삭제 완료',
+                                message: '일기가 성공적으로 삭제되었습니다.',
+                                type: 'success',
+                                buttons: [{ text: '확인', onPress: hideAlert }]
+                            });
                         } catch (error) {
                             console.error('일기 삭제 오류:', error);
+                            showAlert({
+                                title: '오류',
+                                message: '일기 삭제 중 문제가 발생했습니다.',
+                                type: 'error',
+                                buttons: [{ text: '확인', onPress: hideAlert }]
+                            });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     // 날짜 포맷팅
@@ -173,6 +201,16 @@ const Write = ({ navigation }) => {
                     ))
                 )}
             </ScrollView>
+
+            {/* 커스텀 Alert 추가 */}
+            <CustomAlert
+                visible={alertConfig.visible}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                buttons={alertConfig.buttons}
+                type={alertConfig.type}
+                onBackdropPress={hideAlert}
+            />
         </SafeAreaView>
     );
 };
