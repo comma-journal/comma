@@ -30,17 +30,9 @@ interface DiaryApi {
         @Parameter(hidden = true)
         @CurrentUserId
         authorId: Long,
-    ): List<DiaryEntryResponse>
 
-    @Operation(summary = "날짜별 일기 조회", description = "특정 날짜의 일기를 조회합니다.")
-    @GetMapping
-    fun getDiariesByDate(
-        @Parameter(hidden = true)
-        @CurrentUserId
-        authorId: Long,
-
-        @RequestParam
-        date: LocalDate,
+        @RequestParam(required = false)
+        date: LocalDate?,
     ): List<DiaryEntryResponse>
 
     @Operation(summary = "일기 단건 조회", description = "ID로 특정 일기를 조회합니다.")
