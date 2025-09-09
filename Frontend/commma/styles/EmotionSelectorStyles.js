@@ -47,7 +47,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontFamily: customFont,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: 18,
         color: '#FB644C',
         fontFamily: customFont,
     },
@@ -80,7 +80,7 @@ export const emotionSelectorStyles = StyleSheet.create({
     },
     statsCountText: {
         color: '#FFFFFF',
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: customFont,
     },
     statsList: {
@@ -127,7 +127,7 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontFamily: customFont,
     },
     statsPosition: {
-        fontSize: 13,
+        fontSize: 15,
         color: '#999999',
         fontFamily: customFont,
     },
@@ -178,5 +178,24 @@ export const emotionSelectorStyles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 6,
         fontFamily: customFont,
+    },
+    titleInputContainer: {
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        backgroundColor: '#FFFFFF',
+    },
+    titleInput: {
+        fontSize: 25,
+        color: '#333333',
+        fontFamily: customFont,
+        paddingVertical: 8,
+        paddingHorizontal: 0,
+    },
+    subtitleContainer: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        backgroundColor: '#FAFAFA',
     },
 });

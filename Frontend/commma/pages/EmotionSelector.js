@@ -1,15 +1,18 @@
 // EmotionSelector.js
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
+    TextInput,
     TouchableOpacity,
     ScrollView,
     Alert,
     Animated,
     Easing,
+    Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextSelector from '../components/TextSelector';
@@ -21,8 +24,9 @@ import { emotions } from '../data/emotionsData';
 const EmotionSelector = ({ navigation, route }) => {
     const { diary, isEditing } = route.params;
 
-    const [content, setContent] = useState(diary.content);
-    const [emotionSegments, setEmotionSegments] = useState(diary.emotionSegments || []);
+    const [title, setTitle] = useState(diary?.title || '');
+    const [content, setContent] = useState(diary?.content || '');
+    const [emotionSegments, setEmotionSegments] = useState(diary?.emotionSegments || []);
     const [selectionStart, setSelectionStart] = useState(0);
     const [selectionEnd, setSelectionEnd] = useState(0);
     const [emotionModalVisible, setEmotionModalVisible] = useState(false);
@@ -31,6 +35,23 @@ const EmotionSelector = ({ navigation, route }) => {
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [isEditingEmotion, setIsEditingEmotion] = useState(false);
     const [editingSegmentId, setEditingSegmentId] = useState(null);
+
+    // 키보드 상태 관리
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+    // 저장 상태 관리
+    const [isSaved, setIsSaved] = useState(false);
+    const [hasChanges, setHasChanges] = useState(false);
+
+    // 초기 상태 저장 (변경사항 감지용)
+    const initialState = useRef({
+        title: diary?.title || '',
+        content: diary?.content || '',
+        emotionSegments: diary?.emotionSegments || []
+    });
+
+    // 이전 content를 추적하기 위한 ref
+    const previousContentRef = useRef(content);
 
     // 하단 선택 바 애니메이션
     const bottomBarAnimation = useRef(new Animated.Value(0)).current;
@@ -44,7 +65,322 @@ const EmotionSelector = ({ navigation, route }) => {
         }))
     ).current;
 
-    // 하단 선택 바 표시/숨김
+    // 키보드 이벤트 리스너
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            showSubscription?.remove();
+            hideSubscription?.remove();
+        };
+    }, []);
+
+    // 변경사항 감지 useEffect
+    useEffect(() => {
+        const currentTitle = title;
+        const currentContent = content;
+        const currentSegments = emotionSegments;
+
+        const titleChanged = currentTitle !== initialState.current.title;
+        const contentChanged = currentContent !== initialState.current.content;
+        const segmentsChanged = JSON.stringify(currentSegments) !== JSON.stringify(initialState.current.emotionSegments);
+
+        const hasAnyChanges = titleChanged || contentChanged || segmentsChanged;
+        setHasChanges(hasAnyChanges);
+
+        // 변경사항이 있으면 저장 상태 초기화
+        if (hasAnyChanges) {
+            setIsSaved(false);
+        }
+    }, [title, content, emotionSegments]);
+
+    // 페이지 벗어나기 전 확인
+    useFocusEffect(
+        useCallback(() => {
+            const onBeforeRemove = (e) => {
+                // 저장되었거나 변경사항이 없으면 자유롭게 나가기
+                if (isSaved || !hasChanges) {
+                    return;
+                }
+
+                // 변경사항이 있고 저장되지 않았으면 확인 알림
+                e.preventDefault();
+
+                Alert.alert(
+                    '주의',
+                    '저장하지 않은 변경사항이 있습니다.\n페이지를 벗어나면 작성한 내용이 사라집니다.\n\n계속하시겠습니까?',
+                    [
+                        {
+                            text: '취소',
+                            style: 'cancel',
+                            onPress: () => { }
+                        },
+                        {
+                            text: '저장하고 나가기',
+                            onPress: async () => {
+                                try {
+                                    await saveAndExit();
+                                } catch (error) {
+                                    console.error('저장 오류:', error);
+                                    Alert.alert('오류', '저장 중 문제가 발생했습니다.');
+                                }
+                            }
+                        },
+                        {
+                            text: '저장하지 않고 나가기',
+                            style: 'destructive',
+                            onPress: () => navigation.dispatch(e.data.action),
+                        },
+                    ]
+                );
+            };
+
+            navigation.addListener('beforeRemove', onBeforeRemove);
+
+            return () => navigation.removeListener('beforeRemove', onBeforeRemove);
+        }, [isSaved, hasChanges, navigation, title, content, emotionSegments])
+    );
+
+    // 저장하고 나가기 함수
+    const saveAndExit = async () => {
+        if (!title.trim() && !content.trim()) {
+            Alert.alert('알림', '제목이나 내용을 입력해주세요.');
+            return;
+        }
+
+        // 감정 선택 확인
+        if (emotionSegments.length === 0) {
+            Alert.alert(
+                '감정 선택 안내',
+                '감정이 하나도 선택되지 않았습니다.\n\n그래도 저장하고 나가시겠습니까?',
+                [
+                    {
+                        text: '취소',
+                        style: 'cancel',
+                    },
+                    {
+                        text: '저장하고 나가기',
+                        onPress: async () => {
+                            try {
+                                await proceedWithSaveAndExit();
+                            } catch (error) {
+                                console.error('저장 오류:', error);
+                                Alert.alert('오류', '저장 중 문제가 발생했습니다.');
+                            }
+                        }
+                    }
+                ]
+            );
+            return;
+        }
+
+        // 감정이 있으면 바로 저장하고 나가기
+        try {
+            await proceedWithSaveAndExit();
+        } catch (error) {
+            console.error('저장 오류:', error);
+            Alert.alert('오류', '저장 중 문제가 발생했습니다.');
+        }
+    };
+
+    // 실제 저장하고 나가기 처리
+    const proceedWithSaveAndExit = async () => {
+        const finalDiary = {
+            id: isEditing ? diary.id : Date.now().toString(),
+            title: title.trim() || '제목 없음',
+            content: content.trim(),
+            emotionSegments: emotionSegments,
+            createdAt: isEditing ? diary.createdAt : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+
+        // 기존 일기 목록 로드
+        const storedDiaries = await AsyncStorage.getItem('diaries');
+        let diaries = storedDiaries ? JSON.parse(storedDiaries) : [];
+
+        if (isEditing) {
+            // 수정 모드
+            diaries = diaries.map(d => d.id === diary.id ? finalDiary : d);
+        } else {
+            // 새 일기 추가
+            diaries.push(finalDiary);
+        }
+
+        await AsyncStorage.setItem('diaries', JSON.stringify(diaries));
+        setIsSaved(true);
+
+        // 잠시 후 페이지 이동
+        setTimeout(() => {
+            navigation.navigate('WriteList');
+        }, 100);
+    };
+
+    // 삭제될 감정 세그먼트 확인 함수
+    const checkForEmotionDeletion = (oldContent, newContent, segments) => {
+        if (segments.length === 0) return { willDelete: false, segmentsToDelete: [] };
+
+        // 텍스트 변경 지점 찾기
+        let changeStart = 0;
+        let changeEnd = oldContent.length;
+
+        // 앞에서부터 같은 부분 찾기
+        while (changeStart < Math.min(oldContent.length, newContent.length) &&
+            oldContent[changeStart] === newContent[changeStart]) {
+            changeStart++;
+        }
+
+        // 뒤에서부터 같은 부분 찾기
+        let oldEnd = oldContent.length - 1;
+        let newEnd = newContent.length - 1;
+        while (oldEnd >= changeStart && newEnd >= changeStart &&
+            oldContent[oldEnd] === newContent[newEnd]) {
+            oldEnd--;
+            newEnd--;
+        }
+
+        const deletedLength = (oldEnd + 1) - changeStart;
+        const insertedLength = (newEnd + 1) - changeStart;
+
+        // 삭제될 세그먼트들 찾기
+        const segmentsToDelete = segments.filter(segment => {
+            const segmentStart = segment.start;
+            const segmentEnd = segment.end;
+
+            // 변경 지점과 겹치는 세그먼트
+            return segmentStart < changeStart + Math.max(deletedLength, insertedLength) &&
+                segmentEnd > changeStart;
+        });
+
+        return {
+            willDelete: segmentsToDelete.length > 0,
+            segmentsToDelete: segmentsToDelete
+        };
+    };
+
+    // 감정 세그먼트 위치 업데이트 함수
+    const updateEmotionSegmentPositions = (oldContent, newContent, segments) => {
+        if (segments.length === 0) return segments;
+
+        const updatedSegments = [];
+
+        // 텍스트 변경 지점 찾기
+        let changeStart = 0;
+        let changeEnd = oldContent.length;
+
+        // 앞에서부터 같은 부분 찾기
+        while (changeStart < Math.min(oldContent.length, newContent.length) &&
+            oldContent[changeStart] === newContent[changeStart]) {
+            changeStart++;
+        }
+
+        // 뒤에서부터 같은 부분 찾기
+        let oldEnd = oldContent.length - 1;
+        let newEnd = newContent.length - 1;
+        while (oldEnd >= changeStart && newEnd >= changeStart &&
+            oldContent[oldEnd] === newContent[newEnd]) {
+            oldEnd--;
+            newEnd--;
+        }
+
+        const deletedLength = (oldEnd + 1) - changeStart;
+        const insertedLength = (newEnd + 1) - changeStart;
+        const lengthDiff = insertedLength - deletedLength;
+
+        segments.forEach(segment => {
+            const segmentStart = segment.start;
+            const segmentEnd = segment.end;
+
+            // 변경 지점보다 앞에 있는 세그먼트는 그대로 유지
+            if (segmentEnd <= changeStart) {
+                updatedSegments.push(segment);
+            }
+            // 변경 지점과 겹치는 세그먼트는 제거
+            else if (segmentStart < changeStart + Math.max(deletedLength, insertedLength)) {
+                // 겹치는 세그먼트는 삭제
+                // console.log(`Removing overlapping segment: "${segment.text}"`);
+            }
+            // 변경 지점보다 뒤에 있는 세그먼트는 위치 조정
+            else {
+                const newStart = segmentStart + lengthDiff;
+                const newEnd = segmentEnd + lengthDiff;
+
+                // 새로운 위치가 유효한 범위 내에 있는지 확인
+                if (newStart >= 0 && newEnd <= newContent.length && newStart < newEnd) {
+                    const newText = newContent.slice(newStart, newEnd);
+                    updatedSegments.push({
+                        ...segment,
+                        start: newStart,
+                        end: newEnd,
+                        text: newText
+                    });
+                }
+            }
+        });
+
+        return updatedSegments;
+    };
+
+    // TextSelector에서 content 변경을 처리하는 함수 (경고 포함)
+    const handleContentChange = (newContent) => {
+        return new Promise((resolve) => {
+            const oldContent = previousContentRef.current;
+
+            // 감정 삭제 확인
+            const { willDelete, segmentsToDelete } = checkForEmotionDeletion(oldContent, newContent, emotionSegments);
+
+            if (willDelete && segmentsToDelete.length > 0) {
+                const emotionNames = segmentsToDelete.map(segment => segment.emotionName).join(', ');
+                const segmentTexts = segmentsToDelete.map(segment => `"${segment.text}"`).join(', ');
+
+                Alert.alert(
+                    '감정 삭제 경고',
+                    `이 작업으로 다음 텍스트의 감정이 삭제됩니다:\n\n${segmentTexts}\n\n감정: ${emotionNames}\n\n계속하시겠습니까?`,
+                    [
+                        {
+                            text: '취소',
+                            style: 'cancel',
+                            onPress: () => {
+                                // 변경사항 취소 - 이전 content 유지
+                                resolve(false);
+                            }
+                        },
+                        {
+                            text: '계속',
+                            style: 'destructive',
+                            onPress: () => {
+                                // 감정 세그먼트 위치 업데이트
+                                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
+
+                                setContent(newContent);
+                                setEmotionSegments(updatedSegments);
+
+                                // 이전 content 업데이트
+                                previousContentRef.current = newContent;
+                                resolve(true);
+                            }
+                        }
+                    ]
+                );
+            } else {
+                // 감정 삭제가 없는 경우 바로 업데이트
+                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
+
+                setContent(newContent);
+                setEmotionSegments(updatedSegments);
+
+                // 이전 content 업데이트
+                previousContentRef.current = newContent;
+                resolve(true);
+            }
+        });
+    };
+
+    // 나머지 기존 함수들...
     const showBottomSelectionBarFunc = () => {
         setShowBottomSelectionBar(true);
         Animated.timing(bottomBarAnimation, {
@@ -68,12 +404,17 @@ const EmotionSelector = ({ navigation, route }) => {
 
     // 텍스트 선택 처리
     const handleSelectionChange = (event) => {
-        const { start, end } = event.nativeEvent.selection;
+        const start = event.start;
+        const end = event.end;
+        const content2 = event.content;
+
+        // console.log(event);
+
         setSelectionStart(start);
         setSelectionEnd(end);
 
         if (start !== end) {
-            const selected = content.slice(start, end);
+            const selected = content2.slice(start, end);
             setSelectedText(selected);
             setSelectedTextRange({ start, end });
             showBottomSelectionBarFunc();
@@ -86,9 +427,43 @@ const EmotionSelector = ({ navigation, route }) => {
 
     // 저장하기
     const handleSave = async () => {
+        if (!title.trim() && !content.trim()) {
+            Alert.alert('알림', '제목이나 내용을 입력해주세요.');
+            return;
+        }
+
+        if (emotionSegments.length === 0) {
+            Alert.alert(
+                '감정 선택 확인',
+                '아직 감정이 하나도 선택되지 않았습니다.\n\n문장을 선택하여 감정을 추가하시겠습니까?',
+                [
+                    {
+                        text: '감정 추가하기',
+                        style: 'default',
+                        onPress: () => {
+                            Alert.alert(
+                                '감정 추가 방법',
+                                '텍스트에서 감정을 표현하고 싶은 문장을 선택한 후 하단의 "감정 선택" 버튼을 눌러주세요.'
+                            );
+                        }
+                    },
+                    {
+                        text: '감정 없이 저장',
+                        style: 'default',
+                        onPress: () => proceedWithSave()
+                    },
+                    {
+                        text: '취소',
+                        style: 'cancel'
+                    }
+                ]
+            );
+            return;
+        }
+
         Alert.alert(
             '저장 확인',
-            '감정 선택이 완료되었나요?\n지금 저장하시겠습니까?',
+            '일기를 저장하시겠습니까?',
             [
                 {
                     text: '취소',
@@ -99,8 +474,11 @@ const EmotionSelector = ({ navigation, route }) => {
                     onPress: async () => {
                         try {
                             const finalDiary = {
-                                ...diary,
+                                id: isEditing ? diary.id : Date.now().toString(),
+                                title: title.trim() || '제목 없음',
+                                content: content.trim(),
                                 emotionSegments: emotionSegments,
+                                createdAt: isEditing ? diary.createdAt : new Date().toISOString(),
                                 updatedAt: new Date().toISOString(),
                             };
 
@@ -117,6 +495,7 @@ const EmotionSelector = ({ navigation, route }) => {
                             }
 
                             await AsyncStorage.setItem('diaries', JSON.stringify(diaries));
+                            setIsSaved(true); // 저장 상태 업데이트
 
                             Alert.alert(
                                 '저장 완료',
@@ -136,6 +515,49 @@ const EmotionSelector = ({ navigation, route }) => {
                 }
             ]
         );
+    };
+
+    // 실제 저장 처리 함수 (중복 제거)
+    const proceedWithSave = async () => {
+        try {
+            const finalDiary = {
+                id: isEditing ? diary.id : Date.now().toString(),
+                title: title.trim() || '제목 없음',
+                content: content.trim(),
+                emotionSegments: emotionSegments,
+                createdAt: isEditing ? diary.createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+
+            // 기존 일기 목록 로드
+            const storedDiaries = await AsyncStorage.getItem('diaries');
+            let diaries = storedDiaries ? JSON.parse(storedDiaries) : [];
+
+            if (isEditing) {
+                // 수정 모드
+                diaries = diaries.map(d => d.id === diary.id ? finalDiary : d);
+            } else {
+                // 새 일기 추가
+                diaries.push(finalDiary);
+            }
+
+            await AsyncStorage.setItem('diaries', JSON.stringify(diaries));
+            setIsSaved(true); // 저장 상태 업데이트
+
+            Alert.alert(
+                '저장 완료',
+                '일기가 성공적으로 저장되었습니다.',
+                [
+                    {
+                        text: '확인',
+                        onPress: () => navigation.navigate('WriteList')
+                    }
+                ]
+            );
+        } catch (error) {
+            console.error('저장 오류:', error);
+            Alert.alert('오류', '저장 중 문제가 발생했습니다.');
+        }
     };
 
     // 감정 모달 열기
@@ -181,27 +603,40 @@ const EmotionSelector = ({ navigation, route }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* 제목 표시 */}
-            <View style={emotionSelectorStyles.titleContainer}>
-                <Text style={emotionSelectorStyles.title}>{diary.title}</Text>
+            {/* 제목 입력 영역 */}
+            <View style={emotionSelectorStyles.titleInputContainer}>
+                <TextInput
+                    style={emotionSelectorStyles.titleInput}
+                    placeholder="일기 제목을 입력하세요"
+                    placeholderTextColor="#999999"
+                    value={title}
+                    onChangeText={setTitle}
+                    maxLength={50}
+                    selectionColor="#FB644C"
+                />
+            </View>
+
+            {/* 안내 텍스트 */}
+            <View style={emotionSelectorStyles.subtitleContainer}>
                 <Text style={emotionSelectorStyles.subtitle}>
-                    문장을 선택하여 감정을 추가해보세요
+                    아래에서 일기를 작성하고 문장을 선택(드래그)하여 감정을 추가해보세요.
                 </Text>
             </View>
 
             {/* 텍스트 선택 영역 */}
             <TextSelector
-                content={content}
+                content1={content}
                 emotionSegments={emotionSegments}
-                onSelectionChange={handleSelectionChange}
+                onSelectionChangeCallBack={handleSelectionChange}
+                onContentChange={handleContentChange}
                 onEditEmotion={editEmotion}
             />
 
-            {/* 감정 통계 */}
-            {emotionSegments.length > 0 && (
+            {/* 감정 통계 - 키보드가 열렸을 때 숨김 */}
+            {!keyboardVisible && emotionSegments.length > 0 && (
                 <View style={emotionSelectorStyles.emotionStats}>
                     <View style={emotionSelectorStyles.statsHeader}>
-                        <Text style={emotionSelectorStyles.statsTitle}>감정 통계</Text>
+                        <Text style={emotionSelectorStyles.statsTitle}>선택된 감정</Text>
                         <View style={emotionSelectorStyles.statsCount}>
                             <Text style={emotionSelectorStyles.statsCountText}>
                                 {emotionSegments.length}

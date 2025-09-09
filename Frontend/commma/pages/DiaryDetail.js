@@ -35,7 +35,7 @@ const DiaryDetail = ({ navigation, route }) => {
 
         const sortedSegments = [...diary.emotionSegments].sort((a, b) => a.start - b.start);
         const charEmotions = new Array(diary.content.length).fill(null);
-        
+
         sortedSegments.forEach(segment => {
             for (let i = segment.start; i < segment.end; i++) {
                 if (i < diary.content.length) {
@@ -95,16 +95,19 @@ const DiaryDetail = ({ navigation, route }) => {
         <SafeAreaView style={diaryDetailStyles.container}>
             {/* 헤더 */}
             <View style={diaryDetailStyles.header}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={diaryDetailStyles.backButton}
                     onPress={() => navigation.goBack()}
                 >
                     <Icon name="arrow-back" size={24} color="#333333" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={diaryDetailStyles.editButton}
-                    onPress={() => navigation.navigate('DiaryEditor', { diary })}
+                    onPress={() => navigation.navigate('EmotionSelector', {
+                        diary: diary,
+                        isEditing: true
+                    })}
                 >
                     <Icon name="edit" size={20} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -137,9 +140,9 @@ const DiaryDetail = ({ navigation, route }) => {
                 {diary.emotionSegments && diary.emotionSegments.length > 0 && (
                     <View style={diaryDetailStyles.emotionStats}>
                         <Text style={diaryDetailStyles.emotionStatsTitle}>
-                            감정 분석 ({diary.emotionSegments.length}개)
+                            선택된 감정 ({diary.emotionSegments.length}개)
                         </Text>
-                        
+
                         {diary.emotionSegments
                             .sort((a, b) => a.start - b.start)
                             .map((segment) => (

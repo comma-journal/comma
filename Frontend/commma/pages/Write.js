@@ -35,7 +35,7 @@ const Write = ({ navigation }) => {
         const unsubscribe = navigation.addListener('focus', () => {
             loadDiaries();
         });
-        
+
         return unsubscribe;
     }, [navigation, loadDiaries]);
 
@@ -100,7 +100,10 @@ const Write = ({ navigation }) => {
                 <Text style={writeStyles.headerTitle}>내 일기</Text>
                 <TouchableOpacity
                     style={writeStyles.writeButton}
-                    onPress={() => navigation.navigate('DiaryEditor')}
+                    onPress={() => navigation.navigate('EmotionSelector', {
+                        diary: {},
+                        isEditing: false
+                    })}
                 >
                     <Icon name="add" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -115,7 +118,10 @@ const Write = ({ navigation }) => {
                         <Text style={writeStyles.emptySubtitle}>첫 번째 일기를 작성해보세요!</Text>
                         <TouchableOpacity
                             style={writeStyles.emptyWriteButton}
-                            onPress={() => navigation.navigate('DiaryEditor')}
+                            onPress={() => navigation.navigate('EmotionSelector', {
+                                diary: {},
+                                isEditing: false
+                            })}
                         >
                             <Text style={writeStyles.emptyWriteButtonText}>일기 쓰기</Text>
                         </TouchableOpacity>
@@ -139,7 +145,10 @@ const Write = ({ navigation }) => {
                                         </View>
                                     )}
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate('DiaryEditor', { diary })}
+                                        onPress={() => navigation.navigate('EmotionSelector', {
+                                            diary: diary,
+                                            isEditing: true
+                                        })}
                                         style={writeStyles.actionButton}
                                     >
                                         <Icon name="edit" size={18} color="#666666" />
@@ -152,11 +161,11 @@ const Write = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            
+
                             <Text style={writeStyles.diaryTitle} numberOfLines={1}>
                                 {diary.title || '제목 없음'}
                             </Text>
-                            
+
                             <Text style={writeStyles.diaryPreview} numberOfLines={3}>
                                 {getPreviewText(diary.content)}
                             </Text>

@@ -26,15 +26,15 @@ export const textSelectorStyles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 1,
-        color: 'transparent',
-        fontSize: 16,
+        zIndex: 2, // 위쪽 레이어
+        fontSize: 20,
         lineHeight: 24,
         textAlignVertical: 'top',
         backgroundColor: 'transparent',
         paddingHorizontal: 0,
         paddingVertical: 0,
         margin: 0,
+        fontFamily: customFont,
     },
     styledOverlay: {
         position: 'absolute',
@@ -42,7 +42,7 @@ export const textSelectorStyles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 2,
+        zIndex: 1, // 아래쪽 레이어
         backgroundColor: 'transparent',
         pointerEvents: 'none',
         paddingHorizontal: 0,
@@ -50,11 +50,12 @@ export const textSelectorStyles = StyleSheet.create({
         margin: 0,
     },
     styledText: {
-        fontSize: 16,
+        fontSize: 20,
         lineHeight: 24,
         color: '#333333',
         paddingHorizontal: 0,
         paddingVertical: 0,
         margin: 0,
+        fontFamily: customFont,
     },
 });
