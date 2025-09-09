@@ -93,7 +93,7 @@ export const writeStyles = StyleSheet.create({
         marginBottom: 8,
     },
     diaryDate: {
-        fontSize: 16,
+        fontSize: 22,
         color: '#FB644C',
         fontFamily: customFont,
     },

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TouchableOpacity,
   SafeAreaView,
   ScrollView,
   Image
@@ -16,12 +16,12 @@ import homeStyles from '../styles/HomeScreenStyle';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState('');
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1)); 
-  
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1));
+
   // 일기 데이터 (실제로는 API에서 가져올 예정) - 기분 정보 추가
   const [diaryData] = useState({
     '2025-09-02': { hasEntry: true, mood: 'happy' },
-    '2025-09-03': { hasEntry: true, mood: 'sad' }, 
+    '2025-09-03': { hasEntry: true, mood: 'sad' },
     '2025-09-06': { hasEntry: true, mood: 'angry' },
     '2025-09-15': { hasEntry: true, mood: 'happy' },
     '2025-09-16': { hasEntry: true, mood: 'excited' },
@@ -45,7 +45,7 @@ const HomeScreen = () => {
   const handleDatePress = (dateKey, dayData) => {
     setSelectedDate(dateKey);
     console.log('선택된 날짜:', dateKey, '기분:', dayData?.mood);
-    
+
 
     navigation.navigate('WriteTab', { screen: 'WriteList' });
   };
@@ -74,29 +74,29 @@ const HomeScreen = () => {
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDayOfWeek = firstDay.getDay();
     const daysInMonth = lastDay.getDate();
-    
+
     const days = [];
-    
+
     // 이전 달의 빈 칸
     for (let i = 0; i < startDayOfWeek; i++) {
       days.push(null);
     }
-    
+
     // 이번 달의 모든 날짜
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-    
+
     // 마지막 주를 7개로 맞추기
     while (days.length % 7 !== 0) {
       days.push(null);
     }
-    
+
     return days;
   };
 
@@ -165,7 +165,7 @@ const HomeScreen = () => {
     const moodColors = getMoodColors(mood);
     const mouthPath = getMouthPath(mood);
     const strokeWidth = getMouthStrokeWidth(mood);
-    
+
     const svgXml = `
       <svg width="${size}" height="${size * 0.6}" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="18" cy="12" r="4" fill="${moodColors.eye}"/>
@@ -173,7 +173,7 @@ const HomeScreen = () => {
         <path d="${mouthPath}" stroke="${moodColors.mouth}" stroke-width="${strokeWidth}" stroke-linecap="round"/>
       </svg>
     `;
-    
+
     return <SvgXml xml={svgXml} width={size} height={size * 0.6} />;
   };
 
@@ -181,7 +181,7 @@ const HomeScreen = () => {
   const LogoIcon = ({ size = 24, hasEntry = false, mood = null }) => {
     if (!hasEntry) {
       return (
-        <View style={[homeStyles['logo-container'], { 
+        <View style={[homeStyles['logo-container'], {
           width: size,
           height: size,
         }]}>
@@ -200,7 +200,7 @@ const HomeScreen = () => {
     const gradientColors = getMoodGradient(mood);
 
     return (
-      <View style={[homeStyles['logo-container'], { 
+      <View style={[homeStyles['logo-container'], {
         width: size,
         height: size,
         position: 'relative',
@@ -272,12 +272,12 @@ const HomeScreen = () => {
             <TouchableOpacity onPress={goToPreviousMonth} style={homeStyles['nav-arrow']}>
               <Text style={homeStyles['arrow-text']}>‹</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={homeStyles['month-title-wrapper']}>
               <Text style={homeStyles['header-title']}>{getMonthYear(currentDate)}</Text>
               <Text style={homeStyles['dropdown-arrow']}>▼</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity onPress={goToNextMonth} style={homeStyles['nav-arrow']}>
               <Text style={homeStyles['arrow-text']}>›</Text>
             </TouchableOpacity>
@@ -286,66 +286,74 @@ const HomeScreen = () => {
 
         {/* 캘린더 컨테이너 */}
         <View style={homeStyles['calendar-wrapper']}>
-          {/* 요일 헤더 */}
-          <View style={homeStyles['weekdays-container']}>
-            {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-              <View key={index} style={homeStyles['weekday']}>
-                <Text style={[
-                  homeStyles['weekday-text'],
-                  index === 0 && homeStyles['sunday-text'],
-                  index === 6 && homeStyles['saturday-text']
-                ]}>{day}</Text>
-              </View>
-            ))}
-          </View>
+          {/* 캘린더 박스 (둥근 테두리 적용) */}
+          <View style={homeStyles['calendar-container']}>
+            {/* 요일 헤더 */}
+            <View style={homeStyles['weekdays-container']}>
+              {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
+                <View key={index} style={homeStyles['weekday']}>
+                  <Text style={[
+                    homeStyles['weekday-text'],
+                    index === 0 && homeStyles['sunday-text'],
+                    index === 6 && homeStyles['saturday-text']
+                  ]}>{day}</Text>
+                </View>
+              ))}
+            </View>
 
-          {/* 달력 그리드 */}
-          <View style={homeStyles['calendar-grid']}>
-            {calendarDays.map((day, index) => {
-              if (!day) {
-                return <View key={index} style={homeStyles['empty-day']} />;
-              }
+            {/* 요일과 날짜 사이 구분선 */}
+            <View style={homeStyles['weekdays-separator']} />
 
-              const year = currentDate.getFullYear();
-              const month = currentDate.getMonth() + 1;
-              const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-              const dayData = diaryData[dateKey];
-              const hasEntry = dayData && dayData.hasEntry === true;
-              const mood = dayData ? dayData.mood : null;
-              const isToday = dateKey === todayString;
-              const isSelected = dateKey === selectedDate;
+            {/* 달력 그리드 */}
+            <View style={homeStyles['calendar-grid']}>
+              {calendarDays.map((day, index) => {
+                if (!day) {
+                  return <View key={index} style={homeStyles['empty-day']} />;
+                }
 
-              return (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    homeStyles['calendar-day'],
-                    isSelected && homeStyles['selected-day']
-                  ]}
-                  onPress={() => handleDatePress(dateKey, dayData)}
-                  activeOpacity={0.7}
-                >
-                  {/* 로고 영역 (상단) */}
-                  <View style={homeStyles['logo-position']}>
-                    <LogoIcon size={35} hasEntry={hasEntry} mood={mood} />
-                  </View>
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayData = diaryData[dateKey];
+                const hasEntry = dayData && dayData.hasEntry === true;
+                const mood = dayData ? dayData.mood : null;
+                const isToday = dateKey === todayString;
+                const isSelected = dateKey === selectedDate;
 
-                  {/* 날짜 영역 (하단) */}
-                  <View style={[
-                    homeStyles['date-container'],
-                    isToday && homeStyles['today-date-background']
-                  ]}>
-                    <Text style={[
-                      homeStyles['day-number'],
-                      isToday && homeStyles['today-text'],
-                      isSelected && !isToday && homeStyles['selected-text']
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      homeStyles['calendar-day'],
+                      isSelected && homeStyles['selected-day']
+                    ]}
+                    onPress={() => handleDatePress(dateKey, dayData)}
+                    activeOpacity={0.7}
+                  >
+
+
+                    {/* 날짜 영역 (하단) */}
+                    <View style={[
+                      homeStyles['date-container'],
+                      isToday && homeStyles['today-date-background']
                     ]}>
-                      {day}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+                      <Text style={[
+                        homeStyles['day-number'],
+                        isToday && homeStyles['today-text'],
+                        isSelected && !isToday && homeStyles['selected-text']
+                      ]}>
+                        {day}
+                      </Text>
+                    </View>
+
+                    {/* 로고 영역 (상단) */}
+                    <View style={homeStyles['logo-position']}>
+                      <LogoIcon size={35} hasEntry={hasEntry} mood={mood} />
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         </View>
       </ScrollView>

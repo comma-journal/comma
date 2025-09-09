@@ -85,7 +85,6 @@ const EmotionSelector = ({ navigation, route }) => {
     };
 
     // 저장하기
-    // 저장하기
     const handleSave = async () => {
         Alert.alert(
             '저장 확인',
