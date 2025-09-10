@@ -1,29 +1,35 @@
 package kr.elroy.comma.user
 
+import kr.elroy.comma.jwt.TokenProvider
 import kr.elroy.comma.user.domain.User
 import kr.elroy.comma.user.dto.LoginRequest
+import kr.elroy.comma.user.dto.LoginResponse
 import kr.elroy.comma.user.dto.UserResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import java.util.*
 
 @Service
-class UserService {
-    private val passwordEncoder = BCryptPasswordEncoder()
+class UserService(
+    private val passwordEncoder: PasswordEncoder,
+    private val tokenProvider: TokenProvider
+) {
 
     // 토큰 관련 로직 추가 필요
     @Transactional
-    fun login(userRequest: LoginRequest): UserResponse {
+    fun login(userRequest: LoginRequest): LoginResponse {
         val user = User.findByEmail(userRequest.email)
         // 존재 여부
         if(user != null) {
             if (passwordEncoder.matches(userRequest.password, user.password)) {
-                return UserResponse(
-                    name = user.name,
+                return LoginResponse(
                     email = user.email,
+                    name = user.name,
+                    token = tokenProvider.issueAccessToken(user.id.value),
+                    expiresAt = 86400L
                 )
             } else {
                 throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 오류")
@@ -43,15 +49,28 @@ class UserService {
             password = passwordEncoder.encode(userRequest.password)
         }
 
-        return UserResponse(
+        return LoginResponse(
+            email = newUser.email,
             name = newUser.name,
-            email = newUser.email
+            token = tokenProvider.issueAccessToken(newUser.id.value),
+            expiresAt = 86400L
         )
     }
 
+    fun renewToken(authHeader: String): String {
+        if (!authHeader.startsWith("Bearer ")) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰 형식입니다.")
+        }
+        val userId = tokenProvider.getUserIdFromToken(authHeader.substringAfter("Bearer "))
+
+        return tokenProvider.issueAccessToken(userId)
+    }
+
     @Transactional
-    fun updateName(email: String, name: String): UserResponse {
-        return User.findByEmail(email)?.let { user ->
+    fun updateName(authHeader: String, name: String): UserResponse {
+        val userId = tokenProvider.getUserIdFromToken(authHeader.substringAfter("Bearer "))
+
+        return User.findById(userId)?.let { user ->
             user.name = name
             user.toDTO()
         } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.")
