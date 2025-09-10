@@ -42,12 +42,12 @@ export const diaryDetailStyles = StyleSheet.create({
         paddingVertical: 20,
     },
     dateText: {
-        fontSize: 26,
+        fontSize: 35,
         color: '#FB644C',
         fontFamily: customFont,
     },
     updatedText: {
-        fontSize: 14,
+        fontSize: 18,
         color: '#999999',
         marginTop: 4,
         fontFamily: customFont,
@@ -67,7 +67,7 @@ export const diaryDetailStyles = StyleSheet.create({
         paddingVertical: 20,
     },
     contentText: {
-        fontSize: 18,
+        fontSize: 20,
         lineHeight: 24,
         color: '#333333',
         fontFamily: customFont,
@@ -87,6 +87,7 @@ export const diaryDetailStyles = StyleSheet.create({
     emotionItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
+        justifyContent: 'center',
         marginBottom: 12,
         backgroundColor: '#FAFAFA',
         padding: 12,
@@ -102,7 +103,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     emotionIndicatorText: {
         color: '#FFFFFF',
-        fontSize: 13,
+        fontSize: 18,
         textShadowColor: 'rgba(0,0,0,0.3)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 1,
@@ -110,7 +111,7 @@ export const diaryDetailStyles = StyleSheet.create({
     },
     emotionText: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 18,
         color: '#333333',
         lineHeight: 20,
         fontFamily: customFont,
