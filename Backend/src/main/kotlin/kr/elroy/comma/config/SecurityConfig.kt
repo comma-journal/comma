@@ -48,11 +48,9 @@ class SecurityConfig {
                 it.jwt { }
             }
             .exceptionHandling {
-                // (인증 실패 시 처리) 유효한 자격증명(토큰)을 제공하지 않고 접근하려 할 때
                 it.authenticationEntryPoint { _, response, _ ->
                     sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 사용자입니다.")
                 }
-                // (인가 실패 시 처리) 필요한 권한이 없는 사용자가 접근하려 할 때
                 it.accessDeniedHandler { _, response, _ ->
                     sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "접근 권한이 없습니다.")
                 }
@@ -73,7 +71,7 @@ class SecurityConfig {
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Location", "Content-Disposition")
-                .allowCredentials(false) // 쿠키/인증정보 안 쓸 거면 false 유지
+                .allowCredentials(false)
                 .maxAge(3600)
         }
     }
