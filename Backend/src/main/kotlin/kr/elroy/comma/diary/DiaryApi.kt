@@ -3,7 +3,6 @@ package kr.elroy.comma.diary
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.datetime.YearMonth
 import kr.elroy.comma.diary.dto.request.CreateDiaryEntryRequest
 import kr.elroy.comma.diary.dto.request.UpdateDiaryEntryRequest
 import kr.elroy.comma.diary.dto.response.DiaryEntryResponse
@@ -31,8 +30,9 @@ interface DiaryApi {
         @CurrentUserId
         authorId: Long,
 
+        @Parameter(example = "2025-09")
         @RequestParam(required = false)
-        yearMonth: YearMonth?,
+        yearMonth: String?,
     ): List<DiaryEntryResponse>
 
     @Operation(summary = "일기 단건 조회", description = "ID로 특정 일기를 조회합니다.")
