@@ -84,6 +84,10 @@ const Write = ({ navigation }) => {
         return unsubscribe;
     }, [navigation, loadDiaries]);
 
+    useEffect(() => {
+    loadDiaries();
+}, [currentMonth, loadDiaries]);
+
     // 월 변경 함수
     const changeMonth = (direction) => {
         const [year, month] = currentMonth.split('-').map(Number);
@@ -227,16 +231,6 @@ const Write = ({ navigation }) => {
                         <Text style={writeStyles.emptyTitle}>
                             {formatMonth(currentMonth)}에 작성된 일기가 없어요
                         </Text>
-                        <Text style={writeStyles.emptySubtitle}>새로운 일기를 작성해보세요!</Text>
-                        <TouchableOpacity
-                            style={writeStyles.emptyWriteButton}
-                            onPress={() => navigation.navigate('EmotionSelector', {
-                                diary: {},
-                                isEditing: false
-                            })}
-                        >
-                            <Text style={writeStyles.emptyWriteButtonText}>일기 쓰기</Text>
-                        </TouchableOpacity>
                     </View>
                 ) : (
                     diaries.map((diary) => (
