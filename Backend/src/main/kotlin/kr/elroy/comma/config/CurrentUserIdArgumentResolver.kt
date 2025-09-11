@@ -23,7 +23,7 @@ class CurrentUserIdArgumentResolver : HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?,
     ): Long {
         val authentication = SecurityContextHolder.getContext().authentication
-        return authentication?.principal as? Long
-            ?: throw IllegalStateException("User not authenticated")
+
+        return authentication?.name?.toLong() ?: throw IllegalStateException("User not authenticated")
     }
 }

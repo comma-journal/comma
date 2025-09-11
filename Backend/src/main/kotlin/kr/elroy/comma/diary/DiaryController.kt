@@ -19,8 +19,9 @@ class DiaryController(
 
     override fun getAllDiaries(
         authorId: Long,
-        yearMonth: YearMonth?,
+        yearMonth: String?,
     ): List<DiaryEntryResponse> {
+        val yearMonth = yearMonth?.let { YearMonth.parse(it) }
         return diaryService.findAllByAuthorId(authorId, yearMonth)
     }
 
