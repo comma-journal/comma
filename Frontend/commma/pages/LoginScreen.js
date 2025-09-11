@@ -1,10 +1,10 @@
 // LoginScreen.js
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -36,13 +36,13 @@ const LoginScreen = ({ onLogin }) => {
   const checkAutoLogin = async () => {
     try {
       const savedLoginData = await AsyncStorage.getItem('autoLoginData');
-      
+
       if (savedLoginData) {
         const loginData = JSON.parse(savedLoginData);
         const saveTime = new Date(loginData.saveTime);
         const now = new Date();
         const daysDiff = (now - saveTime) / (1000 * 60 * 60 * 24);
-        
+
         if (daysDiff >= 3) {
           console.log('3일 경과로 자동로그인 데이터 삭제');
           await AsyncStorage.removeItem('autoLoginData');
@@ -81,8 +81,8 @@ const LoginScreen = ({ onLogin }) => {
       if (response.ok) {
         const userData = await response.json();
         console.log('자동로그인 성공:', userData);
-        
-        await saveLoginData(savedEmail, savedPassword);
+
+        await saveLoginData(savedEmail, savedPassword, userData);
         onLogin(userData);
       } else {
         console.log('자동로그인 실패, 저장된 정보 삭제');
@@ -96,14 +96,21 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   // 로그인 정보 저장
-  const saveLoginData = async (emailToSave, passwordToSave) => {
+  const saveLoginData = async (emailToSave, passwordToSave, userInfo = null) => {
     try {
       const loginData = {
         email: emailToSave,
         password: passwordToSave,
         saveTime: new Date().toISOString(),
       };
-      
+
+      // 사용자 정보가 있으면 추가로 저장
+      if (userInfo) {
+        loginData.name = userInfo.name;
+        loginData.token = userInfo.token;
+        loginData.expiresAt = userInfo.expiresAt;
+      }
+
       await AsyncStorage.setItem('autoLoginData', JSON.stringify(loginData));
       console.log('로그인 정보 저장 완료');
     } catch (error) {
@@ -138,7 +145,7 @@ const LoginScreen = ({ onLogin }) => {
 
     try {
       console.log('로그인 시도:', { email, password });
-      
+
       const response = await fetch('http://comma.gamja.cloud/v1/users', {
         method: 'POST',
         headers: {
@@ -156,15 +163,15 @@ const LoginScreen = ({ onLogin }) => {
       if (response.ok) {
         const userData = await response.json();
         console.log('로그인 성공:', userData);
-        
-        await saveLoginData(email.trim(), password.trim());
-        
+
+        await saveLoginData(email.trim(), password.trim(), userData);
+
         showAlert({
           title: '성공',
           message: '로그인되었습니다!',
           type: 'success',
-          buttons: [{ 
-            text: '확인', 
+          buttons: [{
+            text: '확인',
             onPress: () => {
               hideAlert();
               onLogin(userData);
@@ -213,7 +220,7 @@ const LoginScreen = ({ onLogin }) => {
 
   return (
     <>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={loginStyles['login-container']}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -227,7 +234,7 @@ const LoginScreen = ({ onLogin }) => {
                 resizeMode="contain"
               />
             </View>
-            
+
             <Text style={loginStyles['login-greeting-text']}>How are you feeling today?</Text>
           </View>
 
@@ -258,13 +265,13 @@ const LoginScreen = ({ onLogin }) => {
             />
 
             {/* 시작하기 버튼 */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
-                isFormComplete ? 
-                  loginStyles['login-signup-button-active'] : 
+                isFormComplete ?
+                  loginStyles['login-signup-button-active'] :
                   loginStyles['login-signup-button'],
                 isLoading && { opacity: 0.6 }
-              ]} 
+              ]}
               onPress={handleLogin}
               activeOpacity={0.8}
               disabled={isLoading}
@@ -272,8 +279,8 @@ const LoginScreen = ({ onLogin }) => {
               {isLoading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={isFormComplete ? 
-                  loginStyles['login-signup-button-text-active'] : 
+                <Text style={isFormComplete ?
+                  loginStyles['login-signup-button-text-active'] :
                   loginStyles['login-signup-button-text']
                 }>
                   시작하기
