@@ -9,6 +9,8 @@ import {
     Alert,
     Animated,
     Easing,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import EmotionGrid from './EmotionGrid';
@@ -31,6 +33,7 @@ const EmotionModal = ({
     onClose,
 }) => {
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
+    
     // 감정 애니메이션 초기화
     const resetEmotionAnimations = () => {
         cardAnimations.forEach(anim => {
@@ -49,7 +52,7 @@ const EmotionModal = ({
 
         // 기존 선택된 감정 애니메이션 초기화
         if (selectedEmotion) {
-            const previousSelectedIndex = emotions.findIndex(e => e.id === selectedEmotion.id); // props의 emotions 사용
+            const previousSelectedIndex = emotions.findIndex(e => e.id === selectedEmotion.id);
             if (previousSelectedIndex !== -1) {
                 Animated.parallel([
                     Animated.timing(cardAnimations[previousSelectedIndex].scale, {
@@ -182,84 +185,95 @@ const EmotionModal = ({
                 visible={visible}
                 onRequestClose={closeModal}
             >
-                <TouchableWithoutFeedback onPress={closeModal}>
-                    <View style={emotionModalStyles.modalOverlay}>
-                        <TouchableWithoutFeedback>
-                            <View style={emotionModalStyles.modalContainer}>
-                                {/* 헤더 */}
-                                <View style={emotionModalStyles.modalHeader}>
-                                    <Text style={emotionModalStyles.modalTitle}>
-                                        {isEditingEmotion ? '감정 수정하기' : '이 문장에 대한 감정 선택'}
-                                    </Text>
-                                    <TouchableOpacity onPress={closeModal}>
-                                        <Icon name="close" size={24} color="#666666" />
-                                    </TouchableOpacity>
-                                </View>
-
-                                {/* 선택된 텍스트 */}
-                                <View style={emotionModalStyles.selectedTextContainer}>
-                                    <Text style={emotionModalStyles.selectedTextLabel}>선택된 문장:</Text>
-                                    <Text style={emotionModalStyles.selectedTextDisplay}>"{selectedText}"</Text>
-                                </View>
-
-                                {/* 감정 그리드 */}
-                                <EmotionGrid
-                                    selectedEmotion={selectedEmotion}
-                                    onEmotionSelect={handleEmotionSelect}
-                                    cardAnimations={cardAnimations}
-                                    emotions={emotions}
-                                />
-
-                                {/* 선택된 감정 미리보기 */}
-                                {selectedEmotion && (
-                                    <View style={emotionModalStyles.selectedEmotionInfo}>
-                                        <View style={[
-                                            emotionModalStyles.selectedEmotionPreview,
-                                            { backgroundColor: selectedEmotion.color }
-                                        ]}>
-                                            <Text style={emotionModalStyles.selectedEmotionName}>
-                                                {selectedEmotion.name}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                )}
-
-                                {/* 버튼들 */}
-                                <View style={emotionModalStyles.modalButtons}>
-                                    <TouchableOpacity
-                                        style={emotionModalStyles.cancelButton}
-                                        onPress={closeModal}
-                                    >
-                                        <Text style={emotionModalStyles.cancelButtonText}>취소</Text>
-                                    </TouchableOpacity>
-
-                                    {isEditingEmotion && (
-                                        <TouchableOpacity
-                                            style={emotionModalStyles.deleteButton}
-                                            onPress={deleteEmotion}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{ flex: 1 }}
+                >
+                    <TouchableWithoutFeedback onPress={closeModal}>
+                        <View style={emotionModalStyles.modalOverlay}>
+                            <TouchableWithoutFeedback onPress={() => {}}>
+                                <View style={emotionModalStyles.modalContainer}>
+                                    {/* 헤더 */}
+                                    <View style={emotionModalStyles.modalHeader}>
+                                        <Text style={emotionModalStyles.modalTitle}>
+                                            {isEditingEmotion ? '감정 수정하기' : '이 문장에 대한 감정 선택'}
+                                        </Text>
+                                        <TouchableOpacity 
+                                            onPress={closeModal}
+                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                         >
-                                            <Icon name="delete" size={16} color="#FFFFFF" />
-                                            <Text style={emotionModalStyles.deleteButtonText}>삭제</Text>
+                                            <Icon name="close" size={24} color="#666666" />
                                         </TouchableOpacity>
+                                    </View>
+
+                                    {/* 선택된 텍스트 */}
+                                    <View style={emotionModalStyles.selectedTextContainer}>
+                                        <Text style={emotionModalStyles.selectedTextLabel}>선택된 문장:</Text>
+                                        <Text style={emotionModalStyles.selectedTextDisplay}>"{selectedText}"</Text>
+                                    </View>
+
+                                    {/* 감정 그리드 */}
+                                    <EmotionGrid
+                                        selectedEmotion={selectedEmotion}
+                                        onEmotionSelect={handleEmotionSelect}
+                                        cardAnimations={cardAnimations}
+                                        emotions={emotions}
+                                    />
+
+                                    {/* 선택된 감정 미리보기 */}
+                                    {selectedEmotion && (
+                                        <View style={emotionModalStyles.selectedEmotionInfo}>
+                                            <View style={[
+                                                emotionModalStyles.selectedEmotionPreview,
+                                                { backgroundColor: selectedEmotion.color }
+                                            ]}>
+                                                <Text style={emotionModalStyles.selectedEmotionName}>
+                                                    {selectedEmotion.name}
+                                                </Text>
+                                            </View>
+                                        </View>
                                     )}
 
-                                    <TouchableOpacity
-                                        style={[
-                                            emotionModalStyles.applyButton,
-                                            !selectedEmotion && emotionModalStyles.applyButtonDisabled
-                                        ]}
-                                        onPress={applyEmotion}
-                                        disabled={!selectedEmotion}
-                                    >
-                                        <Text style={emotionModalStyles.applyButtonText}>
-                                            {isEditingEmotion ? '수정' : '적용'}
-                                        </Text>
-                                    </TouchableOpacity>
+                                    {/* 버튼들 */}
+                                    <View style={emotionModalStyles.modalButtons}>
+                                        <TouchableOpacity
+                                            style={emotionModalStyles.cancelButton}
+                                            onPress={closeModal}
+                                            activeOpacity={0.7}
+                                        >
+                                            <Text style={emotionModalStyles.cancelButtonText}>취소</Text>
+                                        </TouchableOpacity>
+
+                                        {isEditingEmotion && (
+                                            <TouchableOpacity
+                                                style={emotionModalStyles.deleteButton}
+                                                onPress={deleteEmotion}
+                                                activeOpacity={0.7}
+                                            >
+                                                <Icon name="delete" size={16} color="#FFFFFF" />
+                                                <Text style={emotionModalStyles.deleteButtonText}>삭제</Text>
+                                            </TouchableOpacity>
+                                        )}
+
+                                        <TouchableOpacity
+                                            style={[
+                                                emotionModalStyles.applyButton,
+                                                !selectedEmotion && emotionModalStyles.applyButtonDisabled
+                                            ]}
+                                            onPress={applyEmotion}
+                                            disabled={!selectedEmotion}
+                                            activeOpacity={selectedEmotion ? 0.7 : 1}
+                                        >
+                                            <Text style={emotionModalStyles.applyButtonText}>
+                                                {isEditingEmotion ? '수정' : '적용'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </View>
-                </TouchableWithoutFeedback>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* 커스텀 Alert 추가 */}
