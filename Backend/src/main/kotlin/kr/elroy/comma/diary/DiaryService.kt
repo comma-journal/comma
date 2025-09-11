@@ -1,6 +1,7 @@
 package kr.elroy.comma.diary
 
-import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
+import kotlinx.datetime.number
 import kr.elroy.comma.diary.domain.DiaryEntry
 import kr.elroy.comma.diary.domain.DiaryEntryTable
 import kr.elroy.comma.diary.dto.request.CreateDiaryEntryRequest
@@ -9,6 +10,8 @@ import kr.elroy.comma.diary.dto.response.DiaryEntryResponse
 import kr.elroy.comma.user.domain.User
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.datetime.month
+import org.jetbrains.exposed.v1.datetime.year
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,11 +29,12 @@ class DiaryService {
     }
 
     @Transactional(readOnly = true)
-    fun findAllByAuthorId(authorId: Long, date: LocalDate?): List<DiaryEntryResponse> {
-        val query = (DiaryEntryTable.author eq authorId)
+    fun findAllByAuthorId(authorId: Long, yearMonth: YearMonth?): List<DiaryEntryResponse> {
+        var query = (DiaryEntryTable.author eq authorId)
 
-        date?.let {
-            query.and { DiaryEntryTable.entryDate eq it }
+        yearMonth?.let {
+            query = query.and { DiaryEntryTable.entryDate.year() eq yearMonth.year }
+            query = query.and { DiaryEntryTable.entryDate.month() eq yearMonth.month.number }
         }
 
         return DiaryEntry.find(query).map(DiaryEntryResponse::from)

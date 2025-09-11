@@ -1,6 +1,6 @@
 package kr.elroy.comma.diary
 
-import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import kr.elroy.comma.diary.dto.request.CreateDiaryEntryRequest
 import kr.elroy.comma.diary.dto.request.UpdateDiaryEntryRequest
 import kr.elroy.comma.diary.dto.response.DiaryEntryResponse
@@ -19,9 +19,9 @@ class DiaryController(
 
     override fun getAllDiaries(
         authorId: Long,
-        date: LocalDate?,
+        yearMonth: YearMonth?,
     ): List<DiaryEntryResponse> {
-        return diaryService.findAllByAuthorId(authorId, date)
+        return diaryService.findAllByAuthorId(authorId, yearMonth)
     }
 
     override fun getDiaryById(
