@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.YearMonth
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -30,6 +31,9 @@ class SwaggerConfig {
                     .addSchemas(
                         "LocalDateTime",
                         Schema<LocalDateTime>().type("string").format("date-time").example("2025-09-10T14:30:00")
+                    )
+                    .addSchemas(
+                        "YearMonth", Schema<YearMonth>().type("string").example("2025-09")
                     )
             )
             .addSecurityItem(SecurityRequirement().addList("bearerAuth"))
