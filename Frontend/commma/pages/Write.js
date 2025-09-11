@@ -8,24 +8,61 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { writeStyles } from '../styles/WriteStyles';
 import CustomAlert from '../components/CustomAlert';
 import { useCustomAlert } from '../hooks/useCustomAlert';
+import { API_BASE_URL, getAuthToken, getAuthHeaders } from '../api/config';
 
 const Write = ({ navigation }) => {
     const [diaries, setDiaries] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentMonth, setCurrentMonth] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    });
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
-    // 일기 목록 로드
+    // 일기 목록 로드 (월별)
     const loadDiaries = useCallback(async () => {
         try {
-            const storedDiaries = await AsyncStorage.getItem('diaries');
-            if (storedDiaries) {
-                const parsedDiaries = JSON.parse(storedDiaries);
-                setDiaries(parsedDiaries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+            setLoading(true);
+            const token = await getAuthToken();
+            if (!token) {
+                throw new Error('인증 토큰이 없습니다.');
             }
+
+            const response = await fetch(`${API_BASE_URL}/me/diary?yearMonth=${currentMonth}`, {
+                method: 'GET',
+                headers: getAuthHeaders(token),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const diariesData = await response.json();
+            
+            // 백엔드 데이터를 로컬 형식으로 변환
+            const convertedDiaries = diariesData.map(diary => ({
+                id: diary.id,
+                title: diary.title,
+                content: diary.content,
+                createdAt: diary.createdAt,
+                updatedAt: diary.updatedAt,
+                emotionSegments: diary.annotations && diary.annotations.length > 0 
+                    ? diary.annotations[0].highlights.map(highlight => ({
+                        id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
+                        text: diary.content.slice(highlight.start, highlight.end),
+                        start: highlight.start,
+                        end: highlight.end,
+                        emotionId: highlight.emotion.id,
+                        emotionName: highlight.emotion.name,
+                        emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
+                    })) : [],
+                annotations: diary.annotations || []
+            }));
+
+            setDiaries(convertedDiaries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         } catch (error) {
             console.error('일기 로드 오류:', error);
             showAlert({
@@ -37,7 +74,7 @@ const Write = ({ navigation }) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [currentMonth]);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -46,6 +83,26 @@ const Write = ({ navigation }) => {
 
         return unsubscribe;
     }, [navigation, loadDiaries]);
+
+    useEffect(() => {
+    loadDiaries();
+}, [currentMonth, loadDiaries]);
+
+    // 월 변경 함수
+    const changeMonth = (direction) => {
+        const [year, month] = currentMonth.split('-').map(Number);
+        const currentDate = new Date(year, month - 1);
+        
+        if (direction === 'prev') {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+        } else {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+        
+        const newYear = currentDate.getFullYear();
+        const newMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+        setCurrentMonth(`${newYear}-${newMonth}`);
+    };
 
     // 일기 삭제
     const deleteDiary = async (diaryId) => {
@@ -65,11 +122,23 @@ const Write = ({ navigation }) => {
                     onPress: async () => {
                         hideAlert();
                         try {
-                            const updatedDiaries = diaries.filter(diary => diary.id !== diaryId);
-                            await AsyncStorage.setItem('diaries', JSON.stringify(updatedDiaries));
-                            setDiaries(updatedDiaries);
+                            const token = await getAuthToken();
+                            if (!token) {
+                                throw new Error('인증 토큰이 없습니다.');
+                            }
+
+                            const response = await fetch(`${API_BASE_URL}/me/diary/${diaryId}`, {
+                                method: 'DELETE',
+                                headers: getAuthHeaders(token),
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+
+                            // 로컬 상태에서 삭제
+                            setDiaries(prev => prev.filter(diary => diary.id !== diaryId));
                             
-                            // 삭제 성공 알림
                             showAlert({
                                 title: '삭제 완료',
                                 message: '일기가 성공적으로 삭제되었습니다.',
@@ -99,6 +168,12 @@ const Write = ({ navigation }) => {
         const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
         const weekday = weekdays[date.getDay()];
         return `${month}월 ${day}일 ${weekday}`;
+    };
+
+    // 월 표시 포맷팅
+    const formatMonth = (yearMonth) => {
+        const [year, month] = yearMonth.split('-');
+        return `${year}년 ${parseInt(month)}월`;
     };
 
     // 감정 개수 계산
@@ -137,22 +212,25 @@ const Write = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
+            {/* 월 선택 헤더 */}
+            <View style={writeStyles.monthSelector}>
+                <TouchableOpacity onPress={() => changeMonth('prev')}>
+                    <Icon name="chevron-left" size={28} color="#333333" />
+                </TouchableOpacity>
+                <Text style={writeStyles.monthText}>{formatMonth(currentMonth)}</Text>
+                <TouchableOpacity onPress={() => changeMonth('next')}>
+                    <Icon name="chevron-right" size={28} color="#333333" />
+                </TouchableOpacity>
+            </View>
+
             {/* 일기 목록 */}
             <ScrollView style={writeStyles.diaryList} showsVerticalScrollIndicator={false}>
                 {diaries.length === 0 ? (
                     <View style={writeStyles.emptyContainer}>
                         <Icon name="book" size={80} color="#E0E0E0" />
-                        <Text style={writeStyles.emptyTitle}>아직 작성된 일기가 없어요</Text>
-                        <Text style={writeStyles.emptySubtitle}>첫 번째 일기를 작성해보세요!</Text>
-                        <TouchableOpacity
-                            style={writeStyles.emptyWriteButton}
-                            onPress={() => navigation.navigate('EmotionSelector', {
-                                diary: {},
-                                isEditing: false
-                            })}
-                        >
-                            <Text style={writeStyles.emptyWriteButtonText}>일기 쓰기</Text>
-                        </TouchableOpacity>
+                        <Text style={writeStyles.emptyTitle}>
+                            {formatMonth(currentMonth)}에 작성된 일기가 없어요
+                        </Text>
                     </View>
                 ) : (
                     diaries.map((diary) => (

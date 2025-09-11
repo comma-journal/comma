@@ -15,22 +15,36 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextSelector from '../components/TextSelector';
-import EmotionGrid from '../components/EmotionGrid';
 import EmotionModal from '../components/EmotionModal';
 import CustomAlert from '../components/CustomAlert';
 import { useCustomAlert } from '../hooks/useCustomAlert';
 import { emotionSelectorStyles } from '../styles/EmotionSelectorStyles';
-import { emotions } from '../data/emotionsData';
+import { useEmotionsData } from '../hooks/useEmotionsData';
+import { API_BASE_URL, getAuthToken, getAuthHeaders } from '../api/config';
 
 const EmotionSelector = ({ navigation, route }) => {
     const { diary, isEditing } = route.params;
-    
-    // 커스텀 Alert 추가
+
+    const { emotions, isLoading: emotionsLoading, error: emotionsError } = useEmotionsData();
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
-    
+
     const [title, setTitle] = useState(diary?.title || '');
     const [content, setContent] = useState(diary?.content || '');
-    const [emotionSegments, setEmotionSegments] = useState(diary?.emotionSegments || []);
+    const [emotionSegments, setEmotionSegments] = useState(() => {
+        // 백엔드 데이터 형식을 로컬 형식으로 변환
+        if (diary?.annotations && diary.annotations.length > 0) {
+            return diary.annotations[0].highlights.map(highlight => ({
+                id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
+                text: diary.content.slice(highlight.start, highlight.end),
+                start: highlight.start,
+                end: highlight.end,
+                emotionId: highlight.emotion.id,
+                emotionName: highlight.emotion.name,
+                emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
+            }));
+        }
+        return [];
+    });
     const [selectionStart, setSelectionStart] = useState(0);
     const [selectionEnd, setSelectionEnd] = useState(0);
     const [emotionModalVisible, setEmotionModalVisible] = useState(false);
@@ -51,7 +65,20 @@ const EmotionSelector = ({ navigation, route }) => {
     const initialState = useRef({
         title: diary?.title || '',
         content: diary?.content || '',
-        emotionSegments: diary?.emotionSegments || []
+        emotionSegments: (() => {
+            if (diary?.annotations && diary.annotations.length > 0) {
+                return diary.annotations[0].highlights.map(highlight => ({
+                    id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
+                    text: diary.content.slice(highlight.start, highlight.end),
+                    start: highlight.start,
+                    end: highlight.end,
+                    emotionId: highlight.emotion.id,
+                    emotionName: highlight.emotion.name,
+                    emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
+                }));
+            }
+            return [];
+        })()
     });
     
     // 이전 content를 추적하기 위한 ref
@@ -61,13 +88,24 @@ const EmotionSelector = ({ navigation, route }) => {
     const bottomBarAnimation = useRef(new Animated.Value(0)).current;
     const [showBottomSelectionBar, setShowBottomSelectionBar] = useState(false);
 
-    // 감정 선택 애니메이션
-    const cardAnimations = useRef(
-        emotions.map(() => ({
-            scale: new Animated.Value(1),
-            translateY: new Animated.Value(0),
-        }))
-    ).current;
+    // 감정 선택 애니메이션 (emotions 배열 길이에 따라 동적 생성)
+    const cardAnimations = useRef([]).current;
+
+    // emotions가 로딩되면 애니메이션 배열 초기화
+    useEffect(() => {
+        if (emotions.length > 0) {
+            // 기존 애니메이션 초기화
+            cardAnimations.splice(0, cardAnimations.length);
+
+            // 새로운 애니메이션 추가
+            emotions.forEach(() => {
+                cardAnimations.push({
+                    scale: new Animated.Value(1),
+                    translateY: new Animated.Value(0),
+                });
+            });
+        }
+    }, [emotions]);
 
     // 키보드 이벤트 리스너
     useEffect(() => {
@@ -171,7 +209,6 @@ const EmotionSelector = ({ navigation, route }) => {
             return;
         }
 
-        // 감정 선택 확인
         if (emotionSegments.length === 0) {
             showAlert({
                 title: '감정 선택 안내',
@@ -189,6 +226,21 @@ const EmotionSelector = ({ navigation, route }) => {
                             hideAlert();
                             try {
                                 await proceedWithSaveAndExit();
+                                // 여기서도 바로 이동하지 않고 성공 알림 후 이동
+                                showAlert({
+                                    title: '저장 완료',
+                                    message: '일기가 성공적으로 저장되었습니다.',
+                                    type: 'success',
+                                    buttons: [
+                                        {
+                                            text: '확인',
+                                            onPress: () => {
+                                                hideAlert();
+                                                navigation.navigate('WriteList');
+                                            }
+                                        }
+                                    ]
+                                });
                             } catch (error) {
                                 console.error('저장 오류:', error);
                                 showAlert({
@@ -205,9 +257,23 @@ const EmotionSelector = ({ navigation, route }) => {
             return;
         }
 
-        // 감정이 있으면 바로 저장하고 나가기
         try {
             await proceedWithSaveAndExit();
+            // 여기서도 바로 이동하지 않고 성공 알림 후 이동
+            showAlert({
+                title: '저장 완료',
+                message: '일기가 성공적으로 저장되었습니다.',
+                type: 'success',
+                buttons: [
+                    {
+                        text: '확인',
+                        onPress: () => {
+                            hideAlert();
+                            navigation.navigate('WriteList');
+                        }
+                    }
+                ]
+            });
         } catch (error) {
             console.error('저장 오류:', error);
             showAlert({
@@ -219,36 +285,94 @@ const EmotionSelector = ({ navigation, route }) => {
         }
     };
 
-    // 실제 저장하고 나가기 처리
+    // 실제 저장하고 나가기 처리 (API 버전)
     const proceedWithSaveAndExit = async () => {
-        const finalDiary = {
-            id: isEditing ? diary.id : Date.now().toString(),
-            title: title.trim() || '제목 없음',
-            content: content.trim(),
-            emotionSegments: emotionSegments,
-            createdAt: isEditing ? diary.createdAt : new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
+        try {
+            // useEmotionsData.js와 동일한 방식으로 토큰 가져오기
+            const savedLoginData = await AsyncStorage.getItem('autoLoginData');
 
-        // 기존 일기 목록 로드
-        const storedDiaries = await AsyncStorage.getItem('diaries');
-        let diaries = storedDiaries ? JSON.parse(storedDiaries) : [];
+            if (!savedLoginData) {
+                throw new Error('로그인 정보가 없습니다.');
+            }
 
-        if (isEditing) {
-            // 수정 모드
-            diaries = diaries.map(d => d.id === diary.id ? finalDiary : d);
-        } else {
-            // 새 일기 추가
-            diaries.push(finalDiary);
+            const loginData = JSON.parse(savedLoginData);
+            const token = loginData.token;
+
+            if (!token) {
+                throw new Error('토큰이 없습니다.');
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+
+            const requestBody = {
+                title: title.trim() || '제목 없음',
+                content: content.trim(),
+                entryDate: today,
+                annotations: [{
+                    comments: [],
+                    highlights: emotionSegments.map(segment => ({
+                        start: segment.start,
+                        end: segment.end,
+                        emotion: {
+                            id: segment.emotionId,
+                            name: segment.emotionName,
+                            rgb: parseInt(segment.emotionColor.replace('#', ''), 16),
+                            description: ""
+                        }
+                    }))
+                }]
+            };
+
+            const url = isEditing
+                ? `${API_BASE_URL}/me/diary/${diary.id}`
+                : `${API_BASE_URL}/me/diary`;
+
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            setIsSaved(true);
+
+            return true;
+
+        } catch (error) {
+            console.error('API 저장 오류:', error);
+
+            if (error.message.includes('로그인 정보가 없습니다') ||
+                error.message.includes('토큰이 없습니다')) {
+                showAlert({
+                    title: '로그인 필요',
+                    message: '로그인이 필요합니다.',
+                    type: 'warning',
+                    buttons: [
+                        {
+                            text: '확인',
+                            onPress: () => {
+                                hideAlert();
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Login' }],
+                                });
+                            }
+                        }
+                    ]
+                });
+            } else {
+                throw error;
+            }
         }
-
-        await AsyncStorage.setItem('diaries', JSON.stringify(diaries));
-        setIsSaved(true);
-
-        // 잠시 후 페이지 이동
-        setTimeout(() => {
-            navigation.navigate('WriteList');
-        }, 100);
     };
 
     // 삭제될 감정 세그먼트 확인 함수
@@ -528,29 +652,7 @@ const EmotionSelector = ({ navigation, route }) => {
     // 실제 저장 처리 함수 (중복 제거)
     const proceedWithSave = async () => {
         try {
-            const finalDiary = {
-                id: isEditing ? diary.id : Date.now().toString(),
-                title: title.trim() || '제목 없음',
-                content: content.trim(),
-                emotionSegments: emotionSegments,
-                createdAt: isEditing ? diary.createdAt : new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
-
-            // 기존 일기 목록 로드
-            const storedDiaries = await AsyncStorage.getItem('diaries');
-            let diaries = storedDiaries ? JSON.parse(storedDiaries) : [];
-
-            if (isEditing) {
-                // 수정 모드
-                diaries = diaries.map(d => d.id === diary.id ? finalDiary : d);
-            } else {
-                // 새 일기 추가
-                diaries.push(finalDiary);
-            }
-
-            await AsyncStorage.setItem('diaries', JSON.stringify(diaries));
-            setIsSaved(true); // 저장 상태 업데이트
+            await proceedWithSaveAndExit();
 
             showAlert({
                 title: '저장 완료',
@@ -600,6 +702,33 @@ const EmotionSelector = ({ navigation, route }) => {
         setEditingSegmentId(segment.id);
         setEmotionModalVisible(true);
     };
+
+    // 감정 데이터 로딩 중이거나 에러가 있을 때의 처리
+    if (emotionsLoading) {
+        return (
+            <SafeAreaView style={emotionSelectorStyles.container}>
+                <View style={emotionSelectorStyles.loadingContainer}>
+                    <Text style={emotionSelectorStyles.loadingText}>감정 데이터를 불러오는 중...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (emotionsError) {
+        return (
+            <SafeAreaView style={emotionSelectorStyles.container}>
+                <View style={emotionSelectorStyles.errorContainer}>
+                    <Text style={emotionSelectorStyles.errorText}>감정 데이터를 불러올 수 없습니다.</Text>
+                    <TouchableOpacity
+                        style={emotionSelectorStyles.retryButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={emotionSelectorStyles.retryButtonText}>돌아가기</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={emotionSelectorStyles.container}>
@@ -745,6 +874,7 @@ const EmotionSelector = ({ navigation, route }) => {
                 setEmotionSegments={setEmotionSegments}
                 selectedTextRange={selectedTextRange}
                 cardAnimations={cardAnimations}
+                emotions={emotions}
                 onClose={() => setEmotionModalVisible(false)}
             />
 

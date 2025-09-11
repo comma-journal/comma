@@ -132,4 +132,20 @@ export const writeStyles = StyleSheet.create({
         lineHeight: 20,
         fontFamily: customFont,
     },
+    monthSelector: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    monthText: {
+        fontSize: 22,
+        color: '#333333',
+        fontFamily: customFont,
+        fontWeight: '600',
+    },
 });
