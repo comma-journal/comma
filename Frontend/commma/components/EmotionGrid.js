@@ -8,7 +8,6 @@ import {
     Animated,
     Dimensions,
 } from 'react-native';
-import { emotions } from '../data/emotionsData';
 import { emotionGridStyles } from '../styles/components/EmotionGridStyles';
 
 const { width } = Dimensions.get('window');
@@ -16,7 +15,8 @@ const { width } = Dimensions.get('window');
 const EmotionGrid = ({ 
     selectedEmotion, 
     onEmotionSelect, 
-    cardAnimations 
+    cardAnimations,
+    emotions // props로 받아서 사용
 }) => {
     // 감정 카드 렌더링
     const renderEmotionCard = (emotion, index) => {
@@ -33,8 +33,8 @@ const EmotionGrid = ({
                         height: cardHeight,
                         backgroundColor: emotion.color,
                         transform: [
-                            { translateY: cardAnimations[index].translateY },
-                            { scale: cardAnimations[index].scale },
+                            { translateY: cardAnimations[index]?.translateY || new Animated.Value(0) },
+                            { scale: cardAnimations[index]?.scale || new Animated.Value(1) },
                         ],
                     },
                 ]}
@@ -69,7 +69,7 @@ const EmotionGrid = ({
             showsVerticalScrollIndicator={false}
         >
             <View style={emotionGridStyles.emotionGridContent}>
-                {emotions.map(renderEmotionCard)}
+                {emotions?.map(renderEmotionCard) || []}
             </View>
         </ScrollView>
     );

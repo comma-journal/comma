@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import EmotionGrid from './EmotionGrid';
-import { emotions } from '../data/emotionsData';
 import { emotionModalStyles } from '../styles/components/EmotionModalStyles';
 import CustomAlert from './CustomAlert';
 import { useCustomAlert } from '../hooks/useCustomAlert';
@@ -28,6 +27,7 @@ const EmotionModal = ({
     setEmotionSegments,
     selectedTextRange,
     cardAnimations,
+    emotions,
     onClose,
 }) => {
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
@@ -49,7 +49,7 @@ const EmotionModal = ({
 
         // 기존 선택된 감정 애니메이션 초기화
         if (selectedEmotion) {
-            const previousSelectedIndex = emotions.findIndex(e => e.id === selectedEmotion.id);
+            const previousSelectedIndex = emotions.findIndex(e => e.id === selectedEmotion.id); // props의 emotions 사용
             if (previousSelectedIndex !== -1) {
                 Animated.parallel([
                     Animated.timing(cardAnimations[previousSelectedIndex].scale, {
@@ -207,6 +207,7 @@ const EmotionModal = ({
                                     selectedEmotion={selectedEmotion}
                                     onEmotionSelect={handleEmotionSelect}
                                     cardAnimations={cardAnimations}
+                                    emotions={emotions}
                                 />
 
                                 {/* 선택된 감정 미리보기 */}

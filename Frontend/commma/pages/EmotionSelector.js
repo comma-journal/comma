@@ -15,19 +15,19 @@ import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TextSelector from '../components/TextSelector';
-import EmotionGrid from '../components/EmotionGrid';
 import EmotionModal from '../components/EmotionModal';
 import CustomAlert from '../components/CustomAlert';
 import { useCustomAlert } from '../hooks/useCustomAlert';
 import { emotionSelectorStyles } from '../styles/EmotionSelectorStyles';
-import { emotions } from '../data/emotionsData';
+import { useEmotionsData } from '../hooks/useEmotionsData';
 
 const EmotionSelector = ({ navigation, route }) => {
     const { diary, isEditing } = route.params;
-    
-    // 커스텀 Alert 추가
+
+    const { emotions, isLoading: emotionsLoading, error: emotionsError } = useEmotionsData();
+
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
-    
+
     const [title, setTitle] = useState(diary?.title || '');
     const [content, setContent] = useState(diary?.content || '');
     const [emotionSegments, setEmotionSegments] = useState(diary?.emotionSegments || []);
@@ -39,21 +39,21 @@ const EmotionSelector = ({ navigation, route }) => {
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [isEditingEmotion, setIsEditingEmotion] = useState(false);
     const [editingSegmentId, setEditingSegmentId] = useState(null);
-    
+
     // 키보드 상태 관리
     const [keyboardVisible, setKeyboardVisible] = useState(false);
-    
+
     // 저장 상태 관리
     const [isSaved, setIsSaved] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
-    
+
     // 초기 상태 저장 (변경사항 감지용)
     const initialState = useRef({
         title: diary?.title || '',
         content: diary?.content || '',
         emotionSegments: diary?.emotionSegments || []
     });
-    
+
     // 이전 content를 추적하기 위한 ref
     const previousContentRef = useRef(content);
 
@@ -61,13 +61,24 @@ const EmotionSelector = ({ navigation, route }) => {
     const bottomBarAnimation = useRef(new Animated.Value(0)).current;
     const [showBottomSelectionBar, setShowBottomSelectionBar] = useState(false);
 
-    // 감정 선택 애니메이션
-    const cardAnimations = useRef(
-        emotions.map(() => ({
-            scale: new Animated.Value(1),
-            translateY: new Animated.Value(0),
-        }))
-    ).current;
+    // 감정 선택 애니메이션 (emotions 배열 길이에 따라 동적 생성)
+    const cardAnimations = useRef([]).current;
+
+    // emotions가 로딩되면 애니메이션 배열 초기화
+    useEffect(() => {
+        if (emotions.length > 0) {
+            // 기존 애니메이션 초기화
+            cardAnimations.splice(0, cardAnimations.length);
+            
+            // 새로운 애니메이션 추가
+            emotions.forEach(() => {
+                cardAnimations.push({
+                    scale: new Animated.Value(1),
+                    translateY: new Animated.Value(0),
+                });
+            });
+        }
+    }, [emotions]);
 
     // 키보드 이벤트 리스너
     useEffect(() => {
@@ -601,6 +612,33 @@ const EmotionSelector = ({ navigation, route }) => {
         setEmotionModalVisible(true);
     };
 
+    // 감정 데이터 로딩 중이거나 에러가 있을 때의 처리
+    if (emotionsLoading) {
+        return (
+            <SafeAreaView style={emotionSelectorStyles.container}>
+                <View style={emotionSelectorStyles.loadingContainer}>
+                    <Text style={emotionSelectorStyles.loadingText}>감정 데이터를 불러오는 중...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (emotionsError) {
+        return (
+            <SafeAreaView style={emotionSelectorStyles.container}>
+                <View style={emotionSelectorStyles.errorContainer}>
+                    <Text style={emotionSelectorStyles.errorText}>감정 데이터를 불러올 수 없습니다.</Text>
+                    <TouchableOpacity 
+                        style={emotionSelectorStyles.retryButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={emotionSelectorStyles.retryButtonText}>돌아가기</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView style={emotionSelectorStyles.container}>
             {/* 헤더 */}
@@ -745,6 +783,7 @@ const EmotionSelector = ({ navigation, route }) => {
                 setEmotionSegments={setEmotionSegments}
                 selectedTextRange={selectedTextRange}
                 cardAnimations={cardAnimations}
+                emotions={emotions}
                 onClose={() => setEmotionModalVisible(false)}
             />
 
