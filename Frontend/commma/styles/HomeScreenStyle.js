@@ -52,26 +52,8 @@ const homeStyles = StyleSheet.create({
   borderBottomWidth: 0.2,
   borderBottomColor: 'rgba(0,0,0,0.08)',
 
-
-
-  // Android subtle shadow
-  elevation: 2,
 },
 
-
-'app-header-shadow': {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.06,
-  shadowRadius: 4,
-  elevation: 3,
-  backgroundColor: 'transparent', // 배경은 투명
-},
 
 'app-header-container': {
   flexDirection: 'row',
@@ -95,12 +77,9 @@ const homeStyles = StyleSheet.create({
 'app-title': {
   fontSize: width < 350 ? 20 : width < 400 ? 22 : 24,
   fontFamily: customFont,
-  fontWeight: '600',
   color: '#2D2D2D',
   letterSpacing: -0.5,
 },
-
-
 
   // 홈 스크롤 뷰
   'home-scroll': {
@@ -132,18 +111,11 @@ const homeStyles = StyleSheet.create({
     minWidth: 44,
     minHeight: 44,
     borderRadius: 12,
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   'arrow-text': {
     fontSize: 22,
     fontFamily: customFont,
     color: '#333333',
-    fontWeight: '600',
   },
   'month-title-wrapper': {
     flexDirection: 'row',
@@ -151,20 +123,12 @@ const homeStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     justifyContent: 'center',
-
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
   },
   'header-title': {
     fontSize: width < 350 ? 28 : 32,
     color: '#333333',
     marginRight: 8,
     fontFamily: customFont,
-    fontWeight: '700',
   },
   'dropdown-arrow': {
     fontSize: 14,
