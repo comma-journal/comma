@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import customFont from './fonts';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 // 화면 크기별 설정값 계산
 const getResponsiveValues = () => {
@@ -34,19 +34,89 @@ const getResponsiveValues = () => {
 const { horizontalPadding, dayWidth, dayHeight, gridMarginTop, calendarWidth } = getResponsiveValues();
 
 const homeStyles = StyleSheet.create({
+  // 메인 컨테이너
   'home-container': {
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingBottom: 100,
+  },
+
+
+'app-header': {
+  backgroundColor: '#FFFFFF',
+  paddingHorizontal: horizontalPadding,
+  paddingTop: 12,
+  paddingBottom: 18,
+
+  // 은은한 구분선 (살짝 보이는 선)
+  borderBottomWidth: 0.2,
+  borderBottomColor: 'rgba(0,0,0,0.08)',
+
+
+
+  // Android subtle shadow
+  elevation: 2,
+},
+
+
+'app-header-shadow': {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 4,
+  elevation: 3,
+  backgroundColor: 'transparent', // 배경은 투명
+},
+
+'app-header-container': {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+},
+
+'app-logo-section': {
+  flexDirection: 'row',
+  alignItems: 'center',
+  flex: 1,
+  zIndex: 1, // 그림자 위에 컨텐츠가 올라오도록
+},
+
+'app-logo': {
+  width: 32,
+  height: 32,
+  marginRight: 12,
+},
+
+'app-title': {
+  fontSize: width < 350 ? 20 : width < 400 ? 22 : 24,
+  fontFamily: customFont,
+  fontWeight: '600',
+  color: '#2D2D2D',
+  letterSpacing: -0.5,
+},
+
+
+
+  // 홈 스크롤 뷰
+  'home-scroll': {
+    flex: 1,
     paddingHorizontal: horizontalPadding,
   },
+
+  // 캘린더 헤더
   'home-header': {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 0,
-    paddingTop: 15,
+    paddingTop: 20,
     paddingBottom: 25,
+    backgroundColor: '#FFFFFF',
   },
   'header-title-container': {
     flexDirection: 'row',
@@ -61,73 +131,168 @@ const homeStyles = StyleSheet.create({
     alignItems: 'center',
     minWidth: 44,
     minHeight: 44,
+    borderRadius: 12,
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   'arrow-text': {
     fontSize: 22,
     fontFamily: customFont,
     color: '#333333',
+    fontWeight: '600',
   },
   'month-title-wrapper': {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     justifyContent: 'center',
+
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   'header-title': {
-    fontSize: width < 350 ? 32 : 37,
+    fontSize: width < 350 ? 28 : 32,
     color: '#333333',
     marginRight: 8,
     fontFamily: customFont,
+    fontWeight: '700',
   },
   'dropdown-arrow': {
-    fontSize: 16,
-    color: '#999999',
+    fontSize: 14,
+    color: '#FB644C',
     marginTop: 2,
     fontFamily: customFont,
+    fontWeight: '600',
   },
-  'settings-button': {
-    padding: 8,
-  },
-  'settings-icon': {
-    width: 24,
-    height: 24,
+
+  // 연월 선택 모달 스타일
+  'modal-backdrop': {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
+    paddingHorizontal: 20,
   },
-  'gear-tooth': {
-    position: 'absolute',
-    width: 20,
-    height: 3,
-    backgroundColor: '#CCCCCC',
-    borderRadius: 1.5,
+  'modal-container': {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: height * 0.7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  'gear-center': {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#CCCCCC',
-    position: 'absolute',
+  'modal-header': {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
+  'modal-title': {
+    fontSize: 20,
+    fontFamily: customFont,
+    fontWeight: '600',
+    color: '#333333',
+  },
+  'modal-close-button': {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#F8F9FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  'modal-close-text': {
+    fontSize: 20,
+    color: '#666666',
+    fontWeight: '600',
+  },
+  'modal-content': {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  'year-section': {
+    marginVertical: 15,
+  },
+  'year-title': {
+    fontSize: 18,
+    fontFamily: customFont,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+  'months-grid': {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  'month-button': {
+    width: '30%',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+    borderRadius: 12,
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  'month-button-selected': {
+
+    shadowColor: '#FB644C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  'month-text': {
+    fontSize: 14,
+    fontFamily: customFont,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  'month-text-selected': {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+
+  // 캘린더 관련 스타일
   'calendar-wrapper': {
     paddingHorizontal: 0,
-    marginTop: 20,
+    marginTop: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  'calendar-container': {
+    width: '100%',
   },
   'weekdays-container': {
     flexDirection: 'row',
     marginBottom: width < 350 ? 10 : 15,
     paddingHorizontal: 0,
     alignItems: 'center',
-    justifyContent: 'flex-start', // 시작점에서 정렬
-    width: calendarWidth, // 정확한 너비 지정
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    paddingBottom: 15,
+    justifyContent: 'flex-start',
+    width: calendarWidth,
+
   },
   'weekday': {
-    width: dayWidth, // 정확히 같은 너비
+    width: dayWidth,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 6,
@@ -135,8 +300,9 @@ const homeStyles = StyleSheet.create({
   'weekday-text': {
     fontSize: width < 350 ? 18 : 20,
     color: '#666666',
-    textAlign: 'center', // 텍스트 중앙 정렬
+    textAlign: 'center',
     fontFamily: customFont,
+    fontWeight: '500',
   },
   'sunday-text': {
     color: '#FF6B6B',
@@ -144,30 +310,66 @@ const homeStyles = StyleSheet.create({
   'saturday-text': {
     color: '#4DABF7',
   },
+  'weekdays-separator': {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    width: '100%',
+  },
   'calendar-grid': {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start', // 시작점에서 정렬
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    width: calendarWidth, // 정확한 너비 지정
+    width: calendarWidth,
   },
   'empty-day': {
-    width: dayWidth, // 정확히 같은 너비
+    width: dayWidth,
     height: dayHeight,
   },
   'calendar-day': {
-    width: dayWidth, // 정확히 같은 너비
+    width: dayWidth,
     height: dayHeight,
     marginTop: gridMarginTop,
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: width < 350 ? 4 : 6,
-    // 각 날짜 셀의 중앙 정렬을 위한 추가 스타일
-    paddingHorizontal: 2, // 좌우 여백 최소화
+    paddingHorizontal: 2,
   },
   'selected-day': {
     backgroundColor: 'transparent',
   },
+  'date-container': {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: width < 350 ? 6 : 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: width < 350 ? 24 : 28,
+    minHeight: width < 350 ? 18 : 20,
+    marginBottom: 10,
+  },
+  'today-date-background': {
+    backgroundColor: '#FF6B6B',
+    borderRadius: 8,
+    paddingHorizontal: width < 350 ? 6 : 8,
+    paddingVertical: 1,
+  },
+  'day-number': {
+
+    color: '#333333',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  'today-text': {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  'selected-text': {
+    color: '#FB644C',
+    fontWeight: '600',
+  },
+
+  // 로고 관련 스타일
   'logo-position': {
     justifyContent: 'center',
     alignItems: 'center',
@@ -191,36 +393,7 @@ const homeStyles = StyleSheet.create({
   'logo-image': {
     borderRadius: 100,
   },
-  'date-container': {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: width < 350 ? 6 : 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: width < 350 ? 24 : 28,
-    minHeight: width < 350 ? 18 : 20,
-    marginBottom: 10,
-  },
-  'today-date-background': {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 8,
-    paddingHorizontal: width < 350 ? 6 : 8,
-    paddingVertical: 1,
-  },
-  'day-number': {
-    fontSize: width < 350 ? 18 : 20,
-    color: '#333333',
-    fontFamily: customFont,
-    textAlign: 'center',
-  },
-  'today-text': {
-    color: '#FFFFFF',
-    fontFamily: customFont,
-  },
-  'selected-text': {
-    color: '#FF6B6B',
-    fontFamily: customFont,
-  },
+
 });
 
 export default homeStyles;

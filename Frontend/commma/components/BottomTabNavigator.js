@@ -49,7 +49,7 @@ const WriteStack = () => {
   );
 };
 
-const BottomTabNavigator = () => {
+const BottomTabNavigator = ({ onLogout }) => {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <Tab.Navigator
@@ -78,10 +78,10 @@ const BottomTabNavigator = () => {
             shadowColor: '#000000',
             shadowOffset: {
               width: 0,
-              height: -8,
+              height: -1,
             },
-            shadowOpacity: 0.15,
-            shadowRadius: 16,
+            shadowOpacity: 0.12,
+            shadowRadius: 17,
             elevation: 20,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
@@ -95,6 +95,7 @@ const BottomTabNavigator = () => {
             fontWeight: '500',
             marginTop: 4,
           },
+          tabBarLabel: () => null, // 라벨 숨기기
           tabBarBackground: () => (
             <View style={{
               flex: 1,
@@ -152,6 +153,7 @@ const BottomTabNavigator = () => {
                 left: 0,
                 right: 0,
               },
+      
               tabBarBackground: () => (
                 <View style={{
                   flex: 1,
@@ -166,7 +168,7 @@ const BottomTabNavigator = () => {
 
         <Tab.Screen
           name="MyPage"
-          component={MyPage}
+          children={() => <MyPage route={{ params: { onLogout } }} />}
           options={{
             tabBarLabel: '마이페이지',
           }}
