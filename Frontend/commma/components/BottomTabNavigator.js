@@ -1,5 +1,6 @@
 // components/BottomTabNavigator.js
 import React from 'react';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,35 +15,6 @@ import DiaryDetail from '../pages/DiaryDetail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-const getTabBarVisibility = (route) => {
-  const routeName = getFocusedRouteNameFromRoute(route);
-
-  // EmotionSelector 화면에서는 탭바 숨김
-  if (routeName === 'EmotionSelector' || routeName === 'DiaryEditor' || routeName === 'DiaryDetail') {
-    return { display: 'none' };
-  }
-
-  // 기본 탭바 스타일 반환
-  return {
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 0,
-    height: 85,
-    paddingBottom: 20,
-    paddingTop: 10,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -8,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 20,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    position: 'absolute',
-  };
-};
 
 // Write 관련 스택 네비게이터 생성
 const WriteStack = () => {
@@ -79,75 +51,128 @@ const WriteStack = () => {
 
 const BottomTabNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'WriteTab') {
-            iconName = focused ? 'add-circle' : 'add-circle-outline';
-          } else if (route.name === 'MyPage') {
-            iconName = focused ? 'person-circle' : 'person-circle-outline';
-          }
+            if (route.name === 'Home') {
+              iconName = focused ? 'home' : 'home-outline';
+            } else if (route.name === 'WriteTab') {
+              iconName = focused ? 'add-circle' : 'add-circle-outline';
+            } else if (route.name === 'MyPage') {
+              iconName = focused ? 'person-circle' : 'person-circle-outline';
+            }
 
-          return <Ionicons name={iconName} size={28} color={color} />;
-        },
-        tabBarActiveTintColor: '#FB644C',
-        tabBarInactiveTintColor: '#CCCCCC',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 0,
-          height: 85,
-          paddingBottom: 20,
-          paddingTop: 10,
-          shadowColor: '#000000',
-          shadowOffset: {
-            width: 0,
-            height: -8,
+            return <Ionicons name={iconName} size={28} color={color} />;
           },
-          shadowOpacity: 0.15,
-          shadowRadius: 16,
-          elevation: 20,
-          borderTopLeftRadius: 30,
-          borderTopRightRadius: 30,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 4,
-        },
-        // 헤더 완전 제거
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
-          tabBarLabel: '홈',
-        }}
-      />
-
-      <Tab.Screen
-        name="WriteTab"
-        component={WriteStack}
-        options={({ route }) => ({
-          tabBarLabel: '일기쓰기',
+          tabBarActiveTintColor: '#FB644C',
+          tabBarInactiveTintColor: '#CCCCCC',
+          tabBarStyle: {
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 0,
+            height: 85,
+            paddingBottom: 20,
+            paddingTop: 10,
+            shadowColor: '#000000',
+            shadowOffset: {
+              width: 0,
+              height: -8,
+            },
+            shadowOpacity: 0.15,
+            shadowRadius: 16,
+            elevation: 20,
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+          },
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '500',
+            marginTop: 4,
+          },
+          tabBarBackground: () => (
+            <View style={{
+              flex: 1,
+              backgroundColor: '#FFFFFF',
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+            }} />
+          ),
           headerShown: false,
-          tabBarStyle: getTabBarVisibility(route),
         })}
-      />
+      >
+        <Tab.Screen
+          name="Home"
+          component={Home}
+          options={{
+            tabBarLabel: '홈',
+          }}
+        />
 
-      <Tab.Screen
-        name="MyPage"
-        component={MyPage}
-        options={{
-          tabBarLabel: '마이페이지',
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen
+          name="WriteTab"
+          component={WriteStack}
+          options={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route);
+            
+            if (routeName === 'EmotionSelector' || routeName === 'DiaryEditor' || routeName === 'DiaryDetail') {
+              return {
+                tabBarLabel: '일기쓰기',
+                headerShown: false,
+                tabBarStyle: { display: 'none' },
+              };
+            }
+            
+            return {
+              tabBarLabel: '일기쓰기',
+              headerShown: false,
+              tabBarStyle: {
+                backgroundColor: '#FFFFFF',
+                borderTopWidth: 0,
+                height: 85,
+                paddingBottom: 20,
+                paddingTop: 10,
+                shadowColor: '#000000',
+                shadowOffset: {
+                  width: 0,
+                  height: -8,
+                },
+                shadowOpacity: 0.15,
+                shadowRadius: 16,
+                elevation: 20,
+                borderTopLeftRadius: 30,
+                borderTopRightRadius: 30,
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+              },
+              tabBarBackground: () => (
+                <View style={{
+                  flex: 1,
+                  backgroundColor: '#FFFFFF',
+                  borderTopLeftRadius: 30,
+                  borderTopRightRadius: 30,
+                }} />
+              ),
+            };
+          }}
+        />
+
+        <Tab.Screen
+          name="MyPage"
+          component={MyPage}
+          options={{
+            tabBarLabel: '마이페이지',
+          }}
+        />
+      </Tab.Navigator>
+    </View>
   );
 };
 
