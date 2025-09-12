@@ -773,7 +773,7 @@ const EmotionSelector = ({ navigation, route }) => {
 
             {/* 텍스트 선택 영역 */}
             <TextSelector
-                content1={content}
+                savedContent={content}
                 emotionSegments={emotionSegments}
                 onSelectionChangeCallBack={handleSelectionChange}
                 onContentChange={handleContentChange}
