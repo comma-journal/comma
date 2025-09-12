@@ -40,9 +40,6 @@ const homeStyles = StyleSheet.create({
     paddingBottom: 100,
     paddingHorizontal: horizontalPadding,
   },
-  'home-scroll': {
-    flex: 1,
-  },
   'home-header': {
     flexDirection: 'row',
     justifyContent: 'space-between',
