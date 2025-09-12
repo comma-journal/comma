@@ -2,6 +2,7 @@ package kr.elroy.comma.diary
 
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
+import kr.elroy.comma.ai.AiComment
 import kr.elroy.comma.diary.domain.DiaryEntry
 import kr.elroy.comma.diary.domain.DiaryEntryTable
 import kr.elroy.comma.diary.dto.request.CreateDiaryEntryRequest
@@ -16,15 +17,21 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class DiaryService {
+class DiaryService(
+    private val aiComment: AiComment
+) {
     @Transactional
     fun createDiaryEntry(authorId: Long, request: CreateDiaryEntryRequest): DiaryEntryResponse {
+        val newAnnotation = request.annotation.copy(
+            comments = aiComment.createComment(request.content) ?: emptyList()
+        )
+
         return DiaryEntry.create(
             author = User[authorId],
             content = request.content,
             title = request.title,
             entryDate = request.entryDate,
-            annotation = request.annotation
+            annotation = newAnnotation
         ).let(DiaryEntryResponse::from)
     }
 
@@ -48,12 +55,14 @@ class DiaryService {
     @Transactional
     fun updateDiaryEntry(authorId: Long, id: Long, request: UpdateDiaryEntryRequest): DiaryEntryResponse {
         val diaryEntry = DiaryEntry.findById(id) ?: throw IllegalArgumentException("Diary entry not found")
-
+        val newAnnotation = request.annotation.copy(
+            comments = emptyList()
+        )
         return diaryEntry.apply {
             content = request.content
             title = request.title
             entryDate = request.entryDate
-            annotation = request.annotation
+            annotation = newAnnotation
         }.let(DiaryEntryResponse::from)
     }
 
