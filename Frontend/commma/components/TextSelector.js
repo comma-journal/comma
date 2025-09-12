@@ -13,7 +13,8 @@ const TextSelector = ({
     emotionSegments, 
     onSelectionChangeCallBack, 
     onContentChange,
-    onEditEmotion 
+    onEditEmotion,
+    customRenderer
 }) => {
     const [content, setContent] = useState(savedContent);
 
@@ -31,9 +32,16 @@ const TextSelector = ({
 
     // 스타일된 텍스트 렌더링
     const renderStyledText = (content) => {
+        // customRenderer가 있으면 우선 사용
+        if (customRenderer) {
+            return customRenderer();
+        }
+
+        // 기존 렌더링 로직
         if (!content || content.length === 0) {
             return null;
         }
+        
 
         if (emotionSegments.length === 0) {
             return (

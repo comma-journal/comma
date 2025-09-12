@@ -18,6 +18,15 @@ const DiaryDetail = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [commentModalVisible, setCommentModalVisible] = useState(false);
     const [selectedComment, setSelectedComment] = useState(null);
+    const [completedComments, setCompletedComments] = useState(new Set());
+
+    const handleCompleteComment = (commentStart, commentEnd) => {
+        const commentKey = `${commentStart}-${commentEnd}`;
+        const newCompleted = new Set(completedComments);
+        newCompleted.add(commentKey);
+        setCompletedComments(newCompleted);
+        setCommentModalVisible(false);
+    };
 
     // 일기 상세 정보 다시 로드 (AI 코멘트 포함)
     useEffect(() => {
@@ -67,6 +76,89 @@ const DiaryDetail = ({ navigation, route }) => {
         loadDiaryDetail();
     }, [diary.id]);
 
+    // 코멘트 완료 여부 확인 함수
+    const isCommentCompleted = (start, end) => {
+        const commentKey = `${start}-${end}`;
+        return completedComments.has(commentKey);
+    };
+
+    // 스타일된 텍스트 렌더링 (수정됨 - AI 코멘트 완료 상태 반영)
+    const renderStyledText = () => {
+        if (!diary.content || diary.content.length === 0) {
+            return null;
+        }
+
+        const emotionSegments = diary.emotionSegments || [];
+        
+        // AI 코멘트 기능 완전 제거 - 감정만 표시
+        if (emotionSegments.length === 0) {
+            return (
+                <Text style={diaryDetailStyles.contentText}>
+                    {diary.content}
+                </Text>
+            );
+        }
+
+        const charEmotions = new Array(diary.content.length).fill(null);
+        
+        // 감정 세그먼트 매핑만 수행
+        emotionSegments.forEach(segment => {
+            for (let i = segment.start; i < segment.end; i++) {
+                if (i < diary.content.length) {
+                    charEmotions[i] = segment;
+                }
+            }
+        });
+
+        const elements = [];
+        let currentIndex = 0;
+
+        while (currentIndex < diary.content.length) {
+            const currentEmotion = charEmotions[currentIndex];
+            let endIndex = currentIndex;
+
+            // 같은 감정의 범위 찾기
+            while (endIndex < diary.content.length && 
+                   charEmotions[endIndex] === currentEmotion) {
+                endIndex++;
+            }
+
+            const textSegment = diary.content.slice(currentIndex, endIndex);
+            const isEmotion = currentEmotion !== null;
+
+            if (isEmotion) {
+                elements.push(
+                    <Text
+                        key={`emotion-${currentIndex}`}
+                        style={[
+                            diaryDetailStyles.contentText,
+                            {
+                                backgroundColor: currentEmotion.emotionColor + '40',
+                                borderRadius: 2,
+                            }
+                        ]}
+                    >
+                        {textSegment}
+                    </Text>
+                );
+            } else {
+                elements.push(
+                    <Text key={`normal-${currentIndex}`} style={diaryDetailStyles.contentText}>
+                        {textSegment}
+                    </Text>
+                );
+            }
+
+            currentIndex = endIndex;
+        }
+
+        return (
+            <Text style={diaryDetailStyles.contentText}>
+                {elements}
+            </Text>
+        );
+    };
+
     // 날짜 포맷팅 함수
     const formatDate = (dateString) => {
         try {
@@ -94,117 +186,6 @@ const DiaryDetail = ({ navigation, route }) => {
     const openCommentModal = (comment) => {
         setSelectedComment(comment);
         setCommentModalVisible(true);
-    };
-
-    // 스타일된 텍스트 렌더링 (AI 코멘트 아이콘 포함)
-    const renderStyledText = () => {
-        if (!diary.content || diary.content.length === 0) {
-            return null;
-        }
-
-        const emotionSegments = diary.emotionSegments || [];
-        const aiComments = diary.annotations && diary.annotations.length > 0
-            ? diary.annotations[0].comments || []
-            : [];
-
-        if (emotionSegments.length === 0 && aiComments.length === 0) {
-            return (
-                <Text style={diaryDetailStyles.contentText}>
-                    {diary.content}
-                </Text>
-            );
-        }
-
-        const charEmotions = new Array(diary.content.length).fill(null);
-        const charComments = new Array(diary.content.length).fill(null);
-
-        // 감정 세그먼트 매핑
-        emotionSegments.forEach(segment => {
-            for (let i = segment.start; i < segment.end; i++) {
-                if (i < diary.content.length) {
-                    charEmotions[i] = segment;
-                }
-            }
-        });
-
-        // AI 코멘트 매핑
-        aiComments.forEach(comment => {
-            for (let i = comment.start; i < comment.end; i++) {
-                if (i < diary.content.length) {
-                    charComments[i] = comment;
-                }
-            }
-        });
-
-        const elements = [];
-        let currentIndex = 0;
-
-        while (currentIndex < diary.content.length) {
-            const currentEmotion = charEmotions[currentIndex];
-            const currentComment = charComments[currentIndex];
-            let endIndex = currentIndex;
-
-            // 같은 스타일의 범위 찾기
-            while (endIndex < diary.content.length &&
-                charEmotions[endIndex] === currentEmotion &&
-                charComments[endIndex] === currentComment) {
-                endIndex++;
-            }
-
-            const textSegment = diary.content.slice(currentIndex, endIndex);
-            const isEmotion = currentEmotion !== null;
-            const hasComment = currentComment !== null;
-
-            // Text 컴포넌트만 사용하여 인라인 플로우 유지
-            if (isEmotion) {
-                elements.push(
-                    <Text
-                        key={`emotion-${currentIndex}`}
-                        style={[
-                            diaryDetailStyles.contentText,
-                            {
-                                backgroundColor: currentEmotion.emotionColor + '40',
-                                borderRadius: 2,
-                            }
-                        ]}
-                    >
-                        {textSegment}
-                    </Text>
-                );
-            } else {
-                elements.push(
-                    <Text key={`normal-${currentIndex}`} style={diaryDetailStyles.contentText}>
-                        {textSegment}
-                    </Text>
-                );
-            }
-
-            // AI 코멘트 아이콘을 별도로 추가
-            if (hasComment) {
-                elements.push(
-                    <Text key={`comment-icon-${currentIndex}`} style={diaryDetailStyles.contentText}>
-                        {' '}
-                    </Text>
-                );
-                elements.push(
-                    <TouchableOpacity
-                        key={`comment-${currentIndex}`}
-                        onPress={() => openCommentModal(currentComment)}
-                        style={{ alignSelf: 'flex-end', marginLeft: 2 }}
-                    >
-                        <Icon name="chat-bubble" size={14} color="#FB644C" />
-                    </TouchableOpacity>
-                );
-            }
-
-            currentIndex = endIndex;
-        }
-
-        return (
-            <Text style={diaryDetailStyles.contentText}>
-                {elements}
-            </Text>
-        );
     };
 
     return (
@@ -286,7 +267,7 @@ const DiaryDetail = ({ navigation, route }) => {
                 <View style={diaryDetailStyles.commentModalOverlay}>
                     <View style={diaryDetailStyles.commentModalContainer}>
                         <View style={diaryDetailStyles.commentModalHeader}>
-                            <Text style={diaryDetailStyles.commentModalTitle}>AI 코멘트</Text>
+                            <Text style={diaryDetailStyles.commentModalTitle}>AI 피드백</Text>
                             <TouchableOpacity onPress={() => setCommentModalVisible(false)}>
                                 <Icon name="close" size={24} color="#666666" />
                             </TouchableOpacity>
@@ -302,7 +283,7 @@ const DiaryDetail = ({ navigation, route }) => {
                                 </View>
 
                                 <View style={diaryDetailStyles.commentContent}>
-                                    <Text style={diaryDetailStyles.commentLabel}>AI 코멘트:</Text>
+                                    <Text style={diaryDetailStyles.commentLabel}>AI 질문:</Text>
                                     <Text style={diaryDetailStyles.commentText}>
                                         {selectedComment.content}
                                     </Text>
@@ -313,12 +294,21 @@ const DiaryDetail = ({ navigation, route }) => {
                             </View>
                         )}
 
-                        <TouchableOpacity
-                            style={diaryDetailStyles.commentModalButton}
-                            onPress={() => setCommentModalVisible(false)}
-                        >
-                            <Text style={diaryDetailStyles.commentModalButtonText}>확인</Text>
-                        </TouchableOpacity>
+                        <View style={diaryDetailStyles.commentModalButtons}>
+                            <TouchableOpacity
+                                style={diaryDetailStyles.commentModalCancelButton}
+                                onPress={() => setCommentModalVisible(false)}
+                            >
+                                <Text style={diaryDetailStyles.commentModalCancelButtonText}>닫기</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={diaryDetailStyles.commentModalCompleteButton}
+                                onPress={() => handleCompleteComment(selectedComment?.start, selectedComment?.end)}
+                            >
+                                <Text style={diaryDetailStyles.commentModalCompleteButtonText}>완료</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>

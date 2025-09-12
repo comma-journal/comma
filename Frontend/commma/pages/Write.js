@@ -41,12 +41,13 @@ const Write = ({ navigation }) => {
             }
 
             const diariesData = await response.json();
-            
-            // 백엔드 데이터를 로컬 형식으로 변환
+
+            // 백엔드 데이터를 로컬 형식으로 변환 (topEmotion 추가) [5]
             const convertedDiaries = diariesData.map(diary => ({
                 id: diary.id,
                 title: diary.title,
                 content: diary.content,
+                entryDate: diary.entryDate, // 추가
                 createdAt: diary.createdAt,
                 updatedAt: diary.updatedAt,
                 emotionSegments: diary.annotation
@@ -59,9 +60,18 @@ const Write = ({ navigation }) => {
                         emotionName: highlight.emotion.name,
                         emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
                     })) : [],
-                annotation: diary.annotation || []
+                annotation: diary.annotation || [],
+                // topEmotion 추가 - 가장 중요한 부분!
+                topEmotion: diary.topEmotion ? {
+                    id: diary.topEmotion.id,
+                    name: diary.topEmotion.name,
+                    rgb: diary.topEmotion.rgb,
+                    color: `#${diary.topEmotion.rgb.toString(16).padStart(6, '0')}`, // 편의를 위해 color 필드도 추가
+                    description: diary.topEmotion.description || ''
+                } : null
             }));
 
+            console.log('변환된 일기 데이터:', convertedDiaries); // 디버깅용
             setDiaries(convertedDiaries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         } catch (error) {
             console.error('일기 로드 오류:', error);
@@ -85,20 +95,20 @@ const Write = ({ navigation }) => {
     }, [navigation, loadDiaries]);
 
     useEffect(() => {
-    loadDiaries();
-}, [currentMonth, loadDiaries]);
+        loadDiaries();
+    }, [currentMonth, loadDiaries]);
 
     // 월 변경 함수
     const changeMonth = (direction) => {
         const [year, month] = currentMonth.split('-').map(Number);
         const currentDate = new Date(year, month - 1);
-        
+
         if (direction === 'prev') {
             currentDate.setMonth(currentDate.getMonth() - 1);
         } else {
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
-        
+
         const newYear = currentDate.getFullYear();
         const newMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
         setCurrentMonth(`${newYear}-${newMonth}`);
@@ -111,8 +121,8 @@ const Write = ({ navigation }) => {
             message: '정말로 이 일기를 삭제하시겠습니까?',
             type: 'warning',
             buttons: [
-                { 
-                    text: '취소', 
+                {
+                    text: '취소',
                     style: 'cancel',
                     onPress: hideAlert
                 },
@@ -138,7 +148,7 @@ const Write = ({ navigation }) => {
 
                             // 로컬 상태에서 삭제
                             setDiaries(prev => prev.filter(diary => diary.id !== diaryId));
-                            
+
                             showAlert({
                                 title: '삭제 완료',
                                 message: '일기가 성공적으로 삭제되었습니다.',
@@ -184,6 +194,18 @@ const Write = ({ navigation }) => {
     // 일기 미리보기 텍스트
     const getPreviewText = (content) => {
         return content.length > 50 ? content.substring(0, 50) + '...' : content;
+    };
+
+    // topEmotion 색상 변환 함수
+    const getTopEmotionColor = (topEmotion) => {
+        if (!topEmotion || typeof topEmotion.rgb !== 'number') {
+            console.log('topEmotion 데이터 없음 또는 잘못된 형식:', topEmotion);
+            return '#CCCCCC';
+        }
+        
+        const hexColor = `#${topEmotion.rgb.toString(16).padStart(6, '0')}`;
+        console.log('topEmotion 색상 변환:', topEmotion.name, hexColor);
+        return hexColor;
     };
 
     if (loading) {
@@ -242,6 +264,18 @@ const Write = ({ navigation }) => {
                             <View style={writeStyles.diaryItemHeader}>
                                 <Text style={writeStyles.diaryDate}>{formatDate(diary.createdAt)}</Text>
                                 <View style={writeStyles.diaryActions}>
+                                    {/* topEmotion 표시 (수정됨 - 로깅 추가) */}
+                                    {diary.topEmotion && (
+                                        <View style={[
+                                            writeStyles.topEmotionBadge,
+                                            { backgroundColor: getTopEmotionColor(diary.topEmotion) }
+                                        ]}>
+                                            <Text style={writeStyles.topEmotionText}>
+                                                {diary.topEmotion.name}
+                                            </Text>
+                                        </View>
+                                    )}
+
                                     {getEmotionCount(diary.emotionSegments) > 0 && (
                                         <View style={writeStyles.emotionBadge}>
                                             <Icon name="sentiment-satisfied" size={12} color="#FFFFFF" />
@@ -250,6 +284,7 @@ const Write = ({ navigation }) => {
                                             </Text>
                                         </View>
                                     )}
+
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('EmotionSelector', {
                                             diary: diary,
