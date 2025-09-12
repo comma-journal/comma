@@ -21,6 +21,7 @@ import { useCustomAlert } from '../hooks/useCustomAlert';
 import { emotionSelectorStyles } from '../styles/EmotionSelectorStyles';
 import { useEmotionsData } from '../hooks/useEmotionsData';
 import { API_BASE_URL, getAuthToken, getAuthHeaders } from '../api/config';
+import AICommentReview from '../components/AICommentReview';
 
 const EmotionSelector = ({ navigation, route }) => {
     const { diary, isEditing } = route.params;
@@ -30,6 +31,12 @@ const EmotionSelector = ({ navigation, route }) => {
 
     const [title, setTitle] = useState(diary?.title || '');
     const [content, setContent] = useState(diary?.content || '');
+
+    // 임시 저장 관련 상태 추가 [2]
+    const [tempSavedDiaryId, setTempSavedDiaryId] = useState(null);
+    const [isTemporarySave, setIsTemporarySave] = useState(false);
+
+    const isSavingRef = useRef(false);
     const [emotionSegments, setEmotionSegments] = useState(() => {
         // 백엔드 데이터 형식을 로컬 형식으로 변환
         if (diary?.annotation) {
@@ -53,14 +60,61 @@ const EmotionSelector = ({ navigation, route }) => {
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [isEditingEmotion, setIsEditingEmotion] = useState(false);
     const [editingSegmentId, setEditingSegmentId] = useState(null);
-    
+
+    const [aiCommentReviewVisible, setAiCommentReviewVisible] = useState(false);
+    const [savedDiaryData, setSavedDiaryData] = useState(null);
+
     // 키보드 상태 관리
     const [keyboardVisible, setKeyboardVisible] = useState(false);
-    
+
     // 저장 상태 관리
     const [isSaved, setIsSaved] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
-    
+
+    const formatDateToYYYYMMDD = (date) => {
+        if (!date) {
+            date = new Date();
+        }
+
+        // Date 객체가 아닌 경우 변환
+        if (typeof date === 'string') {
+            date = new Date(date);
+        }
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
+
+    // 임시 저장된 일기 삭제 함수 [3]
+    const deleteTempDiary = async () => {
+        if (!tempSavedDiaryId || !isTemporarySave) return;
+
+        try {
+            const token = await getAuthToken();
+            if (!token) return;
+
+            console.log('임시 저장된 일기 삭제 시도:', tempSavedDiaryId);
+
+            const response = await fetch(`${API_BASE_URL}/me/diary/${tempSavedDiaryId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders(token),
+            });
+
+            if (response.ok) {
+                console.log('임시 저장된 일기 삭제 성공');
+                setTempSavedDiaryId(null);
+                setIsTemporarySave(false);
+            } else {
+                console.error('임시 일기 삭제 실패:', response.status);
+            }
+        } catch (error) {
+            console.error('임시 일기 삭제 중 오류:', error);
+        }
+    };
+
     // 초기 상태 저장 (변경사항 감지용)
     const initialState = useRef({
         title: diary?.title || '',
@@ -80,7 +134,7 @@ const EmotionSelector = ({ navigation, route }) => {
             return [];
         })()
     });
-    
+
     // 이전 content를 추적하기 위한 ref
     const previousContentRef = useRef(content);
 
@@ -141,10 +195,20 @@ const EmotionSelector = ({ navigation, route }) => {
         }
     }, [title, content, emotionSegments]);
 
+    // 컴포넌트 언마운트 시 임시 저장 정리 [9]
+    useEffect(() => {
+        return () => {
+            // 컴포넌트가 언마운트될 때 임시 저장된 일기 정리
+            if (isTemporarySave && tempSavedDiaryId && !isSaved) {
+                deleteTempDiary();
+            }
+        };
+    }, []);
+
     // 페이지 벗어나기 전 확인
     useFocusEffect(
         useCallback(() => {
-            const onBeforeRemove = (e) => {
+            const onBeforeRemove = async (e) => {
                 // 저장되었거나 변경사항이 없으면 자유롭게 나가기
                 if (isSaved || !hasChanges) {
                     return;
@@ -163,23 +227,21 @@ const EmotionSelector = ({ navigation, route }) => {
                             onPress: async () => {
                                 hideAlert();
                                 try {
-                                    await saveAndExit();
+                                    await handleDirectSave();
                                 } catch (error) {
                                     console.error('저장 오류:', error);
-                                    showAlert({
-                                        title: '오류',
-                                        message: '저장 중 문제가 발생했습니다.',
-                                        type: 'error',
-                                        buttons: [{ text: '확인', onPress: hideAlert }]
-                                    });
                                 }
                             }
                         },
                         {
                             text: '저장하지 않고 나가기',
                             style: 'destructive',
-                            onPress: () => {
+                            onPress: async () => {
                                 hideAlert();
+                                // 임시 저장된 일기가 있으면 삭제 [6]
+                                if (isTemporarySave && tempSavedDiaryId) {
+                                    await deleteTempDiary();
+                                }
                                 navigation.dispatch(e.data.action);
                             },
                         },
@@ -194,7 +256,7 @@ const EmotionSelector = ({ navigation, route }) => {
 
             navigation.addListener('beforeRemove', onBeforeRemove);
             return () => navigation.removeListener('beforeRemove', onBeforeRemove);
-        }, [isSaved, hasChanges, navigation, title, content, emotionSegments])
+        }, [isSaved, hasChanges, navigation, isTemporarySave, tempSavedDiaryId])
     );
 
     // 저장하고 나가기 함수
@@ -283,6 +345,214 @@ const EmotionSelector = ({ navigation, route }) => {
                 buttons: [{ text: '확인', onPress: hideAlert }]
             });
         }
+    };
+
+    // 감정 확인 후 진행
+    const checkEmotionsAndProceed = () => {
+        if (emotionSegments.length === 0) {
+            showAlert({
+                title: '감정 선택 확인',
+                message: '아직 감정이 하나도 선택되지 않았습니다.\n\n문장을 선택하여 감정을 추가하시겠습니까?',
+                type: 'warning',
+                buttons: [
+                    {
+                        text: '감정 추가하기',
+                        style: 'default',
+                        onPress: () => {
+                            hideAlert();
+                            showAlert({
+                                title: '감정 추가 방법',
+                                message: '텍스트에서 감정을 표현하고 싶은 문장을 선택한 후 하단의 "감정 선택" 버튼을 눌러주세요.',
+                                type: 'default',
+                                buttons: [{ text: '확인', onPress: hideAlert }]
+                            });
+                        }
+                    },
+                    {
+                        text: '감정 없이 다음',
+                        style: 'default',
+                        onPress: () => {
+                            hideAlert();
+                            proceedToAIReview();
+                        }
+                    },
+                    {
+                        text: '취소',
+                        style: 'cancel',
+                        onPress: hideAlert
+                    }
+                ]
+            });
+            return;
+        }
+
+        // 감정이 있는 경우 바로 AI 리뷰로 진행
+        proceedToAIReview();
+    };
+
+    // AI 리뷰 단계로 진행
+    const proceedToAIReview = () => {
+    // 바로 모달 열기 (API는 모달 내부에서 호출)
+    openAIReviewModal();
+};
+
+    // 일기 저장 및 AI 코멘트 받기
+    const saveDiaryAndGetAIComments = async () => {
+        try {
+            const token = await getAuthToken();
+            if (!token) {
+                throw new Error('토큰이 없습니다.');
+            }
+
+            // entryDate 설정
+            let entryDate;
+            if (isEditing && diary?.entryDate) {
+                entryDate = diary.entryDate;
+            } else if (isEditing && diary?.createdAt) {
+                entryDate = formatDateToYYYYMMDD(new Date(diary.createdAt));
+            } else {
+                entryDate = formatDateToYYYYMMDD(new Date());
+            }
+
+            const requestBody = {
+                title: title.trim() || '제목 없음',
+                content: content.trim(),
+                entryDate: entryDate,
+                annotation: {
+                    comments: [],
+                    highlights: emotionSegments.map(segment => ({
+                        start: segment.start,
+                        end: segment.end,
+                        emotion: {
+                            id: segment.emotionId,
+                            name: segment.emotionName,
+                            rgb: parseInt(segment.emotionColor.replace('#', ''), 16),
+                            description: ""
+                        }
+                    }))
+                }
+            };
+
+            const url = isEditing
+                ? `${API_BASE_URL}/me/diary/${diary.id}`
+                : `${API_BASE_URL}/me/diary`;
+
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: getAuthHeaders(token),
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response body:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+            }
+
+            const responseData = await response.json();
+
+            // 새로 생성된 경우만 임시 저장으로 표시
+            if (!isEditing && method === 'POST') {
+                setTempSavedDiaryId(responseData.id);
+                setIsTemporarySave(true); // 임시 저장 플래그 설정
+                console.log('임시 저장 완료:', responseData.id);
+            }
+
+            return {
+                id: responseData.id,
+                title: responseData.title,
+                content: responseData.content,
+                entryDate: responseData.entryDate,
+                createdAt: responseData.createdAt,
+                updatedAt: responseData.updatedAt,
+                annotation: responseData.annotation,
+                topEmotion: responseData.topEmotion
+            };
+
+        } catch (error) {
+            console.error('AI 피드백 저장 오류:', error);
+            throw error;
+        }
+    };
+
+    // AI 코멘트 리뷰 완료 후 최종 저장
+    const handleFinalSave = () => {
+        setIsSaved(true);
+        setIsTemporarySave(false);
+        setAiCommentReviewVisible(false);
+
+        showAlert({
+            title: '저장 완료',
+            message: '일기가 성공적으로 저장되었습니다.',
+            type: 'success',
+            buttons: [
+                {
+                    text: '확인',
+                    onPress: () => {
+                        hideAlert();
+                        navigation.navigate('WriteList');
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleContentChange = (newContent) => {
+        return new Promise((resolve) => {
+            const oldContent = previousContentRef.current;
+
+            // 감정 삭제 확인
+            const { willDelete, segmentsToDelete } = checkForEmotionDeletion(oldContent, newContent, emotionSegments);
+
+            if (willDelete && segmentsToDelete.length > 0) {
+                const emotionNames = segmentsToDelete.map(segment => segment.emotionName).join(', ');
+                const segmentTexts = segmentsToDelete.map(segment => `"${segment.text}"`).join(', ');
+
+                showAlert({
+                    title: '감정 삭제 경고',
+                    message: `이 작업으로 다음 텍스트의 감정이 삭제됩니다:\n\n${segmentTexts}\n\n감정: ${emotionNames}\n\n계속하시겠습니까?`,
+                    type: 'warning',
+                    buttons: [
+                        {
+                            text: '취소',
+                            style: 'cancel',
+                            onPress: () => {
+                                hideAlert();
+                                resolve(false);
+                            }
+                        },
+                        {
+                            text: '계속',
+                            style: 'destructive',
+                            onPress: () => {
+                                hideAlert();
+                                // 감정 세그먼트 위치 업데이트
+                                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
+
+                                setContent(newContent);
+                                setEmotionSegments(updatedSegments);
+
+                                // 이전 content 업데이트
+                                previousContentRef.current = newContent;
+                                resolve(true);
+                            }
+                        }
+                    ]
+                });
+            } else {
+                // 감정 삭제가 없는 경우 바로 업데이트
+                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
+
+                setContent(newContent);
+                setEmotionSegments(updatedSegments);
+
+                // 이전 content 업데이트
+                previousContentRef.current = newContent;
+                resolve(true);
+            }
+        });
     };
 
     // 실제 저장하고 나가기 처리 (API 버전)
@@ -482,63 +752,6 @@ const EmotionSelector = ({ navigation, route }) => {
         return updatedSegments;
     };
 
-    // TextSelector에서 content 변경을 처리하는 함수 (경고 포함)
-    const handleContentChange = (newContent) => {
-        return new Promise((resolve) => {
-            const oldContent = previousContentRef.current;
-
-            // 감정 삭제 확인
-            const { willDelete, segmentsToDelete } = checkForEmotionDeletion(oldContent, newContent, emotionSegments);
-
-            if (willDelete && segmentsToDelete.length > 0) {
-                const emotionNames = segmentsToDelete.map(segment => segment.emotionName).join(', ');
-                const segmentTexts = segmentsToDelete.map(segment => `"${segment.text}"`).join(', ');
-
-                showAlert({
-                    title: '감정 삭제 경고',
-                    message: `이 작업으로 다음 텍스트의 감정이 삭제됩니다:\n\n${segmentTexts}\n\n감정: ${emotionNames}\n\n계속하시겠습니까?`,
-                    type: 'warning',
-                    buttons: [
-                        {
-                            text: '취소',
-                            style: 'cancel',
-                            onPress: () => {
-                                hideAlert();
-                                resolve(false);
-                            }
-                        },
-                        {
-                            text: '계속',
-                            style: 'destructive',
-                            onPress: () => {
-                                hideAlert();
-                                // 감정 세그먼트 위치 업데이트
-                                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
-
-                                setContent(newContent);
-                                setEmotionSegments(updatedSegments);
-
-                                // 이전 content 업데이트
-                                previousContentRef.current = newContent;
-                                resolve(true);
-                            }
-                        }
-                    ]
-                });
-            } else {
-                // 감정 삭제가 없는 경우 바로 업데이트
-                const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
-
-                setContent(newContent);
-                setEmotionSegments(updatedSegments);
-
-                // 이전 content 업데이트
-                previousContentRef.current = newContent;
-                resolve(true);
-            }
-        });
-    };
-
     const showBottomSelectionBarFunc = () => {
         setShowBottomSelectionBar(true);
         Animated.timing(bottomBarAnimation, {
@@ -593,6 +806,37 @@ const EmotionSelector = ({ navigation, route }) => {
             return;
         }
 
+        // AI 피드백 보기 또는 바로 저장 선택
+        showAlert({
+            title: '저장 방식 선택',
+            message: 'AI 피드백을 받아 일기를 개선하시겠습니까?\n아니면 바로 저장하시겠습니까?',
+            type: 'default',
+            buttons: [
+                {
+                    text: '취소',
+                    style: 'cancel',
+                    onPress: hideAlert,
+                },
+                {
+                    text: 'AI 피드백 보기',
+                    onPress: () => {
+                        hideAlert();
+                        handleAIFeedback();
+                    }
+                },
+                {
+                    text: '바로 저장',
+                    onPress: () => {
+                        hideAlert();
+                        handleDirectSave();
+                    }
+                }
+            ]
+        });
+    };
+
+    // AI 피드백 받기
+    const handleAIFeedback = () => {
         if (emotionSegments.length === 0) {
             showAlert({
                 title: '감정 선택 확인',
@@ -613,11 +857,12 @@ const EmotionSelector = ({ navigation, route }) => {
                         }
                     },
                     {
-                        text: '감정 없이 저장',
+                        text: '감정 없이 피드백 받기',
                         style: 'default',
                         onPress: () => {
                             hideAlert();
-                            proceedWithSave();
+                            // 즉시 모달 열고 내부에서 API 요청 시작 [1]
+                            openAIReviewModal();
                         }
                     },
                     {
@@ -630,25 +875,143 @@ const EmotionSelector = ({ navigation, route }) => {
             return;
         }
 
-        showAlert({
-            title: '저장 확인',
-            message: '일기를 저장하시겠습니까?',
-            type: 'default',
-            buttons: [
-                {
-                    text: '취소',
-                    style: 'cancel',
-                    onPress: hideAlert,
-                },
-                {
-                    text: '저장',
-                    onPress: () => {
-                        hideAlert();
-                        proceedWithSave();
+        // 감정이 있는 경우도 즉시 모달 열기
+        openAIReviewModal();
+    };
+
+    const openAIReviewModal = () => {
+        // 임시 데이터로 모달을 즉시 열기 [2]
+        const tempDiaryData = {
+            id: null, // 아직 저장되지 않음
+            title: title.trim() || '제목 없음',
+            content: content.trim(),
+            annotation: {
+                comments: [], // 로딩 중이므로 빈 배열
+                highlights: emotionSegments.map(segment => ({
+                    start: segment.start,
+                    end: segment.end,
+                    emotion: {
+                        id: segment.emotionId,
+                        name: segment.emotionName,
+                        rgb: parseInt(segment.emotionColor.replace('#', ''), 16),
+                        description: ""
                     }
+                }))
+            }
+        };
+
+        setSavedDiaryData(tempDiaryData);
+        setAiCommentReviewVisible(true); // 즉시 모달 열기
+    };
+
+    // 바로 저장 처리
+    const handleDirectSave = async () => {
+        if (isSavingRef.current) {
+            return;
+        }
+
+        try {
+            isSavingRef.current = true;
+            await proceedWithDirectSave();
+            showAlert({
+                title: '저장 완료',
+                message: '일기가 성공적으로 저장되었습니다.',
+                type: 'success',
+                buttons: [
+                    {
+                        text: '확인',
+                        onPress: () => {
+                            hideAlert();
+                            navigation.navigate('WriteList');
+                        }
+                    }
+                ]
+            });
+        } catch (error) {
+            console.error('저장 오류:', error);
+            showAlert({
+                title: '오류',
+                message: '저장 중 문제가 발생했습니다.',
+                type: 'error',
+                buttons: [{ text: '확인', onPress: hideAlert }]
+            });
+        } finally {
+            isSavingRef.current = false;
+        }
+    };
+
+    // 바로 저장 API 호출
+    const proceedWithDirectSave = async () => {
+        try {
+            const token = await getAuthToken();
+            if (!token) {
+                throw new Error('토큰이 없습니다.');
+            }
+
+            // entryDate 설정
+            let entryDate;
+            if (isEditing && diary?.entryDate) {
+                entryDate = diary.entryDate;
+            } else if (isEditing && diary?.createdAt) {
+                entryDate = formatDateToYYYYMMDD(new Date(diary.createdAt));
+            } else {
+                entryDate = formatDateToYYYYMMDD(new Date());
+            }
+
+            const requestBody = {
+                title: title.trim() || '제목 없음',
+                content: content.trim(),
+                entryDate: entryDate, // 수정됨
+                annotation: {
+                    comments: [],
+                    highlights: emotionSegments.map(segment => ({
+                        start: segment.start,
+                        end: segment.end,
+                        emotion: {
+                            id: segment.emotionId,
+                            name: segment.emotionName,
+                            rgb: parseInt(segment.emotionColor.replace('#', ''), 16),
+                            description: ""
+                        }
+                    }))
                 }
-            ]
-        });
+            };
+
+            const url = isEditing
+                ? `${API_BASE_URL}/me/diary/${diary.id}`
+                : `${API_BASE_URL}/me/diary`;
+
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method,
+                headers: getAuthHeaders(token),
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Direct save error response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+            }
+
+            setIsSaved(true);
+            return true;
+
+        } catch (error) {
+            console.error('바로 저장 오류:', error);
+            throw error;
+        }
+    };
+
+    // AI 리뷰에서 돌아온 후 처리 함수
+    const handleReturnFromAIReview = (updatedDiary) => {
+        if (updatedDiary) {
+            setTitle(updatedDiary.title || title);
+            setContent(updatedDiary.content || content);
+            setSavedDiaryData(updatedDiary);
+        }
+        setAiCommentReviewVisible(false);
     };
 
     // 실제 저장 처리 함수 (중복 제거)
@@ -734,7 +1097,7 @@ const EmotionSelector = ({ navigation, route }) => {
 
     return (
         <SafeAreaView style={emotionSelectorStyles.container}>
-            {/* 헤더 */}
+            {/* 헤더 - 저장 버튼으로 다시 변경 */}
             <View style={emotionSelectorStyles.header}>
                 <TouchableOpacity
                     style={emotionSelectorStyles.backButton}
@@ -888,6 +1251,24 @@ const EmotionSelector = ({ navigation, route }) => {
                 buttons={alertConfig.buttons}
                 type={alertConfig.type}
                 onBackdropPress={hideAlert}
+            />
+
+            {/* AI 코멘트 리뷰 모달 추가 */}
+            <AICommentReview
+                visible={aiCommentReviewVisible}
+                onClose={() => setAiCommentReviewVisible(false)}
+                diaryData={savedDiaryData}
+                onFinalSave={handleFinalSave}
+                onReturnToEdit={handleReturnFromAIReview}
+                onCancel={deleteTempDiary}
+                // API 호출 함수를 prop으로 전달 [5]
+                onStartAPICall={saveDiaryAndGetAIComments}
+                emotionSegments={emotionSegments}
+                title={title}
+                content={content}
+                formatDateToYYYYMMDD={formatDateToYYYYMMDD}
+                isEditing={isEditing}
+                diary={diary}
             />
         </SafeAreaView>
     );

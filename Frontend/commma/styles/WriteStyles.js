@@ -52,10 +52,11 @@ export const writeStyles = StyleSheet.create({
         paddingVertical: 100,
     },
     emptyTitle: {
-
+        fontSize: 18,
         color: '#666666',
         marginTop: 20,
         marginBottom: 8,
+        fontFamily: customFont,
     },
     emptySubtitle: {
         fontSize: 16,
@@ -145,6 +146,21 @@ export const writeStyles = StyleSheet.create({
         fontSize: 22,
         color: '#333333',
         fontFamily: customFont,
-        fontWeight: '600',
+    },
+    topEmotionBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 12,
+        marginRight: 6,
+        minWidth: 50,
+        alignItems: 'center',
+    },
+    topEmotionText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontFamily: customFont,
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 1,
     },
 });

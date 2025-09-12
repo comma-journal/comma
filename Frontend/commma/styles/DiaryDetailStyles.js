@@ -116,4 +116,36 @@ export const diaryDetailStyles = StyleSheet.create({
         lineHeight: 20,
         fontFamily: customFont,
     },
+    commentModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    commentModalCancelButton: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        paddingVertical: 12,
+        borderRadius: 8,
+        marginRight: 10,
+        alignItems: 'center',
+    },
+    commentModalCancelButtonText: {
+        color: '#666666',
+        fontSize: 16,
+        fontFamily: customFont,
+        fontWeight: '600',
+    },
+    commentModalCompleteButton: {
+        flex: 1,
+        backgroundColor: '#FB644C',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    commentModalCompleteButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: customFont,
+        fontWeight: '600',
+    },
 });
