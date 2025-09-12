@@ -135,7 +135,6 @@ const homeStyles = StyleSheet.create({
     color: '#FB644C',
     marginTop: 2,
     fontFamily: customFont,
-    fontWeight: '600',
   },
 
   // 연월 선택 모달 스타일
@@ -171,7 +170,6 @@ const homeStyles = StyleSheet.create({
   'modal-title': {
     fontSize: 20,
     fontFamily: customFont,
-    fontWeight: '600',
     color: '#333333',
   },
   'modal-close-button': {
@@ -197,7 +195,6 @@ const homeStyles = StyleSheet.create({
   'year-title': {
     fontSize: 18,
     fontFamily: customFont,
-    fontWeight: '600',
     color: '#333333',
     marginBottom: 12,
     paddingLeft: 4,
@@ -229,7 +226,6 @@ const homeStyles = StyleSheet.create({
     fontSize: 14,
     fontFamily: customFont,
     color: '#666666',
-    fontWeight: '500',
   },
   'month-text-selected': {
     color: '#FFFFFF',
@@ -266,7 +262,6 @@ const homeStyles = StyleSheet.create({
     color: '#666666',
     textAlign: 'center',
     fontFamily: customFont,
-    fontWeight: '500',
   },
   'sunday-text': {
     color: '#FF6B6B',
