@@ -32,6 +32,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:${exposedVersion}")
     implementation("org.jetbrains.exposed:exposed-jdbc:${exposedVersion}")
     implementation("org.jetbrains.exposed:exposed-json:${exposedVersion}")
+    implementation(platform("org.springframework.ai:spring-ai-bom:1.1.0-M1"))
+    implementation("org.springframework.ai:spring-ai-starter-model-openai")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 

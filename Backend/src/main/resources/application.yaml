@@ -12,3 +12,11 @@ spring:
   exposed:
     generate-ddl: true
     show-sql: true
+
+  ai:
+    openai:
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 1
+      api-key: ${OPENAI_API_KEY}
