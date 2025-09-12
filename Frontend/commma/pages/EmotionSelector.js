@@ -32,8 +32,8 @@ const EmotionSelector = ({ navigation, route }) => {
     const [content, setContent] = useState(diary?.content || '');
     const [emotionSegments, setEmotionSegments] = useState(() => {
         // 백엔드 데이터 형식을 로컬 형식으로 변환
-        if (diary?.annotations && diary.annotations.length > 0) {
-            return diary.annotations[0].highlights.map(highlight => ({
+        if (diary?.annotation) {
+            return diary.annotation.highlights.map(highlight => ({
                 id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
                 text: diary.content.slice(highlight.start, highlight.end),
                 start: highlight.start,
@@ -66,8 +66,8 @@ const EmotionSelector = ({ navigation, route }) => {
         title: diary?.title || '',
         content: diary?.content || '',
         emotionSegments: (() => {
-            if (diary?.annotations && diary.annotations.length > 0) {
-                return diary.annotations[0].highlights.map(highlight => ({
+            if (diary?.annotation) {
+                return diary.annotation.highlights.map(highlight => ({
                     id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
                     text: diary.content.slice(highlight.start, highlight.end),
                     start: highlight.start,
@@ -308,7 +308,7 @@ const EmotionSelector = ({ navigation, route }) => {
                 title: title.trim() || '제목 없음',
                 content: content.trim(),
                 entryDate: today,
-                annotations: [{
+                annotation: {
                     comments: [],
                     highlights: emotionSegments.map(segment => ({
                         start: segment.start,
@@ -320,8 +320,10 @@ const EmotionSelector = ({ navigation, route }) => {
                             description: ""
                         }
                     }))
-                }]
+                }
             };
+
+            console.log(requestBody) // REMOVEME
 
             const url = isEditing
                 ? `${API_BASE_URL}/me/diary/${diary.id}`
