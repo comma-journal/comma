@@ -7,5 +7,5 @@ data class CreateDiaryEntryRequest(
     val title: String,
     val content: String,
     val entryDate: LocalDate,
-    val annotations: List<AnnotationDto>,
+    val annotation: AnnotationDto,
 )

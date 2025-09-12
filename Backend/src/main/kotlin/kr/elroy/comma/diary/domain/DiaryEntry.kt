@@ -22,14 +22,14 @@ class DiaryEntry(id: EntityID<Long>) : LongEntity(id) {
             title: String,
             content: String,
             entryDate: LocalDate,
-            annotations: List<AnnotationDto>,
+            annotation: AnnotationDto,
         ): DiaryEntry {
             return new {
                 this.author = author
                 this.title = title
                 this.content = content
                 this.entryDate = entryDate
-                this.annotations = annotations.toTypedArray()
+                this.annotation = annotation
             }
         }
 
@@ -42,7 +42,7 @@ class DiaryEntry(id: EntityID<Long>) : LongEntity(id) {
     var title by DiaryEntryTable.title
     var content by DiaryEntryTable.content
     var entryDate by DiaryEntryTable.entryDate
-    var annotations by DiaryEntryTable.annotations
+    var annotation by DiaryEntryTable.annotation
 
     var createdAt by DiaryEntryTable.createdAt
     var updatedAt by DiaryEntryTable.updatedAt
@@ -54,7 +54,7 @@ object DiaryEntryTable : LongIdTable("diary_entries") {
     val title = varchar("title", 255)
     val content = text("content")
     val entryDate = date("entry_date")
-    val annotations = jsonb<Array<AnnotationDto>>("annotations", Json.Default)
+    val annotation = jsonb<AnnotationDto>("annotation", Json.Default)
 
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").nullable()

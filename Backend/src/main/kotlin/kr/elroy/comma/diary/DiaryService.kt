@@ -24,7 +24,7 @@ class DiaryService {
             content = request.content,
             title = request.title,
             entryDate = request.entryDate,
-            annotations = request.annotations
+            annotation = request.annotation
         ).let(DiaryEntryResponse::from)
     }
 
@@ -53,7 +53,7 @@ class DiaryService {
             content = request.content
             title = request.title
             entryDate = request.entryDate
-            annotations = request.annotations.toTypedArray()
+            annotation = request.annotation
         }.let(DiaryEntryResponse::from)
     }
 
