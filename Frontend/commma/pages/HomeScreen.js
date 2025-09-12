@@ -5,7 +5,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  Image
+  Image,
+  Modal,
+  Dimensions
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -14,11 +16,24 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import homeStyles from '../styles/HomeScreenStyle';
 
+const { width, height } = Dimensions.get('window');
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1));
   const [diaryData, setDiaryData] = useState({});
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  
+  // 모달용 상태
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(8);
+
+  // currentDate가 변경될 때 선택된 년월 업데이트
+  useEffect(() => {
+    setSelectedYear(currentDate.getFullYear());
+    setSelectedMonthIndex(currentDate.getMonth());
+  }, [currentDate]);
 
   // API에서 일기 데이터 가져오기
   const fetchDiaryData = async (yearMonth) => {
@@ -361,23 +376,67 @@ const HomeScreen = () => {
     );
   };
 
+  const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
   const calendarDays = generateCalendarDays();
 
   return (
     <SafeAreaView style={homeStyles['home-container']}>
+      {/* 앱 헤더 */}
+{/* COMMA 서비스 헤더 with 슬로건 */}
+<View style={homeStyles['app-header']}>
+  <View style={homeStyles['app-header-container']}>
+    <View style={homeStyles['app-logo-section']}>
+      <Image
+        source={require('../assets/logo1.png')}
+        style={homeStyles['app-logo']}
+        resizeMode="contain"
+      />
+      <View>
+        <Text style={homeStyles['app-title']}>쉼표</Text>
+        <Text style={{
+          fontSize: 11,
+          color: '#8E8E8E',
+          fontWeight: '400',
+          marginTop: -2,
+        }}>
+          흐르는 감정 속, 당신을 위한 작은 쉼표
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+
+
+
+
+
       <ScrollView style={homeStyles['home-scroll']} showsVerticalScrollIndicator={false}>
+        {/* 캘린더 헤더 */}
         <View style={homeStyles['home-header']}>
           <View style={homeStyles['header-title-container']}>
-            <TouchableOpacity onPress={goToPreviousMonth} style={homeStyles['nav-arrow']}>
+            <TouchableOpacity 
+              onPress={goToPreviousMonth} 
+              style={homeStyles['nav-arrow']}
+            >
               <Text style={homeStyles['arrow-text']}>‹</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={homeStyles['month-title-wrapper']}>
+            <TouchableOpacity 
+              style={homeStyles['month-title-wrapper']}
+              onPress={() => {
+                console.log('월 제목 클릭됨');
+                setShowMonthPicker(true);
+              }}
+            >
               <Text style={homeStyles['header-title']}>{getMonthYear(currentDate)}</Text>
               <Text style={homeStyles['dropdown-arrow']}>▼</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={goToNextMonth} style={homeStyles['nav-arrow']}>
+            <TouchableOpacity 
+              onPress={goToNextMonth} 
+              style={homeStyles['nav-arrow']}
+            >
               <Text style={homeStyles['arrow-text']}>›</Text>
             </TouchableOpacity>
           </View>
@@ -448,6 +507,197 @@ const HomeScreen = () => {
           </View>
         </View>
       </ScrollView>
+
+      {/* 연월 선택 모달 */}
+      {showMonthPicker && (
+        <Modal
+          visible={showMonthPicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowMonthPicker(false)}
+        >
+          <View style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+          }}>
+            <View style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 20,
+              width: '100%',
+              maxWidth: 400,
+              height: 350,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: 0.25,
+              shadowRadius: 20,
+              elevation: 10,
+            }}>
+              {/* 모달 헤더 */}
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: 20,
+                paddingVertical: 20,
+                borderBottomWidth: 1,
+                borderBottomColor: '#F0F0F0',
+              }}>
+                <Text style={{
+                  fontSize: 20,
+                  fontWeight: '600',
+                  color: '#333333',
+                }}>연월 선택</Text>
+                <TouchableOpacity 
+                  onPress={() => setShowMonthPicker(false)}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    backgroundColor: '#F8F9FA',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{
+                    fontSize: 20,
+                    color: '#666666',
+                    fontWeight: '600',
+                  }}>×</Text>
+                </TouchableOpacity>
+              </View>
+              
+              {/* 연월 선택 내용 */}
+              <ScrollView 
+                style={{ flex: 1 }}
+                contentContainerStyle={{ 
+                  paddingHorizontal: 20, 
+                  paddingTop: 20,
+                  paddingBottom: 20 
+                }}
+                showsVerticalScrollIndicator={false}
+              >
+                {/* 년도 선택 */}
+                <View style={{ marginBottom: 25 }}>
+                  <Text style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#333333',
+                    marginBottom: 12,
+                  }}>년도</Text>
+                  
+                  <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                  }}>
+                    {(() => {
+                      const currentYear = currentDate.getFullYear();
+                      const years = [];
+                      for (let i = currentYear - 3; i <= currentYear + 3; i++) {
+                        years.push(i);
+                      }
+                      return years.map(year => (
+                        <TouchableOpacity
+                          key={year}
+                          style={{
+                            width: '30%',
+                            paddingVertical: 12,
+                            marginBottom: 8,
+                            borderRadius: 8,
+                            backgroundColor: year === selectedYear ? '#FB644C' : '#F8F9FA',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                          onPress={() => setSelectedYear(year)}
+                        >
+                          <Text style={{
+                            fontSize: 14,
+                            color: year === selectedYear ? '#FFFFFF' : '#666666',
+                            fontWeight: year === selectedYear ? '600' : '500',
+                          }}>
+                            {year}년
+                          </Text>
+                        </TouchableOpacity>
+                      ));
+                    })()}
+                  </View>
+                </View>
+
+                {/* 월 선택 */}
+                <View style={{ marginBottom: 25 }}>
+                  <Text style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#333333',
+                    marginBottom: 12,
+                  }}>월</Text>
+                  
+                  <View style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                  }}>
+                    {monthNames.map((month, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={{
+                          width: '30%',
+                          paddingVertical: 12,
+                          marginBottom: 8,
+                          borderRadius: 8,
+                          backgroundColor: index === selectedMonthIndex ? '#FB644C' : '#F8F9FA',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        onPress={() => setSelectedMonthIndex(index)}
+                      >
+                        <Text style={{
+                          fontSize: 14,
+                          color: index === selectedMonthIndex ? '#FFFFFF' : '#666666',
+                          fontWeight: index === selectedMonthIndex ? '600' : '500',
+                        }}>
+                          {month}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* 확인 버튼 */}
+                <TouchableOpacity 
+                  onPress={() => {
+                    console.log(`${selectedYear}년 ${selectedMonthIndex + 1}월 선택`);
+                    const newDate = new Date(selectedYear, selectedMonthIndex, 1);
+                    setCurrentDate(newDate);
+                    setShowMonthPicker(false);
+                  }}
+                  style={{
+                    backgroundColor: '#FB644C',
+                    paddingVertical: 14,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    shadowColor: '#FB644C',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 6,
+                  }}
+                >
+                  <Text style={{
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#FFFFFF',
+                  }}>선택 완료</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };

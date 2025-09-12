@@ -52,11 +52,10 @@ export const writeStyles = StyleSheet.create({
         paddingVertical: 100,
     },
     emptyTitle: {
-        fontSize: 20,
+
         color: '#666666',
         marginTop: 20,
         marginBottom: 8,
-        fontFamily: customFont,
     },
     emptySubtitle: {
         fontSize: 16,

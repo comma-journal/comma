@@ -225,66 +225,65 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
   const handleNameSetting = async () => {
     try {
-      // 이메일 확인 - 객체에서 email 속성 추출
-      let emailToUse = userEmail;
+      console.log('🔍 [OnboardingScreen] 이름 설정 시작:', userName.trim());
       
-      // userEmail이 객체인 경우 email 속성 추출
-      if (typeof userEmail === 'object' && userEmail?.email) {
-        emailToUse = userEmail.email;
-      }
-      
-      console.log('🔍 [OnboardingScreen] 이름 설정 시작:');
-      console.log('  - userEmail prop:', userEmail);
-      console.log('  - 추출된 이메일:', emailToUse);
-      console.log('  - userName:', userName.trim());
-      
-      if (!emailToUse) {
-        console.log('  - userEmail이 없음, 저장된 데이터 확인...');
-        try {
-          const savedLoginData = await AsyncStorage.getItem('autoLoginData');
-          console.log('  - 저장된 로그인 데이터:', savedLoginData);
-          
-          if (savedLoginData) {
-            const loginData = JSON.parse(savedLoginData);
-            emailToUse = loginData.email;
-            console.log('  - 저장된 이메일:', emailToUse);
-          }
-        } catch (asyncError) {
-          console.error('  - AsyncStorage 오류:', asyncError);
-        }
-      }
-  
-      if (!emailToUse) {
-        console.error('❌ [OnboardingScreen] 이메일을 찾을 수 없음');
+      // AsyncStorage에서 토큰 가져오기
+      const savedLoginData = await AsyncStorage.getItem('autoLoginData');
+      if (!savedLoginData) {
+        console.error('❌ [OnboardingScreen] 로그인 데이터를 찾을 수 없음');
         showAlert({
           title: '오류',
-          message: '이메일 정보를 찾을 수 없습니다.',
+          message: '로그인 정보를 찾을 수 없습니다.',
           type: 'error',
           buttons: [{ text: '확인', onPress: hideAlert }]
         });
         return;
       }
-  
-      const apiUrl = `http://comma.gamja.cloud/v1/users?email=${encodeURIComponent(emailToUse)}&name=${encodeURIComponent(userName.trim())}`;
+
+      const loginData = JSON.parse(savedLoginData);
+      const token = loginData.token;
       
-      console.log('📤 [OnboardingScreen] API 호출:', apiUrl);
-  
-      const response = await fetch(apiUrl, {
+      if (!token) {
+        console.error('❌ [OnboardingScreen] 토큰을 찾을 수 없음');
+        showAlert({
+          title: '오류',
+          message: '인증 정보가 없습니다.',
+          type: 'error',
+          buttons: [{ text: '확인', onPress: hideAlert }]
+        });
+        return;
+      }
+
+      console.log('📤 [OnboardingScreen] API 호출 시작');
+      console.log('  - 토큰:', token ? '있음' : '없음');
+      console.log('  - 이름:', userName.trim());
+
+      const response = await fetch(`https://comma.gamja.cloud/v1/users?name=${encodeURIComponent(userName.trim())}`, {
         method: 'PATCH',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       });
-  
-      console.log('📥 [OnboardingScreen] API 응답:', response.status);
-  
+
+      console.log('📥 [OnboardingScreen] API 응답 상태:', response.status);
+
       if (response.ok) {
         console.log('✅ [OnboardingScreen] 이름 설정 성공:', userName);
+        
+        // AsyncStorage의 사용자 정보 업데이트
+        const updatedLoginData = {
+          ...loginData,
+          name: userName.trim()
+        };
+        await AsyncStorage.setItem('autoLoginData', JSON.stringify(updatedLoginData));
+        console.log('✅ [OnboardingScreen] 로컬 스토리지 업데이트 완료');
+        
       } else {
-        const responseText = await response.text();
-        console.error('❌ [OnboardingScreen] 이름 설정 실패:', responseText);
-        throw new Error(`HTTP ${response.status}: ${responseText}`);
+        const errorText = await response.text();
+        console.error('❌ [OnboardingScreen] 이름 설정 실패:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
     } catch (error) {
       console.error('❌ [OnboardingScreen] 네트워크 오류:', error);
