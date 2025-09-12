@@ -9,13 +9,13 @@ import {
 import { textSelectorStyles } from '../styles/TextSelectorStyles';
 
 const TextSelector = ({ 
-    content1, 
+    savedContent, 
     emotionSegments, 
     onSelectionChangeCallBack, 
     onContentChange,
     onEditEmotion 
 }) => {
-    const [content, setContent] = useState(content1);
+    const [content, setContent] = useState(savedContent);
 
     // content 변경 처리 (비동기 처리 지원)
     const handleContentChange = async (text) => {
@@ -118,12 +118,10 @@ const TextSelector = ({
                     <TextInput
                         style={[
                             textSelectorStyles.hybridInput,
-                            { 
-                                color: content && content.length > 0 ? 'transparent' : '#999999' 
-                            }
+                            {color: 'transparent'}
                         ]}
                         multiline
-                        value={content}
+                        defaultValue={savedContent}
                         onSelectionChange={(event) => {
                             onSelectionChangeCallBack({
                                 start: event.nativeEvent.selection.start, 

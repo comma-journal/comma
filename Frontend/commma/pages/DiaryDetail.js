@@ -42,8 +42,8 @@ const DiaryDetail = ({ navigation, route }) => {
                         content: diaryData.content,
                         createdAt: diaryData.createdAt,
                         updatedAt: diaryData.updatedAt,
-                        emotionSegments: diaryData.annotations && diaryData.annotations.length > 0
-                            ? diaryData.annotations[0].highlights.map(highlight => ({
+                        emotionSegments: diaryData.annotation
+                            ? diaryData.annotation.highlights.map(highlight => ({
                                 id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
                                 text: diaryData.content.slice(highlight.start, highlight.end),
                                 start: highlight.start,
@@ -52,7 +52,7 @@ const DiaryDetail = ({ navigation, route }) => {
                                 emotionName: highlight.emotion.name,
                                 emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
                             })) : [],
-                        annotations: diaryData.annotations || []
+                        annotation: diaryData.annotation || []
                     };
 
                     setDiary(convertedDiary);

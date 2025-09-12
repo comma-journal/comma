@@ -49,8 +49,8 @@ const Write = ({ navigation }) => {
                 content: diary.content,
                 createdAt: diary.createdAt,
                 updatedAt: diary.updatedAt,
-                emotionSegments: diary.annotations && diary.annotations.length > 0 
-                    ? diary.annotations[0].highlights.map(highlight => ({
+                emotionSegments: diary.annotation
+                    ? diary.annotation.highlights.map(highlight => ({
                         id: `${highlight.start}-${highlight.end}-${highlight.emotion.id}`,
                         text: diary.content.slice(highlight.start, highlight.end),
                         start: highlight.start,
@@ -59,7 +59,7 @@ const Write = ({ navigation }) => {
                         emotionName: highlight.emotion.name,
                         emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
                     })) : [],
-                annotations: diary.annotations || []
+                annotation: diary.annotation || []
             }));
 
             setDiaries(convertedDiaries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
