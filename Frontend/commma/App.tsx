@@ -78,7 +78,7 @@ const App = () => {
     console.log('🚀 스플래시 화면 종료');
     
     // 개발 시 온보딩 상태 초기화 (필요할 때만 주석 해제)
-    // await resetOnboarding();
+    await resetOnboarding();
     
     // 디버깅용: AsyncStorage 전체 상태 확인
     await debugAsyncStorage();
@@ -133,8 +133,8 @@ const App = () => {
       
       // 온보딩 상태는 유지 (유저별로 관리되므로)
       // 필요시 특정 유저의 온보딩 상태만 초기화
-      // const userOnboardingKey = `onboarding_${userEmail}`;
-      // await AsyncStorage.removeItem(userOnboardingKey);
+      const userOnboardingKey = `onboarding_${userEmail}`;
+      await AsyncStorage.removeItem(userOnboardingKey);
       
     } catch (error) {
       // console.error('❌ 로그아웃 처리 실패:', error);
