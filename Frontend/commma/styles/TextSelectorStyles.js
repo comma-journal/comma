@@ -26,7 +26,7 @@ export const textSelectorStyles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 2, // 위쪽 레이어
+        zIndex: 2,
         fontSize: 20,
         lineHeight: 24,
         textAlignVertical: 'top',
@@ -42,7 +42,7 @@ export const textSelectorStyles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 1, // 아래쪽 레이어
+        zIndex: 1,
         backgroundColor: 'transparent',
         pointerEvents: 'none',
         paddingHorizontal: 0,

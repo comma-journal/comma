@@ -26,7 +26,6 @@ const DiaryEditor = ({ navigation, route }) => {
     const contentInputRef = useRef(null);
 
     useEffect(() => {
-        // 새 일기 작성 시 제목에 포커스
         if (!isEditing && titleInputRef.current) {
             setTimeout(() => {
                 titleInputRef.current.focus();
@@ -44,7 +43,6 @@ const DiaryEditor = ({ navigation, route }) => {
         return `${month}월 ${day}일 ${weekday}`;
     };
 
-    // 뒤로가기 처리
     const handleBackPress = () => {
         if (title.trim() || content.trim()) {
             Alert.alert(
@@ -60,7 +58,6 @@ const DiaryEditor = ({ navigation, route }) => {
         }
     };
 
-    // 다음 단계로 이동 (감정 추가)
     const handleNext = () => {
         if (!content.trim()) {
             Alert.alert('알림', '일기 내용을 입력해주세요.');

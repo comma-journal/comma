@@ -23,11 +23,8 @@ const LoginScreen = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const { alertConfig, showAlert, hideAlert } = useCustomAlert();
-
-  // 이메일과 비밀번호가 모두 입력되었는지 확인
   const isFormComplete = email.trim() !== '' && password.trim() !== '';
 
-  // 컴포넌트 마운트 시 자동로그인 확인
   useEffect(() => {
     checkAutoLogin();
   }, []);
@@ -44,19 +41,16 @@ const LoginScreen = ({ onLogin }) => {
         const daysDiff = (now - saveTime) / (1000 * 60 * 60 * 24);
 
         if (daysDiff >= 3) {
-          console.log('3일 경과로 자동로그인 데이터 삭제');
           await AsyncStorage.removeItem('autoLoginData');
           setIsChecking(false);
           return;
         }
 
-        console.log('자동로그인 시도:', loginData.email);
         await performAutoLogin(loginData.email, loginData.password);
       } else {
         setIsChecking(false);
       }
     } catch (error) {
-      console.error('자동로그인 확인 오류:', error);
       setIsChecking(false);
     }
   };
@@ -76,21 +70,16 @@ const LoginScreen = ({ onLogin }) => {
         }),
       });
 
-      console.log('자동로그인 응답 상태:', response.status);
-
       if (response.ok) {
         const userData = await response.json();
-        console.log('자동로그인 성공:', userData);
 
         await saveLoginData(savedEmail, savedPassword, userData);
         onLogin(userData);
       } else {
-        console.log('자동로그인 실패, 저장된 정보 삭제');
         await AsyncStorage.removeItem('autoLoginData');
         setIsChecking(false);
       }
     } catch (error) {
-      console.error('자동로그인 오류:', error);
       setIsChecking(false);
     }
   };
@@ -112,9 +101,8 @@ const LoginScreen = ({ onLogin }) => {
       }
 
       await AsyncStorage.setItem('autoLoginData', JSON.stringify(loginData));
-      console.log('로그인 정보 저장 완료');
     } catch (error) {
-      console.error('로그인 정보 저장 오류:', error);
+      // console.error('로그인 정보 저장 오류:', error);
     }
   };
 
@@ -144,8 +132,6 @@ const LoginScreen = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      console.log('로그인 시도:', { email, password });
-
       const response = await fetch('http://comma.gamja.cloud/v1/users', {
         method: 'POST',
         headers: {
@@ -158,11 +144,8 @@ const LoginScreen = ({ onLogin }) => {
         }),
       });
 
-      console.log('응답 상태:', response.status);
-
       if (response.ok) {
         const userData = await response.json();
-        console.log('로그인 성공:', userData);
 
         await saveLoginData(email.trim(), password.trim(), userData);
 
@@ -180,7 +163,6 @@ const LoginScreen = ({ onLogin }) => {
         });
       } else {
         const errorText = await response.text();
-        console.log('에러 응답:', errorText);
         showAlert({
           title: '로그인 실패',
           message: '이메일 또는 비밀번호를 확인해주세요.',
@@ -189,7 +171,6 @@ const LoginScreen = ({ onLogin }) => {
         });
       }
     } catch (error) {
-      console.error('로그인 에러:', error);
       showAlert({
         title: '오류',
         message: '네트워크 연결을 확인해주세요.',
@@ -291,7 +272,6 @@ const LoginScreen = ({ onLogin }) => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* 커스텀 Alert 추가 */}
       <CustomAlert
         visible={alertConfig.visible}
         title={alertConfig.title}

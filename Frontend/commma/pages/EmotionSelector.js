@@ -32,7 +32,6 @@ const EmotionSelector = ({ navigation, route }) => {
     const [title, setTitle] = useState(diary?.title || '');
     const [content, setContent] = useState(diary?.content || '');
 
-    // 임시 저장 관련 상태 추가 [2]
     const [tempSavedDiaryId, setTempSavedDiaryId] = useState(null);
     const [isTemporarySave, setIsTemporarySave] = useState(false);
 
@@ -60,14 +59,9 @@ const EmotionSelector = ({ navigation, route }) => {
     const [selectedEmotion, setSelectedEmotion] = useState(null);
     const [isEditingEmotion, setIsEditingEmotion] = useState(false);
     const [editingSegmentId, setEditingSegmentId] = useState(null);
-
     const [aiCommentReviewVisible, setAiCommentReviewVisible] = useState(false);
     const [savedDiaryData, setSavedDiaryData] = useState(null);
-
-    // 키보드 상태 관리
     const [keyboardVisible, setKeyboardVisible] = useState(false);
-
-    // 저장 상태 관리
     const [isSaved, setIsSaved] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -88,7 +82,7 @@ const EmotionSelector = ({ navigation, route }) => {
         return `${year}-${month}-${day}`;
     };
 
-    // 임시 저장된 일기 삭제 함수 [3]
+    // 임시 저장된 일기 삭제
     const deleteTempDiary = async () => {
         if (!tempSavedDiaryId || !isTemporarySave) return;
 
@@ -96,26 +90,21 @@ const EmotionSelector = ({ navigation, route }) => {
             const token = await getAuthToken();
             if (!token) return;
 
-            console.log('임시 저장된 일기 삭제 시도:', tempSavedDiaryId);
-
             const response = await fetch(`${API_BASE_URL}/me/diary/${tempSavedDiaryId}`, {
                 method: 'DELETE',
                 headers: getAuthHeaders(token),
             });
 
             if (response.ok) {
-                console.log('임시 저장된 일기 삭제 성공');
                 setTempSavedDiaryId(null);
                 setIsTemporarySave(false);
-            } else {
-                console.error('임시 일기 삭제 실패:', response.status);
             }
         } catch (error) {
-            console.error('임시 일기 삭제 중 오류:', error);
+            // console.error('임시 일기 삭제 중 오류:', error);
         }
     };
 
-    // 초기 상태 저장 (변경사항 감지용)
+    // 초기 상태 저장
     const initialState = useRef({
         title: diary?.title || '',
         content: diary?.content || '',
@@ -148,10 +137,7 @@ const EmotionSelector = ({ navigation, route }) => {
     // emotions가 로딩되면 애니메이션 배열 초기화
     useEffect(() => {
         if (emotions.length > 0) {
-            // 기존 애니메이션 초기화
             cardAnimations.splice(0, cardAnimations.length);
-
-            // 새로운 애니메이션 추가
             emotions.forEach(() => {
                 cardAnimations.push({
                     scale: new Animated.Value(1),
@@ -176,7 +162,6 @@ const EmotionSelector = ({ navigation, route }) => {
         };
     }, []);
 
-    // 변경사항 감지 useEffect
     useEffect(() => {
         const currentTitle = title;
         const currentContent = content;
@@ -189,16 +174,14 @@ const EmotionSelector = ({ navigation, route }) => {
         const hasAnyChanges = titleChanged || contentChanged || segmentsChanged;
         setHasChanges(hasAnyChanges);
 
-        // 변경사항이 있으면 저장 상태 초기화
         if (hasAnyChanges) {
             setIsSaved(false);
         }
     }, [title, content, emotionSegments]);
 
-    // 컴포넌트 언마운트 시 임시 저장 정리 [9]
+    // 컴포넌트 언마운트 시 임시 저장 정리
     useEffect(() => {
         return () => {
-            // 컴포넌트가 언마운트될 때 임시 저장된 일기 정리
             if (isTemporarySave && tempSavedDiaryId && !isSaved) {
                 deleteTempDiary();
             }
@@ -209,12 +192,10 @@ const EmotionSelector = ({ navigation, route }) => {
     useFocusEffect(
         useCallback(() => {
             const onBeforeRemove = async (e) => {
-                // 저장되었거나 변경사항이 없으면 자유롭게 나가기
                 if (isSaved || !hasChanges) {
                     return;
                 }
 
-                // 변경사항이 있고 저장되지 않았으면 확인 알림
                 e.preventDefault();
 
                 showAlert({
@@ -238,7 +219,6 @@ const EmotionSelector = ({ navigation, route }) => {
                             style: 'destructive',
                             onPress: async () => {
                                 hideAlert();
-                                // 임시 저장된 일기가 있으면 삭제 [6]
                                 if (isTemporarySave && tempSavedDiaryId) {
                                     await deleteTempDiary();
                                 }
@@ -258,143 +238,6 @@ const EmotionSelector = ({ navigation, route }) => {
             return () => navigation.removeListener('beforeRemove', onBeforeRemove);
         }, [isSaved, hasChanges, navigation, isTemporarySave, tempSavedDiaryId])
     );
-
-    // 저장하고 나가기 함수
-    const saveAndExit = async () => {
-        if (!title.trim() && !content.trim()) {
-            showAlert({
-                title: '알림',
-                message: '제목이나 내용을 입력해주세요.',
-                type: 'warning',
-                buttons: [{ text: '확인', onPress: hideAlert }]
-            });
-            return;
-        }
-
-        if (emotionSegments.length === 0) {
-            showAlert({
-                title: '감정 선택 안내',
-                message: '감정이 하나도 선택되지 않았습니다.\n\n그래도 저장하고 나가시겠습니까?',
-                type: 'warning',
-                buttons: [
-                    {
-                        text: '취소',
-                        style: 'cancel',
-                        onPress: hideAlert,
-                    },
-                    {
-                        text: '저장하고 나가기',
-                        onPress: async () => {
-                            hideAlert();
-                            try {
-                                await proceedWithSaveAndExit();
-                                // 여기서도 바로 이동하지 않고 성공 알림 후 이동
-                                showAlert({
-                                    title: '저장 완료',
-                                    message: '일기가 성공적으로 저장되었습니다.',
-                                    type: 'success',
-                                    buttons: [
-                                        {
-                                            text: '확인',
-                                            onPress: () => {
-                                                hideAlert();
-                                                navigation.navigate('WriteList');
-                                            }
-                                        }
-                                    ]
-                                });
-                            } catch (error) {
-                                console.error('저장 오류:', error);
-                                showAlert({
-                                    title: '오류',
-                                    message: '저장 중 문제가 발생했습니다.',
-                                    type: 'error',
-                                    buttons: [{ text: '확인', onPress: hideAlert }]
-                                });
-                            }
-                        }
-                    }
-                ]
-            });
-            return;
-        }
-
-        try {
-            await proceedWithSaveAndExit();
-            // 여기서도 바로 이동하지 않고 성공 알림 후 이동
-            showAlert({
-                title: '저장 완료',
-                message: '일기가 성공적으로 저장되었습니다.',
-                type: 'success',
-                buttons: [
-                    {
-                        text: '확인',
-                        onPress: () => {
-                            hideAlert();
-                            navigation.navigate('WriteList');
-                        }
-                    }
-                ]
-            });
-        } catch (error) {
-            console.error('저장 오류:', error);
-            showAlert({
-                title: '오류',
-                message: '저장 중 문제가 발생했습니다.',
-                type: 'error',
-                buttons: [{ text: '확인', onPress: hideAlert }]
-            });
-        }
-    };
-
-    // 감정 확인 후 진행
-    const checkEmotionsAndProceed = () => {
-        if (emotionSegments.length === 0) {
-            showAlert({
-                title: '감정 선택 확인',
-                message: '아직 감정이 하나도 선택되지 않았습니다.\n\n문장을 선택하여 감정을 추가하시겠습니까?',
-                type: 'warning',
-                buttons: [
-                    {
-                        text: '감정 추가하기',
-                        style: 'default',
-                        onPress: () => {
-                            hideAlert();
-                            showAlert({
-                                title: '감정 추가 방법',
-                                message: '텍스트에서 감정을 표현하고 싶은 문장을 선택한 후 하단의 "감정 선택" 버튼을 눌러주세요.',
-                                type: 'default',
-                                buttons: [{ text: '확인', onPress: hideAlert }]
-                            });
-                        }
-                    },
-                    {
-                        text: '감정 없이 다음',
-                        style: 'default',
-                        onPress: () => {
-                            hideAlert();
-                            proceedToAIReview();
-                        }
-                    },
-                    {
-                        text: '취소',
-                        style: 'cancel',
-                        onPress: hideAlert
-                    }
-                ]
-            });
-            return;
-        }
-
-        // 감정이 있는 경우 바로 AI 리뷰로 진행
-        proceedToAIReview();
-    };
-
-    // AI 리뷰 단계로 진행
-    const proceedToAIReview = () => {
-    // 바로 모달 열기 (API는 모달 내부에서 호출)
-    openAIReviewModal();
-};
 
     // 일기 저장 및 AI 코멘트 받기
     const saveDiaryAndGetAIComments = async () => {
@@ -447,7 +290,6 @@ const EmotionSelector = ({ navigation, route }) => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Error response body:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
             }
 
@@ -456,8 +298,7 @@ const EmotionSelector = ({ navigation, route }) => {
             // 새로 생성된 경우만 임시 저장으로 표시
             if (!isEditing && method === 'POST') {
                 setTempSavedDiaryId(responseData.id);
-                setIsTemporarySave(true); // 임시 저장 플래그 설정
-                console.log('임시 저장 완료:', responseData.id);
+                setIsTemporarySave(true);
             }
 
             return {
@@ -472,7 +313,6 @@ const EmotionSelector = ({ navigation, route }) => {
             };
 
         } catch (error) {
-            console.error('AI 피드백 저장 오류:', error);
             throw error;
         }
     };
@@ -502,8 +342,6 @@ const EmotionSelector = ({ navigation, route }) => {
     const handleContentChange = (newContent) => {
         return new Promise((resolve) => {
             const oldContent = previousContentRef.current;
-
-            // 감정 삭제 확인
             const { willDelete, segmentsToDelete } = checkForEmotionDeletion(oldContent, newContent, emotionSegments);
 
             if (willDelete && segmentsToDelete.length > 0) {
@@ -528,13 +366,11 @@ const EmotionSelector = ({ navigation, route }) => {
                             style: 'destructive',
                             onPress: () => {
                                 hideAlert();
-                                // 감정 세그먼트 위치 업데이트
                                 const updatedSegments = updateEmotionSegmentPositions(oldContent, newContent, emotionSegments);
 
                                 setContent(newContent);
                                 setEmotionSegments(updatedSegments);
 
-                                // 이전 content 업데이트
                                 previousContentRef.current = newContent;
                                 resolve(true);
                             }
@@ -555,10 +391,9 @@ const EmotionSelector = ({ navigation, route }) => {
         });
     };
 
-    // 실제 저장하고 나가기 처리 (API 버전)
+    // 실제 저장하고 나가기 처리
     const proceedWithSaveAndExit = async () => {
         try {
-            // useEmotionsData.js와 동일한 방식으로 토큰 가져오기
             const savedLoginData = await AsyncStorage.getItem('autoLoginData');
 
             if (!savedLoginData) {
@@ -593,8 +428,6 @@ const EmotionSelector = ({ navigation, route }) => {
                 }
             };
 
-            console.log(requestBody) // REMOVEME
-
             const url = isEditing
                 ? `${API_BASE_URL}/me/diary/${diary.id}`
                 : `${API_BASE_URL}/me/diary`;
@@ -620,8 +453,6 @@ const EmotionSelector = ({ navigation, route }) => {
             return true;
 
         } catch (error) {
-            console.error('API 저장 오류:', error);
-
             if (error.message.includes('로그인 정보가 없습니다') ||
                 error.message.includes('토큰이 없습니다')) {
                 showAlert({
@@ -725,11 +556,6 @@ const EmotionSelector = ({ navigation, route }) => {
             // 변경 지점보다 앞에 있는 세그먼트는 그대로 유지
             if (segmentEnd <= changeStart) {
                 updatedSegments.push(segment);
-            }
-            // 변경 지점과 겹치는 세그먼트는 제거
-            else if (segmentStart < changeStart + Math.max(deletedLength, insertedLength)) {
-                // 겹치는 세그먼트는 삭제
-                // console.log(`Removing overlapping segment: "${segment.text}"`);
             }
             // 변경 지점보다 뒤에 있는 세그먼트는 위치 조정
             else {
@@ -861,7 +687,6 @@ const EmotionSelector = ({ navigation, route }) => {
                         style: 'default',
                         onPress: () => {
                             hideAlert();
-                            // 즉시 모달 열고 내부에서 API 요청 시작 [1]
                             openAIReviewModal();
                         }
                     },
@@ -875,14 +700,13 @@ const EmotionSelector = ({ navigation, route }) => {
             return;
         }
 
-        // 감정이 있는 경우도 즉시 모달 열기
         openAIReviewModal();
     };
 
     const openAIReviewModal = () => {
-        // 임시 데이터로 모달을 즉시 열기 [2]
+        // 임시 데이터로 모달을 즉시 열기
         const tempDiaryData = {
-            id: null, // 아직 저장되지 않음
+            id: null,
             title: title.trim() || '제목 없음',
             content: content.trim(),
             annotation: {
@@ -901,7 +725,7 @@ const EmotionSelector = ({ navigation, route }) => {
         };
 
         setSavedDiaryData(tempDiaryData);
-        setAiCommentReviewVisible(true); // 즉시 모달 열기
+        setAiCommentReviewVisible(true);
     };
 
     // 바로 저장 처리
@@ -948,7 +772,6 @@ const EmotionSelector = ({ navigation, route }) => {
                 throw new Error('토큰이 없습니다.');
             }
 
-            // entryDate 설정
             let entryDate;
             if (isEditing && diary?.entryDate) {
                 entryDate = diary.entryDate;
@@ -961,7 +784,7 @@ const EmotionSelector = ({ navigation, route }) => {
             const requestBody = {
                 title: title.trim() || '제목 없음',
                 content: content.trim(),
-                entryDate: entryDate, // 수정됨
+                entryDate: entryDate,
                 annotation: {
                     comments: [],
                     highlights: emotionSegments.map(segment => ({
@@ -991,7 +814,6 @@ const EmotionSelector = ({ navigation, route }) => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Direct save error response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
             }
 
@@ -999,7 +821,6 @@ const EmotionSelector = ({ navigation, route }) => {
             return true;
 
         } catch (error) {
-            console.error('바로 저장 오류:', error);
             throw error;
         }
     };
@@ -1012,36 +833,6 @@ const EmotionSelector = ({ navigation, route }) => {
             setSavedDiaryData(updatedDiary);
         }
         setAiCommentReviewVisible(false);
-    };
-
-    // 실제 저장 처리 함수 (중복 제거)
-    const proceedWithSave = async () => {
-        try {
-            await proceedWithSaveAndExit();
-
-            showAlert({
-                title: '저장 완료',
-                message: '일기가 성공적으로 저장되었습니다.',
-                type: 'success',
-                buttons: [
-                    {
-                        text: '확인',
-                        onPress: () => {
-                            hideAlert();
-                            navigation.navigate('WriteList');
-                        }
-                    }
-                ]
-            });
-        } catch (error) {
-            console.error('저장 오류:', error);
-            showAlert({
-                title: '오류',
-                message: '저장 중 문제가 발생했습니다.',
-                type: 'error',
-                buttons: [{ text: '확인', onPress: hideAlert }]
-            });
-        }
     };
 
     // 감정 모달 열기
@@ -1097,7 +888,7 @@ const EmotionSelector = ({ navigation, route }) => {
 
     return (
         <SafeAreaView style={emotionSelectorStyles.container}>
-            {/* 헤더 - 저장 버튼으로 다시 변경 */}
+            {/* 헤더 */}
             <View style={emotionSelectorStyles.header}>
                 <TouchableOpacity
                     style={emotionSelectorStyles.backButton}
@@ -1243,7 +1034,6 @@ const EmotionSelector = ({ navigation, route }) => {
                 onClose={() => setEmotionModalVisible(false)}
             />
 
-            {/* 커스텀 Alert 추가 */}
             <CustomAlert
                 visible={alertConfig.visible}
                 title={alertConfig.title}
@@ -1253,7 +1043,7 @@ const EmotionSelector = ({ navigation, route }) => {
                 onBackdropPress={hideAlert}
             />
 
-            {/* AI 코멘트 리뷰 모달 추가 */}
+            {/* AI 코멘트 리뷰 모달 */}
             <AICommentReview
                 visible={aiCommentReviewVisible}
                 onClose={() => setAiCommentReviewVisible(false)}
@@ -1261,7 +1051,6 @@ const EmotionSelector = ({ navigation, route }) => {
                 onFinalSave={handleFinalSave}
                 onReturnToEdit={handleReturnFromAIReview}
                 onCancel={deleteTempDiary}
-                // API 호출 함수를 prop으로 전달 [5]
                 onStartAPICall={saveDiaryAndGetAIComments}
                 emotionSegments={emotionSegments}
                 title={title}

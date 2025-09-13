@@ -276,7 +276,6 @@ const EmotionModal = ({
                 </KeyboardAvoidingView>
             </Modal>
 
-            {/* 커스텀 Alert 추가 */}
             <CustomAlert
                 visible={alertConfig.visible}
                 title={alertConfig.title}

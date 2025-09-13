@@ -33,16 +33,9 @@ const App = () => {
   // 특정 유저의 온보딩 완료 상태 확인 함수
   const checkUserOnboardingStatus = async (email:any) => {
     try {
-      // 방법 1: 유저별 온보딩 상태 저장
+      // 유저별 온보딩 상태 저장
       const userOnboardingKey = `onboarding_${email}`;
       const userOnboardingCompleted = await AsyncStorage.getItem(userOnboardingKey);
-      
-      console.log('🔍 유저별 온보딩 상태 확인:');
-      console.log('   - 이메일:', email);
-      console.log('   - 저장 키:', userOnboardingKey);
-      console.log('   - 저장된 값:', userOnboardingCompleted);
-      console.log('   - 완료 여부:', userOnboardingCompleted === 'true');
-      
       return userOnboardingCompleted === 'true';
     } catch (error) {
       console.error('❌ 유저 온보딩 상태 확인 실패:', error);
@@ -50,7 +43,7 @@ const App = () => {
     }
   };
 
-  // 전체 온보딩 완료 상태 확인 함수 (기존 방식 - 디버깅용)
+  // 전체 온보딩 완료 상태 확인 함수 (디버깅용)
   const checkOnboardingStatus = async () => {
     try {
       const onboardingCompleted = await AsyncStorage.getItem('onboardingCompleted');
@@ -91,60 +84,42 @@ const App = () => {
     await debugAsyncStorage();
     
     // 스플래시 화면이 끝나면 항상 로그인 화면으로
-    console.log('➡️ 로그인 화면으로 이동');
     setCurrentScreen('login');
   };
 
   const handleLogin = async (email:any) => {
-    console.log('👤 로그인 처리 시작');
-    console.log('   - 이메일:', email);
     
     setUserEmail(email);
     
     // 해당 유저의 온보딩 상태 확인
-    console.log('🔍 해당 유저의 온보딩 상태 확인 중...');
     const isUserOnboardingCompleted = await checkUserOnboardingStatus(email);
-    
-    console.log('📊 해당 유저의 온보딩 완료 여부:', isUserOnboardingCompleted);
     
     if (isUserOnboardingCompleted) {
       // 해당 유저가 온보딩을 완료한 경우 바로 메인으로
-      console.log('✅ 해당 유저 온보딩 완료됨 - 메인 앱으로 이동');
       setCurrentScreen('main');
     } else {
       // 해당 유저가 온보딩을 완료하지 않은 경우 온보딩으로
-      console.log('📝 해당 유저 온보딩 미완료 - 온보딩 페이지로 이동');
       setCurrentScreen('onboarding');
     }
   };
 
-  const handleOnboardingComplete = async () => {
-    console.log('🎉 온보딩 완료 처리 시작');
-    console.log('   - 대상 유저:', userEmail);
-    
+  const handleOnboardingComplete = async () => {    
     try {
       if (userEmail) {
         // 유저별 온보딩 완료 상태 저장
         const userOnboardingKey = `onboarding_${userEmail}`;
         await AsyncStorage.setItem(userOnboardingKey, 'true');
-        console.log('✅ 유저별 온보딩 완료 상태 저장됨:', userOnboardingKey);
         
         // 저장 후 확인
         const savedValue = await AsyncStorage.getItem(userOnboardingKey);
-        console.log('🔍 저장 후 확인된 값:', savedValue);
-      } else {
-        console.warn('⚠️ 유저 이메일이 없어서 유저별 온보딩 상태를 저장할 수 없습니다');
       }
       
-      // 전체 온보딩 완료 상태도 저장 (기존 로직 유지)
+      // 전체 온보딩 완료 상태도 저장
       await AsyncStorage.setItem('onboardingCompleted', 'true');
-      console.log('✅ 전체 온보딩 완료 상태도 저장됨');
-      
     } catch (error) {
-      console.error('❌ 온보딩 완료 상태 저장 실패:', error);
+      // console.error('❌ 온보딩 완료 상태 저장 실패:', error);
     }
     
-    console.log('➡️ 메인 앱으로 이동');
     setCurrentScreen('main');
   };
 
@@ -155,7 +130,6 @@ const App = () => {
     try {
       // AsyncStorage에서 로그인 정보 제거
       await AsyncStorage.removeItem('autoLoginData');
-      console.log('✅ 로그인 정보 삭제 완료');
       
       // 온보딩 상태는 유지 (유저별로 관리되므로)
       // 필요시 특정 유저의 온보딩 상태만 초기화
@@ -163,10 +137,8 @@ const App = () => {
       // await AsyncStorage.removeItem(userOnboardingKey);
       
     } catch (error) {
-      console.error('❌ 로그아웃 처리 실패:', error);
+      // console.error('❌ 로그아웃 처리 실패:', error);
     }
-    
-    console.log('➡️ 로그인 화면으로 이동');
     setCurrentScreen('login');
     setUserEmail(null);
   };
@@ -176,10 +148,8 @@ const App = () => {
     console.log('🖥️ 현재 화면 상태 변경:', currentScreen);
   }, [currentScreen]);
 
-  // 메인 앱 네비게이션 (Stack Navigator 포함)
-  const MainAppNavigator = () => {
-    console.log('🏠 메인 앱 네비게이터 렌더링');
-    
+  // 메인 앱 네비게이션
+  const MainAppNavigator = () => {    
     return (
       <SafeAreaProvider>
         <NavigationContainer>

@@ -12,12 +12,13 @@ import { emotionGridStyles } from '../styles/components/EmotionGridStyles';
 
 const { width } = Dimensions.get('window');
 
-const EmotionGrid = ({ 
-    selectedEmotion, 
-    onEmotionSelect, 
+const EmotionGrid = ({
+    selectedEmotion,
+    onEmotionSelect,
     cardAnimations,
-    emotions // props로 받아서 사용
+    emotions
 }) => {
+
     // 감정 카드 렌더링
     const renderEmotionCard = (emotion, index) => {
         const cardWidth = width / 5 - 14;

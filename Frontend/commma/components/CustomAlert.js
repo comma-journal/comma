@@ -17,7 +17,7 @@ const CustomAlert = ({
     message,
     buttons = [],
     onBackdropPress,
-    type = 'default', // 'success', 'warning', 'error'
+    type = 'default',
 }) => {
     const getIconName = () => {
         switch (type) {
@@ -37,7 +37,6 @@ const CustomAlert = ({
         }
     };
 
-    // 버튼이 3개 이상이면 세로 배치, 2개 이하면 가로 배치
     const shouldUseVerticalLayout = buttons.length > 2;
 
     return (
@@ -72,7 +71,7 @@ const CustomAlert = ({
                                 <Text style={styles.message}>{message}</Text>
                             )}
 
-                            {/* 버튼들 - 동적 레이아웃 */}
+                            {/* 버튼들 */}
                             <View style={[
                                 styles.buttonsContainer,
                                 shouldUseVerticalLayout && styles.buttonsContainerVertical

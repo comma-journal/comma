@@ -83,15 +83,13 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   const saveOnboardingComplete = async () => {
     try {
       await AsyncStorage.setItem('onboardingCompleted', 'true');
-      console.log('온보딩 완료 상태 저장됨');
     } catch (error) {
-      console.error('온보딩 완료 상태 저장 실패:', error);
+      // console.error('온보딩 완료 상태 저장 실패:', error);
     }
   };
 
   useEffect(() => {
     if (currentStep === 0) {
-      // 이름 입력 애니메이션
       nameInputAnim.setValue(0);
       
       setTimeout(() => {
@@ -103,7 +101,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         }).start();
       }, 200);
     } else if (currentStep === 2) {
-      // 하이라이트 애니메이션
       highlightAnim.setValue(0);
       questionFloatAnim.setValue(0);
       
@@ -122,7 +119,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         ]).start();
       }, 500);
     } else if (currentStep === 3) {
-      // 캘린더 애니메이션
       calendarSlideAnim.setValue(0);
       emojiFloatAnim.setValue(0);
       
@@ -141,7 +137,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         ]).start();
       }, 300);
     } else if (currentStep === 4) {
-      // 최종 환영 애니메이션
       welcomeTextAnim.setValue(0);
       
       setTimeout(() => {
@@ -158,7 +153,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
             useNativeDriver: true,
           })
         ]).start(async () => {
-          // 온보딩 완료 상태 저장 후 onComplete 호출
           await saveOnboardingComplete();
           onComplete();
         });
@@ -168,7 +162,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
   const nextStep = async () => {
     if (currentStep === 0) {
-      // 첫 번째 단계에서 이름 설정 API 호출
       if (!userName.trim()) {
         showAlert({
           title: '알림',
@@ -197,7 +190,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       ]).start(() => {
         setCurrentStep(currentStep + 1);
         
-        // 애니메이션 값들 리셋
         highlightAnim.setValue(0);
         questionFloatAnim.setValue(0);
         calendarSlideAnim.setValue(0);
@@ -205,7 +197,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         nameInputAnim.setValue(0);
         welcomeTextAnim.setValue(0);
         
-        // 새 페이지 등장 애니메이션
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
@@ -225,12 +216,8 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
   const handleNameSetting = async () => {
     try {
-      console.log('🔍 [OnboardingScreen] 이름 설정 시작:', userName.trim());
-      
-      // AsyncStorage에서 토큰 가져오기
       const savedLoginData = await AsyncStorage.getItem('autoLoginData');
       if (!savedLoginData) {
-        console.error('❌ [OnboardingScreen] 로그인 데이터를 찾을 수 없음');
         showAlert({
           title: '오류',
           message: '로그인 정보를 찾을 수 없습니다.',
@@ -244,7 +231,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       const token = loginData.token;
       
       if (!token) {
-        console.error('❌ [OnboardingScreen] 토큰을 찾을 수 없음');
         showAlert({
           title: '오류',
           message: '인증 정보가 없습니다.',
@@ -253,10 +239,6 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         });
         return;
       }
-
-      console.log('📤 [OnboardingScreen] API 호출 시작');
-      console.log('  - 토큰:', token ? '있음' : '없음');
-      console.log('  - 이름:', userName.trim());
 
       const response = await fetch(`https://comma.gamja.cloud/v1/users?name=${encodeURIComponent(userName.trim())}`, {
         method: 'PATCH',
@@ -267,26 +249,19 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         },
       });
 
-      console.log('📥 [OnboardingScreen] API 응답 상태:', response.status);
-
       if (response.ok) {
-        console.log('✅ [OnboardingScreen] 이름 설정 성공:', userName);
         
         // AsyncStorage의 사용자 정보 업데이트
         const updatedLoginData = {
           ...loginData,
           name: userName.trim()
         };
-        await AsyncStorage.setItem('autoLoginData', JSON.stringify(updatedLoginData));
-        console.log('✅ [OnboardingScreen] 로컬 스토리지 업데이트 완료');
-        
+        await AsyncStorage.setItem('autoLoginData', JSON.stringify(updatedLoginData));        
       } else {
         const errorText = await response.text();
-        console.error('❌ [OnboardingScreen] 이름 설정 실패:', response.status, errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
     } catch (error) {
-      console.error('❌ [OnboardingScreen] 네트워크 오류:', error);
       showAlert({
         title: '오류',
         message: '이름 설정에 실패했습니다. 계속 진행하시겠습니까?',
@@ -926,7 +901,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 4,
   },
-  // 이름 설정 화면
   nameSettingContainer: {
     width: '100%',
     alignItems: 'center',
@@ -1011,7 +985,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '500',
   },
-  // 최종 환영 화면
   finalContainer: {
     alignItems: 'center',
     justifyContent: 'center',

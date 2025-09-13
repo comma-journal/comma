@@ -67,7 +67,7 @@ const DiaryDetail = ({ navigation, route }) => {
                     setDiary(convertedDiary);
                 }
             } catch (error) {
-                console.error('일기 상세 로드 오류:', error);
+                // console.error('일기 상세 로드 오류:', error);
             } finally {
                 setLoading(false);
             }
@@ -76,20 +76,14 @@ const DiaryDetail = ({ navigation, route }) => {
         loadDiaryDetail();
     }, [diary.id]);
 
-    // 코멘트 완료 여부 확인 함수
-    const isCommentCompleted = (start, end) => {
-        const commentKey = `${start}-${end}`;
-        return completedComments.has(commentKey);
-    };
-
-    // 스타일된 텍스트 렌더링 (수정됨 - AI 코멘트 완료 상태 반영)
+    // 스타일된 텍스트 렌더링
     const renderStyledText = () => {
         if (!diary.content || diary.content.length === 0) {
             return null;
         }
 
         const emotionSegments = diary.emotionSegments || [];
-        
+
         // AI 코멘트 기능 완전 제거 - 감정만 표시
         if (emotionSegments.length === 0) {
             return (
@@ -100,7 +94,7 @@ const DiaryDetail = ({ navigation, route }) => {
         }
 
         const charEmotions = new Array(diary.content.length).fill(null);
-        
+
         // 감정 세그먼트 매핑만 수행
         emotionSegments.forEach(segment => {
             for (let i = segment.start; i < segment.end; i++) {
@@ -118,8 +112,8 @@ const DiaryDetail = ({ navigation, route }) => {
             let endIndex = currentIndex;
 
             // 같은 감정의 범위 찾기
-            while (endIndex < diary.content.length && 
-                   charEmotions[endIndex] === currentEmotion) {
+            while (endIndex < diary.content.length &&
+                charEmotions[endIndex] === currentEmotion) {
                 endIndex++;
             }
 
@@ -166,7 +160,6 @@ const DiaryDetail = ({ navigation, route }) => {
 
             // 유효하지 않은 날짜 처리
             if (isNaN(date.getTime())) {
-                console.warn('유효하지 않은 날짜:', dateString);
                 return '날짜 오류';
             }
 
@@ -177,15 +170,8 @@ const DiaryDetail = ({ navigation, route }) => {
 
             return `${month}월 ${day}일 ${weekday}`;
         } catch (error) {
-            console.error('날짜 포맷팅 오류:', error, dateString);
             return '날짜 오류';
         }
-    };
-
-    // AI 코멘트 모달 열기
-    const openCommentModal = (comment) => {
-        setSelectedComment(comment);
-        setCommentModalVisible(true);
     };
 
     return (
@@ -211,7 +197,7 @@ const DiaryDetail = ({ navigation, route }) => {
             </View>
 
             <ScrollView style={diaryDetailStyles.scrollView}>
-                {/* 날짜 (간단하게 작성일만 표시) */}
+                {/* 날짜 */}
                 <View style={diaryDetailStyles.dateContainer}>
                     <Text style={diaryDetailStyles.dateText}>
                         {formatDate(diary.createdAt)}
