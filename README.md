@@ -1,5 +1,3 @@
-<h1 align="center">COMMA</h1>
-
 <p align="center">
   <img width="1920" src=".github/src/images/banner.png" alt="로고"/>
 </p>
