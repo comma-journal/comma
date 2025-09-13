@@ -24,67 +24,56 @@ const HomeScreen = () => {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 8, 1));
   const [diaryData, setDiaryData] = useState({});
   const [showMonthPicker, setShowMonthPicker] = useState(false);
-  
-  // 모달용 상태
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(8);
 
-  // currentDate가 변경될 때 선택된 년월 업데이트
   useEffect(() => {
     setSelectedYear(currentDate.getFullYear());
     setSelectedMonthIndex(currentDate.getMonth());
   }, [currentDate]);
 
-  // API에서 일기 데이터 가져오기
   const fetchDiaryData = async (yearMonth) => {
-    console.log(`${yearMonth} 데이터 로드 요청`);
-    
     try {
       const API_BASE_URL = 'https://comma.gamja.cloud';
-      
+
       const savedLoginData = await AsyncStorage.getItem('autoLoginData');
       let token = null;
-      
+
       if (savedLoginData) {
         const loginData = JSON.parse(savedLoginData);
         token = loginData.token;
-        console.log('토큰 발견:', token ? '있음' : '없음');
       }
-      
+
       const headers = {
         'Content-Type': 'application/json',
       };
-      
+
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      
+
       const response = await fetch(`${API_BASE_URL}/v1/me/diary?yearMonth=${yearMonth}`, {
         method: 'GET',
         headers: headers,
       });
-      
-      console.log('API 응답 상태:', response.status);
-      
+
       if (!response.ok) {
         if (response.status === 401) {
-          console.error('인증 실패 - 토큰을 확인하세요');
+          // console.error('인증 실패 - 토큰을 확인하세요');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const diaries = await response.json();
-      console.log('API 응답:', diaries);
-      
+
       if (!Array.isArray(diaries)) {
-        console.warn('API 응답이 배열이 아닙니다:', diaries);
         throw new Error('Invalid API response format');
       }
-      
+
       const formattedData = {};
       diaries.forEach(diary => {
         const date = diary.entryDate;
-        
+
         let mood = 'happy';
         if (diary.topEmotion && diary.topEmotion.name) {
           const emotionMapping = {
@@ -105,7 +94,7 @@ const HomeScreen = () => {
           };
           mood = emotionMapping[diary.topEmotion.name] || 'happy';
         }
-        
+
         formattedData[date] = {
           hasEntry: true,
           topEmotion: diary.topEmotion,
@@ -118,13 +107,11 @@ const HomeScreen = () => {
           updatedAt: diary.updatedAt
         };
       });
-      
-      console.log('변환된 데이터:', formattedData);
+
       setDiaryData(formattedData);
-      
+
     } catch (error) {
-      console.error('일기 데이터 로딩 실패:', error);
-      
+
       if (__DEV__) {
         setDiaryData({
           '2025-09-02': { hasEntry: true, mood: 'happy', rgb: 0xFFB700 },
@@ -151,15 +138,15 @@ const HomeScreen = () => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const yearMonth = `${year}-${month}`;
-    
+
     if (isMounted) {
       fetchDiaryData(yearMonth);
     }
-    
+
     return () => {
       isMounted = false;
     };
@@ -173,9 +160,9 @@ const HomeScreen = () => {
 
   const getRgbGradient = (rgb) => {
     if (!rgb) return ['#F0F0F0', '#E0E0E0', '#CCCCCC'];
-    
+
     const baseColor = rgbToHex(rgb);
-    
+
     const lightenColor = (hex, percent) => {
       const num = parseInt(hex.replace("#", ""), 16);
       const amt = Math.round(2.55 * percent);
@@ -210,7 +197,6 @@ const HomeScreen = () => {
 
   const handleDatePress = (dateKey, dayData) => {
     setSelectedDate(dateKey);
-    console.log('선택된 날짜:', dateKey, '감정:', dayData?.topEmotion?.name, 'RGB:', dayData?.rgb);
     navigation.navigate('WriteTab', { screen: 'WriteList' });
   };
 
@@ -260,9 +246,9 @@ const HomeScreen = () => {
 
   const getRgbMoodColors = (rgb) => {
     if (!rgb) return { eye: '#6B4200', mouth: '#FBBE25' };
-    
+
     const baseColor = rgbToHex(rgb);
-    
+
     const darkenColor = (hex, percent) => {
       const num = parseInt(hex.replace("#", ""), 16);
       const amt = Math.round(2.55 * percent);
@@ -382,50 +368,44 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={homeStyles['home-container']}>
-      {/* 앱 헤더 */}
-{/* COMMA 서비스 헤더 with 슬로건 */}
-<View style={homeStyles['app-header']}>
-  <View style={homeStyles['app-header-container']}>
-    <View style={homeStyles['app-logo-section']}>
-      <Image
-        source={require('../assets/logo1.png')}
-        style={homeStyles['app-logo']}
-        resizeMode="contain"
-      />
-      <View>
-        <Text style={homeStyles['app-title']}>쉼표</Text>
-        <Text style={{
-          fontSize: 11,
-          color: '#8E8E8E',
-          fontWeight: '400',
-          marginTop: -2,
-        }}>
-          흐르는 감정 속, 당신을 위한 작은 쉼표
-        </Text>
+      {/* COMMA 서비스 헤더 with 슬로건 */}
+      <View style={homeStyles['app-header']}>
+        <View style={homeStyles['app-header-container']}>
+          <View style={homeStyles['app-logo-section']}>
+            <Image
+              source={require('../assets/logo1.png')}
+              style={homeStyles['app-logo']}
+              resizeMode="contain"
+            />
+            <View>
+              <Text style={homeStyles['app-title']}>쉼표</Text>
+              <Text style={{
+                fontSize: 11,
+                color: '#8E8E8E',
+                fontWeight: '400',
+                marginTop: -2,
+              }}>
+                흐르는 감정 속, 당신을 위한 작은 쉼표
+              </Text>
+            </View>
+          </View>
+        </View>
       </View>
-    </View>
-  </View>
-</View>
-
-
-
-
 
       <ScrollView style={homeStyles['home-scroll']} showsVerticalScrollIndicator={false}>
         {/* 캘린더 헤더 */}
         <View style={homeStyles['home-header']}>
           <View style={homeStyles['header-title-container']}>
-            <TouchableOpacity 
-              onPress={goToPreviousMonth} 
+            <TouchableOpacity
+              onPress={goToPreviousMonth}
               style={homeStyles['nav-arrow']}
             >
               <Text style={homeStyles['arrow-text']}>‹</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={homeStyles['month-title-wrapper']}
               onPress={() => {
-                console.log('월 제목 클릭됨');
                 setShowMonthPicker(true);
               }}
             >
@@ -433,8 +413,8 @@ const HomeScreen = () => {
               <Text style={homeStyles['dropdown-arrow']}>▼</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              onPress={goToNextMonth} 
+            <TouchableOpacity
+              onPress={goToNextMonth}
               style={homeStyles['nav-arrow']}
             >
               <Text style={homeStyles['arrow-text']}>›</Text>
@@ -535,7 +515,6 @@ const HomeScreen = () => {
               shadowRadius: 20,
               elevation: 10,
             }}>
-              {/* 모달 헤더 */}
               <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -550,7 +529,7 @@ const HomeScreen = () => {
                   fontWeight: '600',
                   color: '#333333',
                 }}>연월 선택</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setShowMonthPicker(false)}
                   style={{
                     width: 30,
@@ -568,14 +547,13 @@ const HomeScreen = () => {
                   }}>×</Text>
                 </TouchableOpacity>
               </View>
-              
-              {/* 연월 선택 내용 */}
-              <ScrollView 
+
+              <ScrollView
                 style={{ flex: 1 }}
-                contentContainerStyle={{ 
-                  paddingHorizontal: 20, 
+                contentContainerStyle={{
+                  paddingHorizontal: 20,
                   paddingTop: 20,
-                  paddingBottom: 20 
+                  paddingBottom: 20
                 }}
                 showsVerticalScrollIndicator={false}
               >
@@ -587,7 +565,7 @@ const HomeScreen = () => {
                     color: '#333333',
                     marginBottom: 12,
                   }}>년도</Text>
-                  
+
                   <View style={{
                     flexDirection: 'row',
                     flexWrap: 'wrap',
@@ -634,7 +612,7 @@ const HomeScreen = () => {
                     color: '#333333',
                     marginBottom: 12,
                   }}>월</Text>
-                  
+
                   <View style={{
                     flexDirection: 'row',
                     flexWrap: 'wrap',
@@ -667,9 +645,8 @@ const HomeScreen = () => {
                 </View>
 
                 {/* 확인 버튼 */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => {
-                    console.log(`${selectedYear}년 ${selectedMonthIndex + 1}월 선택`);
                     const newDate = new Date(selectedYear, selectedMonthIndex, 1);
                     setCurrentDate(newDate);
                     setShowMonthPicker(false);

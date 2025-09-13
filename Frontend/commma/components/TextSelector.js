@@ -17,8 +17,6 @@ const TextSelector = ({
     customRenderer
 }) => {
     const [content, setContent] = useState(savedContent);
-
-    // content 변경 처리 (비동기 처리 지원)
     const handleContentChange = async (text) => {
         if (onContentChange) {
             const shouldUpdate = await onContentChange(text);
@@ -32,12 +30,10 @@ const TextSelector = ({
 
     // 스타일된 텍스트 렌더링
     const renderStyledText = (content) => {
-        // customRenderer가 있으면 우선 사용
         if (customRenderer) {
             return customRenderer();
         }
 
-        // 기존 렌더링 로직
         if (!content || content.length === 0) {
             return null;
         }

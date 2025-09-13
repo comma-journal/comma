@@ -1,4 +1,3 @@
-// Write.js
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
@@ -22,7 +21,6 @@ const Write = ({ navigation }) => {
     });
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
-    // 일기 목록 로드 (월별)
     const loadDiaries = useCallback(async () => {
         try {
             setLoading(true);
@@ -42,12 +40,12 @@ const Write = ({ navigation }) => {
 
             const diariesData = await response.json();
 
-            // 백엔드 데이터를 로컬 형식으로 변환 (topEmotion 추가) [5]
+            // 백엔드 데이터를 로컬 형식으로 변환
             const convertedDiaries = diariesData.map(diary => ({
                 id: diary.id,
                 title: diary.title,
                 content: diary.content,
-                entryDate: diary.entryDate, // 추가
+                entryDate: diary.entryDate,
                 createdAt: diary.createdAt,
                 updatedAt: diary.updatedAt,
                 emotionSegments: diary.annotation
@@ -61,20 +59,17 @@ const Write = ({ navigation }) => {
                         emotionColor: `#${highlight.emotion.rgb.toString(16).padStart(6, '0')}`,
                     })) : [],
                 annotation: diary.annotation || [],
-                // topEmotion 추가 - 가장 중요한 부분!
                 topEmotion: diary.topEmotion ? {
                     id: diary.topEmotion.id,
                     name: diary.topEmotion.name,
                     rgb: diary.topEmotion.rgb,
-                    color: `#${diary.topEmotion.rgb.toString(16).padStart(6, '0')}`, // 편의를 위해 color 필드도 추가
+                    color: `#${diary.topEmotion.rgb.toString(16).padStart(6, '0')}`,
                     description: diary.topEmotion.description || ''
                 } : null
             }));
 
-            console.log('변환된 일기 데이터:', convertedDiaries); // 디버깅용
             setDiaries(convertedDiaries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         } catch (error) {
-            console.error('일기 로드 오류:', error);
             showAlert({
                 title: '오류',
                 message: '일기를 불러오는 중 문제가 발생했습니다.',
@@ -156,7 +151,6 @@ const Write = ({ navigation }) => {
                                 buttons: [{ text: '확인', onPress: hideAlert }]
                             });
                         } catch (error) {
-                            console.error('일기 삭제 오류:', error);
                             showAlert({
                                 title: '오류',
                                 message: '일기 삭제 중 문제가 발생했습니다.',
@@ -199,12 +193,10 @@ const Write = ({ navigation }) => {
     // topEmotion 색상 변환 함수
     const getTopEmotionColor = (topEmotion) => {
         if (!topEmotion || typeof topEmotion.rgb !== 'number') {
-            console.log('topEmotion 데이터 없음 또는 잘못된 형식:', topEmotion);
             return '#CCCCCC';
         }
         
         const hexColor = `#${topEmotion.rgb.toString(16).padStart(6, '0')}`;
-        console.log('topEmotion 색상 변환:', topEmotion.name, hexColor);
         return hexColor;
     };
 
@@ -315,7 +307,6 @@ const Write = ({ navigation }) => {
                 )}
             </ScrollView>
 
-            {/* 커스텀 Alert 추가 */}
             <CustomAlert
                 visible={alertConfig.visible}
                 title={alertConfig.title}

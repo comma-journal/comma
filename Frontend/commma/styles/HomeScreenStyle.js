@@ -6,20 +6,10 @@ const { width, height } = Dimensions.get('window');
 // 화면 크기별 설정값 계산
 const getResponsiveValues = () => {
   const screenWidth = width;
-
-  // 화면 크기에 따른 패딩 조정
   const horizontalPadding = screenWidth < 350 ? 15 : screenWidth < 400 ? 20 : 25;
-
-  // 캘린더 영역의 실제 너비
   const calendarWidth = screenWidth - (horizontalPadding * 2);
-
-  // 일자별 너비 (7일로 나누기) - 정확한 계산
   const dayWidth = Math.floor(calendarWidth / 7);
-
-  // 화면 크기에 따른 높이 조정
   const dayHeight = screenWidth < 350 ? 60 : screenWidth < 400 ? 65 : 70;
-
-  // 그리드 간격 조정
   const gridMarginTop = screenWidth < 350 ? 10 : screenWidth < 400 ? 12 : 15;
 
   return {
@@ -34,7 +24,6 @@ const getResponsiveValues = () => {
 const { horizontalPadding, dayWidth, dayHeight, gridMarginTop, calendarWidth } = getResponsiveValues();
 
 const homeStyles = StyleSheet.create({
-  // 메인 컨테이너
   'home-container': {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -42,52 +31,47 @@ const homeStyles = StyleSheet.create({
   },
 
 
-'app-header': {
-  backgroundColor: '#FFFFFF',
-  paddingHorizontal: horizontalPadding,
-  paddingTop: 12,
-  paddingBottom: 18,
+  'app-header': {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: horizontalPadding,
+    paddingTop: 12,
+    paddingBottom: 18,
+    borderBottomWidth: 0.2,
+    borderBottomColor: 'rgba(0,0,0,0.08)',
 
-  // 은은한 구분선 (살짝 보이는 선)
-  borderBottomWidth: 0.2,
-  borderBottomColor: 'rgba(0,0,0,0.08)',
+  },
 
-},
+  'app-header-container': {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
 
+  'app-logo-section': {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    zIndex: 1,
+  },
 
-'app-header-container': {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-},
+  'app-logo': {
+    width: 32,
+    height: 32,
+    marginRight: 12,
+  },
 
-'app-logo-section': {
-  flexDirection: 'row',
-  alignItems: 'center',
-  flex: 1,
-  zIndex: 1, // 그림자 위에 컨텐츠가 올라오도록
-},
+  'app-title': {
+    fontSize: width < 350 ? 20 : width < 400 ? 22 : 24,
+    fontFamily: customFont,
+    color: '#2D2D2D',
+    letterSpacing: -0.5,
+  },
 
-'app-logo': {
-  width: 32,
-  height: 32,
-  marginRight: 12,
-},
-
-'app-title': {
-  fontSize: width < 350 ? 20 : width < 400 ? 22 : 24,
-  fontFamily: customFont,
-  color: '#2D2D2D',
-  letterSpacing: -0.5,
-},
-
-  // 홈 스크롤 뷰
   'home-scroll': {
     flex: 1,
     paddingHorizontal: horizontalPadding,
   },
 
-  // 캘린더 헤더
   'home-header': {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -136,8 +120,6 @@ const homeStyles = StyleSheet.create({
     marginTop: 2,
     fontFamily: customFont,
   },
-
-  // 연월 선택 모달 스타일
   'modal-backdrop': {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -215,7 +197,6 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   'month-button-selected': {
-
     shadowColor: '#FB644C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -231,8 +212,6 @@ const homeStyles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
-
-  // 캘린더 관련 스타일
   'calendar-wrapper': {
     paddingHorizontal: 0,
     marginTop: 10,
@@ -327,8 +306,6 @@ const homeStyles = StyleSheet.create({
     color: '#FB644C',
     fontWeight: '600',
   },
-
-  // 로고 관련 스타일
   'logo-position': {
     justifyContent: 'center',
     alignItems: 'center',
@@ -352,7 +329,6 @@ const homeStyles = StyleSheet.create({
   'logo-image': {
     borderRadius: 100,
   },
-
 });
 
 export default homeStyles;

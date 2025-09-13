@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  SafeAreaView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
   ScrollView,
-  RefreshControl 
+  RefreshControl
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +19,7 @@ const MyPage = ({ route }) => {
   const { onLogout } = route.params || {};
 
   const { alertConfig, showAlert, hideAlert } = useCustomAlert();
-  
+
   const [userInfo, setUserInfo] = useState({ name: '', email: '' });
   const [diaryStats, setDiaryStats] = useState({
     thisWeek: 0,
@@ -40,7 +40,7 @@ const MyPage = ({ route }) => {
         });
       }
     } catch (error) {
-      console.error('사용자 정보 로드 실패:', error);
+      // console.error('사용자 정보 로드 실패:', error);
     }
   };
 
@@ -48,13 +48,13 @@ const MyPage = ({ route }) => {
   const calculateDiaryStats = async () => {
     try {
       const API_BASE_URL = 'https://comma.gamja.cloud';
-      
+
       const savedLoginData = await AsyncStorage.getItem('autoLoginData');
       if (!savedLoginData) return;
-      
+
       const loginData = JSON.parse(savedLoginData);
       const token = loginData.token;
-      
+
       if (!token) return;
 
       const headers = {
@@ -65,7 +65,7 @@ const MyPage = ({ route }) => {
       const today = new Date();
       const currentYear = today.getFullYear();
       const currentMonth = today.getMonth() + 1;
-      
+
       // 이번 달 데이터 가져오기
       const monthResponse = await fetch(
         `${API_BASE_URL}/v1/me/diary?yearMonth=${currentYear}-${String(currentMonth).padStart(2, '0')}`,
@@ -74,20 +74,19 @@ const MyPage = ({ route }) => {
 
       if (monthResponse.ok) {
         const monthDiaries = await monthResponse.json();
-        
+
         if (Array.isArray(monthDiaries)) {
-          // 이번 달 총 일기 수
           const thisMonthCount = monthDiaries.length;
-          
+
           // 이번 주 일기 수 계산
           const startOfWeek = new Date(today);
-          startOfWeek.setDate(today.getDate() - today.getDay()); // 이번 주 일요일
+          startOfWeek.setDate(today.getDate() - today.getDay());
           startOfWeek.setHours(0, 0, 0, 0);
-          
+
           const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6); // 이번 주 토요일
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
           endOfWeek.setHours(23, 59, 59, 999);
-          
+
           const thisWeekCount = monthDiaries.filter(diary => {
             const diaryDate = new Date(diary.entryDate);
             return diaryDate >= startOfWeek && diaryDate <= endOfWeek;
@@ -96,12 +95,12 @@ const MyPage = ({ route }) => {
           setDiaryStats({
             thisWeek: thisWeekCount,
             thisMonth: thisMonthCount,
-            total: thisMonthCount // 임시로 이번 달 수를 전체로 사용
+            total: thisMonthCount
           });
         }
       }
     } catch (error) {
-      console.error('일기 통계 로드 실패:', error);
+      // console.error('일기 통계 로드 실패:', error);
     }
   };
 
@@ -132,14 +131,13 @@ const MyPage = ({ route }) => {
           text: '로그아웃',
           onPress: async () => {
             hideAlert();
-            
-            // 로그인 정보 삭제
+
             try {
               await AsyncStorage.removeItem('autoLoginData');
             } catch (error) {
-              console.error('로그아웃 처리 실패:', error);
+              // console.error('로그아웃 처리 실패:', error);
             }
-            
+
             if (onLogout) {
               onLogout();
             }
@@ -164,7 +162,7 @@ const MyPage = ({ route }) => {
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -186,21 +184,21 @@ const MyPage = ({ route }) => {
           {/* 일기 통계 섹션 */}
           <View style={styles.statsSection}>
             <Text style={styles.sectionTitle}>내 일기 현황</Text>
-            
+
             <StatCard
               title="이번 주 작성한 일기"
               count={diaryStats.thisWeek}
               icon="event-note"
               color="#4CAF50"
             />
-            
+
             <StatCard
               title="이번 달 작성한 일기"
               count={diaryStats.thisMonth}
               icon="calendar-today"
               color="#2196F3"
             />
-            
+
             <StatCard
               title="전체 일기"
               count={diaryStats.total}
@@ -217,7 +215,6 @@ const MyPage = ({ route }) => {
         </ScrollView>
       </SafeAreaView>
 
-      {/* 커스텀 Alert */}
       <CustomAlert
         visible={alertConfig.visible}
         title={alertConfig.title}

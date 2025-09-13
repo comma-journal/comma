@@ -11,9 +11,7 @@ const SplashScreen = ({ onFinish }) => {
   const containerFadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // 순차적 애니메이션
     Animated.sequence([
-      // 1. 로고 먼저 등장
       Animated.parallel([
         Animated.timing(logoFadeAnim, {
           toValue: 1,
@@ -27,9 +25,7 @@ const SplashScreen = ({ onFinish }) => {
           useNativeDriver: true,
         }),
       ]),
-      // 2. 잠시 대기
       Animated.delay(300),
-      // 3. 텍스트 페이드인
       Animated.timing(textFadeAnim, {
         toValue: 1,
         duration: 600,

@@ -16,7 +16,6 @@ import DiaryDetail from '../pages/DiaryDetail';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Write 관련 스택 네비게이터 생성
 const WriteStack = () => {
   return (
     <Stack.Navigator
@@ -95,7 +94,7 @@ const BottomTabNavigator = ({ onLogout }) => {
             fontWeight: '500',
             marginTop: 4,
           },
-          tabBarLabel: () => null, // 라벨 숨기기
+          tabBarLabel: () => null,
           tabBarBackground: () => (
             <View style={{
               flex: 1,

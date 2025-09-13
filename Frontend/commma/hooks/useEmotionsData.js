@@ -14,7 +14,6 @@ export const useEmotionsData = () => {
             try {
                 setIsLoading(true);
                 
-                // AsyncStorage에서 토큰 가져오기
                 const savedLoginData = await AsyncStorage.getItem('autoLoginData');
                 
                 if (!savedLoginData) {
@@ -33,7 +32,7 @@ export const useEmotionsData = () => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
                 
@@ -43,17 +42,15 @@ export const useEmotionsData = () => {
                 
                 const data = await response.json();
                 
-                // API 응답을 기존 구조에 맞게 변환
                 const transformedEmotions = data.map(emotion => ({
                     id: emotion.id.toString(),
                     name: emotion.name,
-                    color: `#${emotion.rgb.toString(16).padStart(6, '0').toUpperCase()}` // rgb 숫자를 hex 색상으로 변환
+                    color: `#${emotion.rgb.toString(16).padStart(6, '0').toUpperCase()}`
                 }));
                 
                 setEmotions(transformedEmotions);
                 setError(null);
             } catch (err) {
-                console.error('감정 데이터 로딩 실패:', err);
                 setError(err.message);
             } finally {
                 setIsLoading(false);
