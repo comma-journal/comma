@@ -118,4 +118,8 @@ export const emotionModalStyles = StyleSheet.create({
         fontSize: 18,
         fontFamily: customFont,
     },
+    backButton: {
+        padding: 10,
+        marginRight: 10,
+    },
 });

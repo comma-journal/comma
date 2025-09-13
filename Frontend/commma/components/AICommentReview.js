@@ -22,14 +22,7 @@ const AICommentReview = ({
     onFinalSave,
     onReturnToEdit,
     onCancel,
-    // 새로 추가된 props
     onStartAPICall,
-    emotionSegments,
-    title,
-    content,
-    formatDateToYYYYMMDD,
-    isEditing,
-    diary
 }) => {
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState([]);
@@ -42,48 +35,37 @@ const AICommentReview = ({
     // 모달이 열릴 때 즉시 API 호출 시작
     useEffect(() => {
         if (visible && onStartAPICall) {
-            // 로딩 상태 초기화
             setLoading(true);
             setComments([]);
             setCompletedComments(new Set());
-            // 모달이 열리자마자 API 호출 시작
             startAPICallAndUpdateData();
         }
     }, [visible]);
 
     // API 호출 및 데이터 업데이트 함수
     const startAPICallAndUpdateData = async () => {
-    try {
-        setLoading(true);
-        
-        console.log('=== AI 피드백 API 호출 시작 ===');
-        
-        // API 호출과 최소 로딩 시간을 병렬로 처리 [1]
-        const [updatedDiaryData] = await Promise.all([
-            onStartAPICall(), // 실제 API 호출
-            new Promise(resolve => setTimeout(resolve, 5000)) // 최소 5초 대기 [6]
-        ]);
-        
-        console.log('=== API 응답 받음 (최소 5초 경과) ===', updatedDiaryData);
-        
-        // 실제 API에서 받은 데이터로 상태 업데이트
-        setActualDiaryData(updatedDiaryData);
-        
-        // API 응답에서 코멘트 확인
-        if (updatedDiaryData?.annotation?.comments && updatedDiaryData.annotation.comments.length > 0) {
-            console.log('AI 코멘트 개수:', updatedDiaryData.annotation.comments.length);
-            setComments(updatedDiaryData.annotation.comments);
-        } else {
-            console.log('AI 코멘트가 없음');
-            setComments([]);
-        }
-        
-        // 로딩 완료
-        setLoading(false);
-        
-    } catch (error) {
-        console.error('API 호출 오류:', error);
-        setLoading(false);
+        try {
+            setLoading(true);
+
+            // API 호출과 최소 로딩 시간을 병렬로 처리
+            const [updatedDiaryData] = await Promise.all([
+                onStartAPICall(),
+                new Promise(resolve => setTimeout(resolve, 5000))
+            ]);
+
+            setActualDiaryData(updatedDiaryData);
+
+            if (updatedDiaryData?.annotation?.comments && updatedDiaryData.annotation.comments.length > 0) {
+                setComments(updatedDiaryData.annotation.comments);
+            } else {
+                setComments([]);
+            }
+
+            // 로딩 완료
+            setLoading(false);
+
+        } catch (error) {
+            setLoading(false);
             showAlert({
                 title: '오류',
                 message: 'AI 피드백을 가져오는 중 문제가 발생했습니다.',
@@ -134,7 +116,7 @@ const AICommentReview = ({
                     text: '수정하기',
                     onPress: () => {
                         hideAlert();
-                        onReturnToEdit(diaryData);
+                        onReturnToEdit(actualDiaryData || diaryData);
                     }
                 }
             ]
@@ -209,10 +191,6 @@ const AICommentReview = ({
             return <Text style={aiCommentReviewStyles.contentText}>{contentToRender}</Text>;
         }
 
-        console.log('=== 텍스트 렌더링 디버깅 ===');
-        console.log('전체 텍스트 길이:', contentToRender.length);
-        console.log('전체 텍스트:', contentToRender);
-
         // 유효한 코멘트만 필터링하고 위치 보정
         const validComments = [];
         comments.forEach((comment, index) => {
@@ -223,12 +201,6 @@ const AICommentReview = ({
 
                 // 최소 길이 확보 (너무 짧은 선택 방지)
                 const adjustedEnd = Math.max(start + 1, end);
-
-                console.log(`코멘트 ${index}:`, {
-                    원본: `${comment.start}-${comment.end}`,
-                    보정: `${start}-${adjustedEnd}`,
-                    텍스트: contentToRender.slice(start, adjustedEnd)
-                });
 
                 validComments.push({
                     ...comment,
@@ -243,14 +215,14 @@ const AICommentReview = ({
             return <Text style={aiCommentReviewStyles.contentText}>{contentToRender}</Text>;
         }
 
-        // 문장 단위로 코멘트 위치 재조정 (선택사항)
+        // 문장 단위로 코멘트 위치 재조정
         const adjustedComments = validComments.map(comment => {
             const originalText = contentToRender.slice(comment.start, comment.end);
 
             // 문장의 끝을 찾아서 아이콘 위치 조정
             let adjustedEnd = comment.end;
-            let searchStart = Math.max(0, comment.start - 10); // 앞쪽 10글자 검색
-            let searchEnd = Math.min(contentToRender.length, comment.end + 30); // 뒤쪽 30글자 검색
+            let searchStart = Math.max(0, comment.start - 10);
+            let searchEnd = Math.min(contentToRender.length, comment.end + 30);
             let searchText = contentToRender.slice(searchStart, searchEnd);
 
             // 문장 끝 문자 찾기 (. ! ? 등)
@@ -285,7 +257,6 @@ const AICommentReview = ({
         const sortedEndPositions = Array.from(commentEndPositions.keys()).sort((a, b) => a - b);
 
         for (let endPos of sortedEndPositions) {
-            // 현재 위치부터 코멘트 끝 위치까지의 텍스트
             const textSegment = contentToRender.slice(currentIndex, endPos);
 
             if (textSegment) {
@@ -344,7 +315,7 @@ const AICommentReview = ({
                             <TouchableOpacity
                                 style={aiCommentReviewStyles.editButton}
                                 onPress={handleReturnToEdit}
-                                disabled={loading} // 로딩 중에는 비활성화
+                                disabled={loading}
                             >
                                 <Icon name="edit" size={18} color={loading ? "#CCCCCC" : "#666666"} />
                                 <Text style={[
@@ -432,7 +403,7 @@ const AICommentReview = ({
                 </SafeAreaView>
             </Modal>
 
-            {/* 코멘트 모달 - actualDiaryData 사용 */}
+            {/* 코멘트 모달 */}
             <Modal
                 animationType="fade"
                 transparent={true}
@@ -485,7 +456,6 @@ const AICommentReview = ({
                 </TouchableWithoutFeedback>
             </Modal>
 
-            {/* 커스텀 Alert */}
             <CustomAlert
                 visible={alertConfig.visible}
                 title={alertConfig.title}
