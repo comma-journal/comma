@@ -216,7 +216,7 @@ const LoginScreen = ({ onLogin }) => {
               />
             </View>
 
-            <Text style={loginStyles['login-greeting-text']}>How are you feeling today?</Text>
+            <Text style={loginStyles['login-greeting-text']}>흐르는 감정 속, 당신을 위한 작은 쉼표</Text>
           </View>
 
           {/* 입력 폼 */}

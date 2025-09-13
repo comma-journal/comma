@@ -14,7 +14,7 @@ const loginStyles = StyleSheet.create({
   },
   'login-header-section': {
     alignItems: 'center',
-    marginBottom: 80,
+    marginBottom: 40,
   },
   'login-logo-container': {
     marginBottom: 40,
