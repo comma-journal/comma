@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-  Alert
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import customFont from '../styles/fonts';
@@ -21,14 +21,14 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [userName, setUserName] = useState('');
   const { alertConfig, showAlert, hideAlert } = useCustomAlert();
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const highlightAnim = useRef(new Animated.Value(0)).current;
   const questionFloatAnim = useRef(new Animated.Value(0)).current;
-  const calendarSlideAnim = useRef(new Animated.Value(0)).current;
-  const emojiFloatAnim = useRef(new Animated.Value(0)).current;
   const nameInputAnim = useRef(new Animated.Value(0)).current;
   const welcomeTextAnim = useRef(new Animated.Value(0)).current;
+  const aiFeedbackAnim = useRef(new Animated.Value(0)).current;
 
   const onboardingSteps = [
     {
@@ -45,15 +45,15 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
     },
     {
       id: 3,
-      title: "AI가 감정을 찾아\n하이라이트해줘요",
-      subtitle: `${userName || '당신'}의 일기에서 감정이 담긴 부분을\n자동으로 색칠하고 질문을 제안합니다`,
+      title: "문장에서 느낀 감정을\n하이라이트해보세요",
+      subtitle: "일기 문장에서 특정 단어나 문장에 감정을 \n표시할 수 있습니다",
       animation: 'highlight'
     },
     {
       id: 4,
-      title: "완성된 일기는\n감정 캘린더로",
-      subtitle: `${userName || '당신'}의 감정이 색깔로 구분된 이모지가\n캘린더에 표시됩니다`,
-      animation: 'calendar'
+      title: "AI 피드백으로\n놓친 감정을 발견해요",
+      subtitle: "AI가 질문을 던져주면, 놓쳤던 감정을\n 돌아보고 일기를 수정해보세요",
+      animation: 'ai'
     },
     {
       id: 5,
@@ -83,15 +83,17 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   const saveOnboardingComplete = async () => {
     try {
       await AsyncStorage.setItem('onboardingCompleted', 'true');
+      console.log('온보딩 완료 상태 저장됨');
     } catch (error) {
-      // console.error('온보딩 완료 상태 저장 실패:', error);
+      console.error('온보딩 완료 상태 저장 실패:', error);
     }
   };
 
   useEffect(() => {
     if (currentStep === 0) {
+      // 이름 입력 애니메이션
       nameInputAnim.setValue(0);
-      
+
       setTimeout(() => {
         Animated.spring(nameInputAnim, {
           toValue: 1,
@@ -101,9 +103,10 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         }).start();
       }, 200);
     } else if (currentStep === 2) {
+      // 하이라이트 애니메이션
       highlightAnim.setValue(0);
       questionFloatAnim.setValue(0);
-      
+
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(highlightAnim, {
@@ -119,26 +122,20 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         ]).start();
       }, 500);
     } else if (currentStep === 3) {
-      calendarSlideAnim.setValue(0);
-      emojiFloatAnim.setValue(0);
-      
+      // AI 피드백 애니메이션
+      aiFeedbackAnim.setValue(0);
+
       setTimeout(() => {
-        Animated.parallel([
-          Animated.timing(calendarSlideAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(emojiFloatAnim, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          })
-        ]).start();
-      }, 300);
+        Animated.timing(aiFeedbackAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }).start();
+      }, 500);
     } else if (currentStep === 4) {
+      // 최종 환영 애니메이션
       welcomeTextAnim.setValue(0);
-      
+
       setTimeout(() => {
         Animated.sequence([
           Animated.timing(welcomeTextAnim, {
@@ -171,7 +168,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         });
         return;
       }
-      
+
       await handleNameSetting();
     }
 
@@ -189,14 +186,13 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         })
       ]).start(() => {
         setCurrentStep(currentStep + 1);
-        
+
         highlightAnim.setValue(0);
         questionFloatAnim.setValue(0);
-        calendarSlideAnim.setValue(0);
-        emojiFloatAnim.setValue(0);
         nameInputAnim.setValue(0);
         welcomeTextAnim.setValue(0);
-        
+        aiFeedbackAnim.setValue(0);
+
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
@@ -229,7 +225,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
       const loginData = JSON.parse(savedLoginData);
       const token = loginData.token;
-      
+
       if (!token) {
         showAlert({
           title: '오류',
@@ -250,13 +246,11 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       });
 
       if (response.ok) {
-        
-        // AsyncStorage의 사용자 정보 업데이트
         const updatedLoginData = {
           ...loginData,
           name: userName.trim()
         };
-        await AsyncStorage.setItem('autoLoginData', JSON.stringify(updatedLoginData));        
+        await AsyncStorage.setItem('autoLoginData', JSON.stringify(updatedLoginData));
       } else {
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText}`);
@@ -275,7 +269,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
   };
 
   const renderNameSettingAnimation = () => (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.animationContainer,
         {
@@ -285,7 +279,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       ]}
     >
       <View style={styles.nameSettingContainer}>
-        <Animated.View 
+        <Animated.View
           style={[
             styles.nameIconContainer,
             {
@@ -305,8 +299,8 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
             resizeMode="contain"
           />
         </Animated.View>
-        
-        <Animated.View 
+
+        <Animated.View
           style={[
             styles.nameInputSection,
             {
@@ -333,7 +327,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
               autoFocus={currentStep === 0}
             />
           </View>
-          
+
           <View style={styles.nameFeatures}>
             <View style={styles.featureItem}>
               <View style={styles.featureIcon}>
@@ -363,11 +357,11 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         />
       </View>
       <View style={styles.welcomeDecoration}>
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.floatingDot, 
-            { 
-              top: 60, 
+            styles.floatingDot,
+            {
+              top: 60,
               left: 40,
               backgroundColor: '#FFE066',
               opacity: fadeAnim,
@@ -380,11 +374,11 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
             }
           ]}
         />
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.floatingDot, 
-            { 
-              top: 90, 
+            styles.floatingDot,
+            {
+              top: 90,
               right: 50,
               backgroundColor: '#A8E6CF',
               opacity: fadeAnim,
@@ -397,11 +391,11 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
             }
           ]}
         />
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.floatingDot, 
-            { 
-              bottom: 80, 
+            styles.floatingDot,
+            {
+              bottom: 80,
               left: 60,
               backgroundColor: '#FFB5BA',
               opacity: fadeAnim,
@@ -425,69 +419,88 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
   const renderHighlightAnimation = () => (
     <View style={styles.animationContainer}>
-      <View style={styles.mockupContainer}>
-        <View style={styles.mockupHeader}>
-          <Text style={styles.mockupTitle}>{userName}님의 일기</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.mockupContainer}>
+          <View style={styles.mockupHeader}>
+            <Text style={styles.mockupTitle}>{userName}님의 일기</Text>
+          </View>
+          <View style={styles.diaryContent}>
+            <Text style={styles.diaryText}>오늘은 정말 </Text>
+            <Animated.Text
+              style={[
+                styles.diaryText,
+                styles.highlightedText,
+                {
+                  backgroundColor: highlightAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['transparent', '#FFE066']
+                  })
+                }
+              ]}
+            >
+              행복한
+            </Animated.Text>
+            <Text style={styles.diaryText}> 하루였다.</Text>
+
+            <Text style={[styles.diaryText, { marginTop: 12 }]}>친구와 함께 </Text>
+            <Animated.Text
+              style={[
+                styles.diaryText,
+                styles.highlightedText,
+                {
+                  backgroundColor: highlightAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['transparent', '#A8E6CF']
+                  })
+                }
+              ]}
+            >
+              즐거운 시간
+            </Animated.Text>
+            <Text style={styles.diaryText}>을 보냈다.</Text>
+          </View>
+
+          <View style={styles.highlightGuide}>
+            <Animated.View
+              style={[
+                styles.guideItem,
+                {
+                  opacity: highlightAnim,
+                  transform: [{
+                    translateY: highlightAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0]
+                    })
+                  }]
+                }
+              ]}
+            >
+              <Text style={styles.guideText}>💛 행복</Text>
+            </Animated.View>
+            <Animated.View
+              style={[
+                styles.guideItem,
+                {
+                  opacity: highlightAnim,
+                  transform: [{
+                    translateY: highlightAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [25, 0]
+                    })
+                  }]
+                }
+              ]}
+            >
+              <Text style={styles.guideText}>💚 평온</Text>
+            </Animated.View>
+          </View>
         </View>
-        <View style={styles.diaryContent}>
-          <Text style={styles.diaryText}>오늘은 정말 </Text>
-          <Animated.Text 
-            style={[
-              styles.diaryText, 
-              styles.highlightedText,
-              {
-                backgroundColor: highlightAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['transparent', '#FFE066']
-                })
-              }
-            ]}
-          >
-            행복한
-          </Animated.Text>
-          <Text style={styles.diaryText}> 하루였다.</Text>
-          
-          <Text style={[styles.diaryText, { marginTop: 12 }]}>친구와 함께 </Text>
-          <Animated.Text 
-            style={[
-              styles.diaryText, 
-              styles.highlightedText,
-              {
-                backgroundColor: highlightAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['transparent', '#A8E6CF']
-                })
-              }
-            ]}
-          >
-            즐거운 시간
-          </Animated.Text>
-          <Text style={styles.diaryText}>을 보냈다.</Text>
-        </View>
-        
-        <Animated.View 
-          style={[
-            styles.aiSuggestion,
-            {
-              opacity: questionFloatAnim,
-              transform: [{
-                translateY: questionFloatAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [20, 0]
-                })
-              }]
-            }
-          ]}
-        >
-          <Text style={styles.suggestionLabel}>AI 제안</Text>
-          <Text style={styles.suggestionText}>{userName}님, 어떤 순간이 가장 행복했나요?</Text>
-        </Animated.View>
-      </View>
+      </ScrollView>
     </View>
   );
 
-  const renderCalendarAnimation = () => (
-    <Animated.View 
+  const renderAiAnimation = () => (
+    <Animated.View
       style={[
         styles.animationContainer,
         {
@@ -496,17 +509,23 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         }
       ]}
     >
-      <View style={styles.calendarMockup}>
-        <View style={styles.calendarHeader}>
-          <Text style={styles.calendarTitle}>{userName}님의 9월</Text>
+      <View style={styles.mockupContainer}>
+        <View style={styles.mockupHeader}>
+          <Text style={styles.mockupTitle}>{userName}님의 일기</Text>
         </View>
-        
-        <Animated.View 
+        <View style={styles.diaryContent}>
+          <Text style={styles.diaryText}>오늘은 정말 행복한 하루였다.</Text>
+          <Text style={styles.diaryText}>친구와 함께 즐거운 시간을 보냈다.</Text>
+          <Text style={[styles.diaryText]}>하지만 집에 오니 조금 아쉬웠다.</Text>
+        </View>
+
+        <Animated.View
           style={[
+            styles.aiSuggestion,
             {
-              opacity: calendarSlideAnim,
+              opacity: aiFeedbackAnim,
               transform: [{
-                translateY: calendarSlideAnim.interpolate({
+                translateY: aiFeedbackAnim.interpolate({
                   inputRange: [0, 1],
                   outputRange: [20, 0]
                 })
@@ -514,93 +533,15 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
             }
           ]}
         >
-          <View style={styles.weekRow}>
-            {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
-              <Text 
-                key={index} 
-                style={[
-                  styles.weekDay,
-                  index === 0 && { color: '#FF6B6B' },
-                  index === 6 && { color: '#4DABF7' }
-                ]}
-              >
-                {day}
-              </Text>
-            ))}
-          </View>
-          
-          <View style={styles.calendarBody}>
-            <View style={styles.dateRow}>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>1</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>2</Text>
-                <Animated.Text 
-                  style={[
-                    styles.emojiIcon,
-                    { opacity: emojiFloatAnim }
-                  ]}
-                >
-                  😊
-                </Animated.Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>3</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>4</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>5</Text>
-              </View>
-              <View style={[styles.dateItem, styles.todayItem]}>
-                <Text style={[styles.dateNum, styles.todayNum]}>6</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>7</Text>
-              </View>
-            </View>
-            
-            <View style={styles.dateRow}>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>8</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>9</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>10</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>11</Text>
-                <Animated.Text 
-                  style={[
-                    styles.emojiIcon,
-                    { opacity: emojiFloatAnim }
-                  ]}
-                >
-                  😌
-                </Animated.Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>12</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>13</Text>
-              </View>
-              <View style={styles.dateItem}>
-                <Text style={styles.dateNum}>14</Text>
-              </View>
-            </View>
-          </View>
+          <Text style={styles.suggestionLabel}>AI 피드백</Text>
+          <Text style={styles.suggestionText}>{userName}님, 친구와 함께 즐거운 시간을 보내며 어떤 감정을 느끼셨나요?</Text>
         </Animated.View>
       </View>
     </Animated.View>
   );
 
   const renderFinalAnimation = () => (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.animationContainer,
         {
@@ -610,7 +551,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       ]}
     >
       <View style={styles.finalContainer}>
-        <Animated.View 
+        <Animated.View
           style={[
             styles.finalLogoContainer,
             {
@@ -631,8 +572,8 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
           />
           <Text style={styles.appName}>쉼표</Text>
         </Animated.View>
-        
-        <Animated.View 
+
+        <Animated.View
           style={[
             styles.finalTextContainer,
             {
@@ -658,7 +599,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
       case 0: return renderNameSettingAnimation();
       case 1: return renderWelcomeAnimation();
       case 2: return renderHighlightAnimation();
-      case 3: return renderCalendarAnimation();
+      case 3: return renderAiAnimation();
       case 4: return renderFinalAnimation();
       default: return renderNameSettingAnimation();
     }
@@ -666,48 +607,47 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
 
   return (
     <>
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {renderAnimation()}
-        
+      <View style={styles.container}>
+        <View style={styles.content}>
+          {renderAnimation()}
+
+          {currentStep < 4 && (
+            <Animated.View
+              style={[
+                styles.textContent,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ scale: scaleAnim }]
+                }
+              ]}
+            >
+              <Text style={styles.title}>{onboardingSteps[currentStep].title}</Text>
+              <Text style={styles.subtitle}>{onboardingSteps[currentStep].subtitle}</Text>
+            </Animated.View>
+          )}
+        </View>
+
         {currentStep < 4 && (
-          <Animated.View 
-            style={[
-              styles.textContent,
-              {
-                opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }]
-              }
-            ]}
-          >
-            <Text style={styles.title}>{onboardingSteps[currentStep].title}</Text>
-            <Text style={styles.subtitle}>{onboardingSteps[currentStep].subtitle}</Text>
-          </Animated.View>
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[
+                styles.nextButton,
+                currentStep === 0 && !userName.trim() && styles.nextButtonDisabled
+              ]}
+              onPress={nextStep}
+              activeOpacity={0.8}
+              disabled={currentStep === 0 && !userName.trim()}
+            >
+              <Text style={[
+                styles.nextButtonText,
+                currentStep === 0 && !userName.trim() && styles.nextButtonTextDisabled
+              ]}>
+                {currentStep === 3 ? "시작하기" : "다음"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
-
-      {currentStep < 4 && (
-        <View style={styles.footer}>
-          <TouchableOpacity 
-            style={[
-              styles.nextButton,
-              currentStep === 0 && !userName.trim() && styles.nextButtonDisabled
-            ]} 
-            onPress={nextStep}
-            activeOpacity={0.8}
-            disabled={currentStep === 0 && !userName.trim()}
-          >
-          <Text style={[
-            styles.nextButtonText,
-            currentStep === 0 && !userName.trim() && styles.nextButtonTextDisabled
-          ]}>
-            {currentStep === 3 ? "시작하기" : "다음"}
-          </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-    {/* 커스텀 Alert 추가 */}
       <CustomAlert
         visible={alertConfig.visible}
         title={alertConfig.title}
@@ -716,7 +656,7 @@ const OnboardingScreen = ({ onComplete, userEmail }) => {
         type={alertConfig.type}
         onBackdropPress={hideAlert}
       />
-      </>
+    </>
   );
 };
 
@@ -736,7 +676,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  // 웰컴 화면
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   logoContainer: {
     width: 100,
     height: 100,
@@ -744,11 +688,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#FF644C',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 25,
-    elevation: 10,
   },
   logoImage: {
     width: 60,
@@ -776,17 +715,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FF644C',
   },
-  // 목업 컨테이너
   mockupContainer: {
     width: width * 0.8,
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 10,
+    paddingTop: 16,
+    marginTop: 50,
   },
   mockupHeader: {
     paddingBottom: 16,
@@ -799,7 +734,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2C3E50',
   },
-  // 하이라이트 화면
   diaryContent: {
     marginBottom: 20,
     flexDirection: 'row',
@@ -817,12 +751,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 3,
   },
+  highlightGuide: {
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  guideItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  guideText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
   aiSuggestion: {
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
     borderLeftColor: '#FF644C',
+    marginBottom: 16,
   },
   suggestionLabel: {
     fontSize: 12,
@@ -833,73 +784,7 @@ const styles = StyleSheet.create({
   suggestionText: {
     fontSize: 14,
     color: '#6B7280',
-  },
-  // 캘린더 화면
-  calendarMockup: {
-    width: width * 0.8,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  calendarHeader: {
-    paddingBottom: 16,
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  calendarTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C3E50',
-  },
-  weekRow: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  weekDay: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#8E8E93',
-    textAlign: 'center',
-  },
-  calendarBody: {
-    paddingTop: 10,
-  },
-  dateRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  dateItem: {
-    flex: 1,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  todayItem: {
-    backgroundColor: '#FF644C',
-    borderRadius: 8,
-    marginHorizontal: 3,
-  },
-  dateNum: {
-    fontSize: 14,
-    color: '#2C3E50',
-    fontWeight: '400',
-  },
-  todayNum: {
-    color: 'white',
-    fontWeight: '600',
-  },
-  emojiIcon: {
-    fontSize: 14,
-    position: 'absolute',
-    bottom: 4,
+    lineHeight: 20,
   },
   nameSettingContainer: {
     width: '100%',
@@ -914,11 +799,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 40,
-    shadowColor: '#FF644C',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
   },
   nameLogoImage: {
     width: 60,
@@ -935,11 +815,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 24,
     marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 5,
     borderWidth: 2,
     borderColor: '#F0F0F0',
   },
@@ -962,11 +837,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: 'white',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   featureIcon: {
     width: 24,
@@ -1052,15 +922,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#FF644C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
   },
   nextButtonDisabled: {
     backgroundColor: '#E8E8E8',
-    shadowOpacity: 0.1,
   },
   nextButtonText: {
     color: 'white',

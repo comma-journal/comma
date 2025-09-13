@@ -16,12 +16,45 @@ const EmotionGrid = ({
     selectedEmotion,
     onEmotionSelect,
     cardAnimations,
-    emotions
+    emotions,
+    showCategories,
+    onCategorySelect,
+    emotionCategories,
 }) => {
+
+    // 카테고리 카드 렌더링
+    const renderCategoryCard = (category, index) => {
+        const cardWidth = width / 2 - 30;
+        const cardHeight = 100;
+
+        return (
+            <TouchableOpacity
+                key={category.id}
+                style={[
+                    emotionGridStyles.categoryCard,
+                    {
+                        backgroundColor: category.color,
+                    },
+                ]}
+                activeOpacity={0.8}
+                onPress={() => onCategorySelect(category)}
+            >
+                <Text style={emotionGridStyles.categoryCardTitle}>
+                    {category.name}
+                </Text>
+                <Text style={emotionGridStyles.categoryCardDescription}>
+                    {category.description}
+                </Text>
+                <Text style={emotionGridStyles.categoryCardCount}>
+                    {category.emotions.length}개
+                </Text>
+            </TouchableOpacity>
+        );
+    };
 
     // 감정 카드 렌더링
     const renderEmotionCard = (emotion, index) => {
-        const cardWidth = width / 5 - 14;
+        const cardWidth = width / 5 - 15;
         const cardHeight = 66;
 
         return (
@@ -48,7 +81,7 @@ const EmotionGrid = ({
                     <Text style={[
                         emotionGridStyles.emotionCardText,
                         {
-                            fontSize: selectedEmotion?.id === emotion.id ? 14 : 11,
+                            fontSize: selectedEmotion?.id === emotion.id ? 13 : 10,
                             fontWeight: selectedEmotion?.id === emotion.id ? '900' : '800',
                         }
                     ]}>
@@ -69,9 +102,15 @@ const EmotionGrid = ({
             style={emotionGridStyles.emotionGrid}
             showsVerticalScrollIndicator={false}
         >
-            <View style={emotionGridStyles.emotionGridContent}>
-                {emotions?.map(renderEmotionCard) || []}
-            </View>
+            {showCategories ? (
+                <View style={emotionGridStyles.categoryGridContent}>
+                    {emotionCategories?.map(renderCategoryCard) || []}
+                </View>
+            ) : (
+                <View style={emotionGridStyles.emotionGridContent}>
+                    {emotions?.map(renderEmotionCard) || []}
+                </View>
+            )}
         </ScrollView>
     );
 };

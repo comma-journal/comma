@@ -26,7 +26,7 @@ import AICommentReview from '../components/AICommentReview';
 const EmotionSelector = ({ navigation, route }) => {
     const { diary, isEditing } = route.params;
 
-    const { emotions, isLoading: emotionsLoading, error: emotionsError } = useEmotionsData();
+    const { emotions, emotionCategories, isLoading: emotionsLoading, error: emotionsError } = useEmotionsData();
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
     const [title, setTitle] = useState(diary?.title || '');
@@ -296,7 +296,7 @@ const EmotionSelector = ({ navigation, route }) => {
             const responseData = await response.json();
 
             // 새로 생성된 경우만 임시 저장으로 표시
-            if (!isEditing && method === 'POST') {
+            if (!isEditing && method === 'POST' && !tempSavedDiaryId) {
                 setTempSavedDiaryId(responseData.id);
                 setIsTemporarySave(true);
             }
@@ -752,7 +752,6 @@ const EmotionSelector = ({ navigation, route }) => {
                 ]
             });
         } catch (error) {
-            console.error('저장 오류:', error);
             showAlert({
                 title: '오류',
                 message: '저장 중 문제가 발생했습니다.',
@@ -800,21 +799,43 @@ const EmotionSelector = ({ navigation, route }) => {
                 }
             };
 
-            const url = isEditing
-                ? `${API_BASE_URL}/me/diary/${diary.id}`
-                : `${API_BASE_URL}/me/diary`;
+            // AI 피드백 후 수정하는 경우: 기존 임시 일기를 삭제하고 새로 생성
+            if (tempSavedDiaryId && isTemporarySave) {
+                await fetch(`${API_BASE_URL}/me/diary/${tempSavedDiaryId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(token),
+                });
 
-            const method = isEditing ? 'PUT' : 'POST';
+                const response = await fetch(`${API_BASE_URL}/me/diary`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(token),
+                    body: JSON.stringify(requestBody),
+                });
 
-            const response = await fetch(url, {
-                method,
-                headers: getAuthHeaders(token),
-                body: JSON.stringify(requestBody),
-            });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                setTempSavedDiaryId(null);
+                setIsTemporarySave(false);
+            } else {
+                const url = isEditing
+                    ? `${API_BASE_URL}/me/diary/${diary.id}`
+                    : `${API_BASE_URL}/me/diary`;
+
+                const method = isEditing ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method,
+                    headers: getAuthHeaders(token),
+                    body: JSON.stringify(requestBody),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+                }
             }
 
             setIsSaved(true);
@@ -825,12 +846,16 @@ const EmotionSelector = ({ navigation, route }) => {
         }
     };
 
-    // AI 리뷰에서 돌아온 후 처리 함수
     const handleReturnFromAIReview = (updatedDiary) => {
         if (updatedDiary) {
             setTitle(updatedDiary.title || title);
             setContent(updatedDiary.content || content);
             setSavedDiaryData(updatedDiary);
+
+            if (updatedDiary.id && !isEditing) {
+                setTempSavedDiaryId(updatedDiary.id);
+                setIsTemporarySave(true);
+            }
         }
         setAiCommentReviewVisible(false);
     };
@@ -1031,6 +1056,7 @@ const EmotionSelector = ({ navigation, route }) => {
                 selectedTextRange={selectedTextRange}
                 cardAnimations={cardAnimations}
                 emotions={emotions}
+                emotionCategories={emotionCategories}
                 onClose={() => setEmotionModalVisible(false)}
             />
 

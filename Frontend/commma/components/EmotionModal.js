@@ -1,12 +1,11 @@
 // components/EmotionModal.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     Modal,
     TouchableWithoutFeedback,
-    Alert,
     Animated,
     Easing,
     KeyboardAvoidingView,
@@ -30,10 +29,28 @@ const EmotionModal = ({
     selectedTextRange,
     cardAnimations,
     emotions,
+    emotionCategories,
     onClose,
 }) => {
     const { alertConfig, showAlert, hideAlert } = useCustomAlert();
-    
+
+    // 카테고리 선택 상태 추가
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [showCategories, setShowCategories] = useState(true);
+
+    // 카테고리 선택 처리
+    const handleCategorySelect = (category) => {
+        setSelectedCategory(category);
+        setShowCategories(false);
+    };
+
+    const handleBackToCategories = () => {
+        setSelectedCategory(null);
+        setShowCategories(true);
+        setSelectedEmotion(null);
+        resetEmotionAnimations();
+    };
+
     // 감정 애니메이션 초기화
     const resetEmotionAnimations = () => {
         cardAnimations.forEach(anim => {
@@ -173,9 +190,13 @@ const EmotionModal = ({
 
     const closeModal = () => {
         setSelectedEmotion(null);
+        setSelectedCategory(null);
+        setShowCategories(true);
         resetEmotionAnimations();
         onClose();
     };
+
+    const currentEmotions = selectedCategory ? selectedCategory.emotions : [];
 
     return (
         <>
@@ -191,14 +212,25 @@ const EmotionModal = ({
                 >
                     <TouchableWithoutFeedback onPress={closeModal}>
                         <View style={emotionModalStyles.modalOverlay}>
-                            <TouchableWithoutFeedback onPress={() => {}}>
+                            <TouchableWithoutFeedback onPress={() => { }}>
                                 <View style={emotionModalStyles.modalContainer}>
                                     {/* 헤더 */}
                                     <View style={emotionModalStyles.modalHeader}>
+                                        {!showCategories && (
+                                            <TouchableOpacity
+                                                onPress={handleBackToCategories}
+                                                style={emotionModalStyles.backButton}
+                                            >
+                                                <Icon name="arrow-back" size={24} color="#666666" />
+                                            </TouchableOpacity>
+                                        )}
                                         <Text style={emotionModalStyles.modalTitle}>
-                                            {isEditingEmotion ? '감정 수정하기' : '이 문장에 대한 감정 선택'}
+                                            {showCategories
+                                                ? '감정 카테고리 선택'
+                                                : `${selectedCategory?.name} 감정 선택`
+                                            }
                                         </Text>
-                                        <TouchableOpacity 
+                                        <TouchableOpacity
                                             onPress={closeModal}
                                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                         >
@@ -217,7 +249,12 @@ const EmotionModal = ({
                                         selectedEmotion={selectedEmotion}
                                         onEmotionSelect={handleEmotionSelect}
                                         cardAnimations={cardAnimations}
-                                        emotions={emotions}
+                                        emotions={currentEmotions}
+                                        showCategories={showCategories}
+                                        selectedCategory={selectedCategory}
+                                        onCategorySelect={handleCategorySelect}
+                                        emotionCategories={emotionCategories}
+                                        isEditingEmotion={isEditingEmotion}
                                     />
 
                                     {/* 선택된 감정 미리보기 */}
