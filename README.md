@@ -74,10 +74,10 @@ https://comma.gamja.cloud/swagger-ui/index.html
 
 ## 3. 팀 소개
 
-| **프로필** | ![건환](https://avatars.githubusercontent.com/u/97892510?v=4) | ![동균](https://avatars.githubusercontent.com/u/107734276?v=4) | ![동섭](https://avatars.githubusercontent.com/u/105368619?v=40559e2f4-9356-4df9-b373-a06030bc0abb) | ![경락](https://avatars.githubusercontent.com/u/81566899?v=4) |
-| :-: |:-----------------------------------------------------------:|:------------------------------------------------------------:| :-: | :-: |
-| **이름** |            **[김건환](https://github.com/ElroyKR)**            |             **[한동균](https://github.com/hdg5639)**            | **[서동섭](https://github.com/dongsubnambuk)** | **[손경락](https://github.com/ganglike248)** |
-| **역할** |                         Backend                         | Backend | Frontend |Frontend |
+| **프로필** | ![건환](https://avatars.githubusercontent.com/u/97892510?v=4) | ![동균](https://avatars.githubusercontent.com/u/107734276?v=4) | ![동섭](https://avatars.githubusercontent.com/u/105368619?v=40559e2f4-9356-4df9-b373-a06030bc0abb) | ![경락](https://avatars.githubusercontent.com/u/81566899?v=4) | ![Image](https://github.com/user-attachments/assets/158182d1-a602-43f1-b38b-b4c931323f53)|
+| :-: |:-----------------------------------------------------------:|:------------------------------------------------------------:| :-: | :-: |:-: |
+| **이름** |            **[김건환](https://github.com/ElroyKR)**            |             **[한동균](https://github.com/hdg5639)**            | **[서동섭](https://github.com/dongsubnambuk)** | **[손경락](https://github.com/ganglike248)** |**[이선민]()** |
+| **역할** |                         Backend                         | Backend | Frontend |Frontend |Designer |
 
 
 ## 4. 요구사항
@@ -91,6 +91,11 @@ https://comma.gamja.cloud/swagger-ui/index.html
 <img width="5334" src=".github/src/images/6팀_내 답변_발표자료-09.png" alt="로고"/>
 <img width="5334" src=".github/src/images/6팀_내 답변_발표자료-10.png" alt="로고"/>
 <img width="5334" src=".github/src/images/6팀_내 답변_발표자료-11.png" alt="로고"/>
+
+---
+## 6. 데모 영상
+
+[YouTube에서 보기](https://www.youtube.com/watch?v=pt7qaqfACb0)
 
 ---
 
