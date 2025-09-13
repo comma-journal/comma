@@ -18,7 +18,7 @@ class EmotionV2(id: EntityID<Long>) : LongEntity(id) {
     var category by EmotionTableV2.category
 }
 
-object EmotionTableV2 : LongIdTable("emotions") {
+object EmotionTableV2 : LongIdTable("emotions_v2") {
     val name = varchar("name", 50).uniqueIndex()
     val rgb = integer("rgb")
     val description = varchar("description", 255).nullable()
